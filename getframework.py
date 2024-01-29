@@ -1,21 +1,23 @@
+import hashlib
+import json
 import requests
 import os
 import base64
 import re
-username = "sbh0609"
-organization_name = ['2023-Summer-Bootcamp-TeamC',"NetworkProgrammingTeam23"] # 사용자가 입력한 조직들 리스트로 구성
+username ="sbh0609"
+organization_name = ['2023-Summer-Bootcamp-TeamC'] # 사용자가 입력한 조직들 리스트로 구성
 org_name = "2023-Summer-Bootcamp-TeamC" 
-repo_name = "SHOTPING-backend"
+repo_name = "SHOTPING-frontend"
 file_path = "shotping_flask/app.py"
-token = "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"
-firstparam = "2023-Summer-Bootcamp-TeamC/SHOTPING-backend"
+token = "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"
+firstparam = "2023-Summer-Bootcamp-TeamC/SHOTPING-frontend"
 user_repo_list = []
 filtered_files = {}
 personal_filtered_files = {}
 repo_file_data={}
 personal_repo = []
 team_repo = []
-# token ="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"
+
 file_url = f'https://api.github.com/repos/{firstparam}/{repo_name}/contents/{file_path}'
 lang_url = f'https://api.github.com/repos/{firstparam}/{repo_name}/languages'
 repos_url = f'https://api.github.com/users/{username}/repos'
@@ -26,7 +28,6 @@ headers = {
     'Authorization': f'token {token}',
     'Accept': 'application/vnd.github.v3+json',
 }
-
 
 def get_paged_response(url):
     results = []
@@ -51,7 +52,6 @@ def not_org_repo(url):
     response= get_paged_response(url)
     for repo in response:
         rn = repo['full_name'] , repo['html_url']
-        # print(rn)
         user_repo_list.append(rn)
     
         
@@ -67,7 +67,6 @@ def org_repo(org_list,username):
             is_contributor = any(contributor['login'] == username for contributor in contributors)
             if is_contributor:
                 rn = org_repo_name , org_repo_url
-                # print(rn)
                 user_repo_list.append(rn)
                 
 def choose_repo_commit():
@@ -120,6 +119,9 @@ def choose_repo_extension():
             if file_info["type"] == "blob":
                 _, ext = os.path.splitext(file_info["path"])
                 if ext in all_extensions:
+                    repo_files.append(file_info["path"])
+                release_file = os.path.basename(file_info["path"])
+                if release_file in release_file_name:
                     repo_files.append(file_info["path"])
         if not repo_files:
             repos_to_remove.append(a)
@@ -252,8 +254,61 @@ def comment_percent(repo_file_data):
     average_comment_ratio = total_comment_ratio / file_count
     return average_comment_ratio
 
+
+def analyze_dependencies(file_data):
+    frameworks = []
+    for file_path, content in file_data.items():
+        file_name = os.path.basename(file_path)
+        if file_name == 'package.json':
+            # JSON 파일 분석
+            data = json.loads(content)
+            dependencies = data.get('dependencies', {})
+            for dep in dependencies:
+                if dep in ['react', 'vue', 'angular',"next","nuxt"]:
+                    frameworks.append(dep)
+        elif file_name == 'requirements.txt':
+            for line in content.split('\n'):
+                if any(fw in line for fw in ['Django=', 'Flask=', 'FastAPI=', 'Pyramid=', 'Bottle=']):
+                    frameworks.append(line.split('==')[0])
+           
+        elif file_name == 'build.gradle':
+            if ('spring-boot' in content or 'spring-framework' in content or 'spring-cloud' in content) and 'Spring' not in frameworks:
+                frameworks.append('Spring')
+            if ('android' in content or 'com.android.application' in content or 'com.android.library' in content) and 'Android' not in frameworks:
+                frameworks.append('Android')
+    return frameworks
+
+def detect_code_duplication(file_data):
+    line_hashes = {}
+    duplicates = 0
+    total_lines = 0
+    dup_line=[]
+    for file_path, content in file_data.items():
+        for line in content.split('\n'):
+            total_lines += 1
+            important_line = True
+            stripped_line = line.strip()
+            # 중요하지 않은 라인 체크
+            if not stripped_line or stripped_line in ["{", "}", "/*", "*/", '"""',"(",")","})"]:
+                important_line = False
+            else :
+                important_line = True
+            if important_line:
+                line_hash = hashlib.md5(line.encode()).hexdigest()
+                if line_hash in line_hashes:
+                    if line_hashes[line_hash] == 1:
+                        dup_line.append(stripped_line)
+                        duplicates += 1
+                    line_hashes[line_hash] += 1
+                else:
+                    line_hashes[line_hash] = 1
+
+    duplicate_ratio = (duplicates / total_lines) * 100 if total_lines > 0 else 0
+    return duplicate_ratio, duplicates, total_lines,dup_line
+
+
 source_file_extensions = {
-    "C": [".c", ".h",],
+    "C": [".c", ".h"],
     "C++": [".cpp", ".cxx", ".cc", ".hpp", ".hxx", ".h"],
     "C#": [".cs"],
     "Python": [".py"],
@@ -267,23 +322,28 @@ source_file_extensions = {
     "TypeScript": [".ts"],
     "Kotlin": [".kt", ".kts"]
 }
-
+release_file_name = ["Makefile","requirements.txt","package.json","pop.xml","build.gradle"]
 all_extensions = [ext for ext_list in source_file_extensions.values() for ext in ext_list]
 all_lang = [lang_name for lang_name in source_file_extensions.keys()]
+
+
 not_org_repo(repos_url)  
 
 not_org_repo(con_repos_url)
 
 org_repo(organization_name,username) 
 
-choose_repo_commit()
+# choose_repo_commit()
 
 choose_repo_extension()
 classify_personal_team()
+print(user_repo_list)
 get_personal_repo_file(filtered_files,personal_repo)
-repo_file_data=get_file_data(personal_filtered_files,"sbh0609/app")
-print(comment_percent(repo_file_data))
-# print(long_mehtod_percent(repo_file_data,50))
+repo_file_data=get_file_data(filtered_files,"sbh0609/SHManagement")
+print(detect_code_duplication(repo_file_data))
+# print(analyze_dependencies(repo_file_data))
+# print(comment_percent(repo_file_data))
+
 # for repo_name, files in filtered_files.items():
 #     print(f"레포지토리 {repo_name}의 파일 목록:")
 #     for file in files:
