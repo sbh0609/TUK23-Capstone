@@ -3,6 +3,7 @@ import requests
 import re
 import os
 import spacy
+import language_tool_python
 
 # 정확도를 높이기 위한 동사 데이터 (사용 빈도 순으로 상위에 있는 동사를 가져옴.)
 verb_like_words = {"add", "fix", "update", "remove", "delete","refactor", "implement", "rename",
@@ -123,6 +124,20 @@ def evaluate_messages(commit_messages):
     grammar_score_ratio = grammar_score_count / total_messages if total_messages > 0 else 0
 
     return grammar_score_ratio * 100
+
+def check_grammar(commit_messages):
+    tool = language_tool_python.LanguageTool('en-US')
+
+    no_error_count = 0
+
+    for msg in commit_messages:
+        matches = tool.check(msg)
+        if not matches:
+            no_error_count += 1
+
+    total_messages = len(commit_messages)
+    no_error_ratio = no_error_count / total_messages if total_messages > 0 else 0
+    return no_error_ratio * 100
 
 if __name__ == '__main__':
     load_dotenv()
