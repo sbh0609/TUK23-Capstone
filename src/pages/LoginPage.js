@@ -8,6 +8,7 @@ function LoginPage() {
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
   };
+  
   const handlePasswordChange = (index, e) => {
     const newPasswords = [...passwords];
     newPasswords[index] = e.target.value;
