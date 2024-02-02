@@ -1,48 +1,27 @@
+from dotenv import load_dotenv
 import hashlib
 import json
 import requests
 import os
 import base64
 import re
-username ="sbh0609"
-organization_name = ['2023-Summer-Bootcamp-TeamC'] # 사용자가 입력한 조직들 리스트로 구성
-org_name = "2023-Summer-Bootcamp-TeamC" 
-repo_name = "SHOTPING-frontend"
-file_path = "shotping_flask/app.py"
-token = "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"
-firstparam = "2023-Summer-Bootcamp-TeamC/SHOTPING-frontend"
-user_repo_list = []
-filtered_files = {}
-personal_filtered_files = {}
-repo_file_data={}
-personal_repo = []
-team_repo = []
-
-file_url = f'https://api.github.com/repos/{firstparam}/{repo_name}/contents/{file_path}'
-lang_url = f'https://api.github.com/repos/{firstparam}/{repo_name}/languages'
-repos_url = f'https://api.github.com/users/{username}/repos'
-con_repos_url = f'https://api.github.com/users/{username}/repos?type=member'
-organization_url = f'https://api.github.com/orgs/{org_name}/repos'
-all_file_url = f'https://api.github.com/repos/{firstparam}/{repo_name}/contents'
-headers = {
-    'Authorization': f'token {token}',
-    'Accept': 'application/vnd.github.v3+json',
-}
 
 def get_paged_response(url):
     results = []
     page = 1
     while True:
-        # URL에 이미 쿼리 파라미터가 있는지 확인
         separator = '&' if '?' in url else '?'
         paged_url = f'{url}{separator}page={page}'
         response = requests.get(paged_url, headers=headers)
         
         if response.status_code != 200:
             break
+        
         data = response.json()
+        
         if not data:
             break
+        
         results.extend(data)
         page += 1
     return results
@@ -69,9 +48,8 @@ def org_repo(org_list,username):
                 rn = org_repo_name , org_repo_url
                 user_repo_list.append(rn)
                 
-def choose_repo_commit():
+def choose_repo_commit(user_repo_list):
     repos_to_remove = []
-
     for repo in user_repo_list:
         commits_url = f'https://api.github.com/repos/{repo[0]}/commits'
         response = get_paged_response(commits_url)
@@ -100,12 +78,10 @@ def get_git_tree(repo_name, tree_sha, recursive=True):
         return response.json()
     else:
         return None
-# contributors_url = f"https://api.github.com/repos/{a[0]}/contributors"
-# # team_num = requests.get(contributors_url,headers=headers).json()
-# 컨트리뷰터가 1명이고 파일이 있으면 filtered_files에 추가
-        # elif len(team_num) == 1:
-        #     personal_filtered_files[a[0]] = repo_files
-def choose_repo_extension():
+
+
+def choose_repo_extension(user_repo_list,all_extensions):
+    release_file_name = ["Makefile","requirements.txt","package.json","pop.xml","build.gradle"]
     repos_to_remove = []
     for a in user_repo_list: 
         
@@ -128,14 +104,14 @@ def choose_repo_extension():
         
         else :
             filtered_files[a[0]] = repo_files
-        # 절대 지우면 안되는 코드
-        
         
     for repo in repos_to_remove:
         user_repo_list.remove(repo)
     
+    return user_repo_list,filtered_files
+    
         
-def classify_personal_team():
+def classify_personal_team(user_repo_list):
     for repo in user_repo_list:
         contributors_url = f"https://api.github.com/repos/{repo[0]}/contributors"
         response = requests.get(contributors_url, headers=headers)
@@ -145,7 +121,9 @@ def classify_personal_team():
                 personal_repo.append(repo)
             else:
                 team_repo.append(repo)
+    return personal_repo,team_repo
 
+# pr_percent, issue_percent, commit_percent, get_merged_pr_stas,get_used_lang,get_file_data 는 사용자가 user_repo_list에서 선택한 repo_name이 인자로 필요
 def pr_percent(username,repo_name):
     pr_url = f"https://api.github.com/repos/{repo_name}/pulls?state=all"
     response=get_paged_response(pr_url)
@@ -162,23 +140,23 @@ def issue_percent(username, repo_name):
     issue_per = user_issues / total_issues * 100 if total_issues > 0 else 0
     return issue_per
 
-def commit_percent(username, repo):
-    commit_url = f"https://api.github.com/repos/{repo}/commits"
+def commit_percent(username, repo_name):
+    commit_url = f"https://api.github.com/repos/{repo_name}/commits"
     response = get_paged_response(commit_url)
     total_commits = len(response)
     user_commits = sum(1 for commit in response if commit['author']['login'] == username)
     user_commit_percentage = (user_commits / total_commits) * 100 if total_commits > 0 else 0
     return user_commit_percentage
 
-def get_merged_pr_stats(username, repo):
-    pr_url = f"https://api.github.com/repos/{repo}/pulls?state=all&creator={username}"
+def get_merged_pr_stats(username, repo_name):
+    pr_url = f"https://api.github.com/repos/{repo_name}/pulls?state=all&creator={username}"
     response = get_paged_response(pr_url)
     total_user_prs = len(response)
     merged_prs = sum(1 for pr in response if pr['state'] == 'closed' and pr.get('merged_at'))
     merged_pr_percentage = (merged_prs / total_user_prs) * 100 if total_user_prs > 0 else 0
     return merged_prs, merged_pr_percentage
 
-def get_used_lang(repo_name):
+def get_used_lang(repo_name,all_lang):
     main_lang = []
     lang_url = f'https://api.github.com/repos/{repo_name}/languages'
     response = requests.get(lang_url,headers=headers).json()
@@ -307,7 +285,33 @@ def detect_code_duplication(file_data):
     return duplicate_ratio, duplicates, total_lines,dup_line
 
 
-source_file_extensions = {
+
+
+
+
+
+if __name__ == '__main__':
+    
+    user_repo_list = []
+    filtered_files = {}
+    personal_filtered_files = {}
+    repo_file_data={}
+    personal_repo = []
+    team_repo = []
+
+    load_dotenv()  # .env 파일에서 환경 변수 로드
+    token = os.environ.get('token')  # TOKEN 환경 변수 가져오기
+    headers = {
+        'Authorization': f'token {token}',
+        'Accept': 'application/vnd.github.v3+json',
+    }
+    
+    # 웹에서 받아와야 하는 데이터 
+    username = "sbh0609" 
+    organization_name = ['2023-Summer-Bootcamp-TeamC']
+    repos_url = f'https://api.github.com/users/{username}/repos'
+    con_repos_url = f'https://api.github.com/users/{username}/repos?type=member'
+    source_file_extensions = {
     "C": [".c", ".h"],
     "C++": [".cpp", ".cxx", ".cc", ".hpp", ".hxx", ".h"],
     "C#": [".cs"],
@@ -322,55 +326,24 @@ source_file_extensions = {
     "TypeScript": [".ts"],
     "Kotlin": [".kt", ".kts"]
 }
-release_file_name = ["Makefile","requirements.txt","package.json","pop.xml","build.gradle"]
-all_extensions = [ext for ext_list in source_file_extensions.values() for ext in ext_list]
-all_lang = [lang_name for lang_name in source_file_extensions.keys()]
 
+    all_extensions = [ext for ext_list in source_file_extensions.values() for ext in ext_list]
+    all_lang = [lang_name for lang_name in source_file_extensions.keys()]
+    not_org_repo(repos_url)  
 
-not_org_repo(repos_url)  
+    not_org_repo(con_repos_url)
 
-not_org_repo(con_repos_url)
+    org_repo(organization_name,username) 
 
-org_repo(organization_name,username) 
+    choose_repo_commit(user_repo_list)
 
-# choose_repo_commit()
+    choose_repo_extension(user_repo_list,all_extensions)
+    classify_personal_team(user_repo_list)
 
-choose_repo_extension()
-classify_personal_team()
-print(user_repo_list)
-get_personal_repo_file(filtered_files,personal_repo)
-repo_file_data=get_file_data(filtered_files,"sbh0609/SHManagement")
-print(detect_code_duplication(repo_file_data))
-# print(analyze_dependencies(repo_file_data))
-# print(comment_percent(repo_file_data))
+    get_personal_repo_file(filtered_files,personal_repo)
+    repo_file_data=get_file_data(filtered_files,"sbh0609/SHManagement")
+    # print(detect_code_duplication(repo_file_data))
+    # print(analyze_dependencies(repo_file_data))
+    # print(comment_percent(repo_file_data))
 
-# for repo_name, files in filtered_files.items():
-#     print(f"레포지토리 {repo_name}의 파일 목록:")
-#     for file in files:
-#         print(f" - {file}")
-#     print()  # 레포지토리 간에 공백 줄 추가
-# print(get_used_lang(firstparam))
-# print(all_lang)
-# print(filtered_files)
-# print(user_repo_list)
-# print(personal_repo)
-
-
-
-# a= requests.get(file_url, headers=headers)
-# ab=a.json()
-
-# c = ab['content']
-# # print(c)
-
-# # 인코딩된 README 내용
-# encoded_content = c
-
-# # Base64 디코드
-# decoded_content = base64.b64decode(encoded_content)
-
-# # 바이트 형태로 반환된 내용을 문자열로 변환
-# readme_text = decoded_content.decode('utf-8')
-
-# # 디코드된 README 출력
-# print(readme_text)
+    
