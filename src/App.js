@@ -1,27 +1,59 @@
-import React, { useState } from 'react';
-import './App.css';
-import Card from './components/Card';
+import React, { useState, useEffect } from "react";
+import Select from "react-select";
+import CardList from "./components/CardList";
+import "./App.css";
 
-const cardList = [
-  { id: 1, name: "John Doe", email: "john@example.com", phone: "123-456-7890" },
-  { id: 2, name: "Jane Smith", email: "jane@example.com", phone: "456-789-0123" },
-  // 다른 사용자 데이터...
-];
+function Repositories() {
+  const [repositories, setRepositories ] = useState([]);
+  const [userInput, setUserInput ] = useState("");
 
-function RepositoriesPage() {
-  const [userInput, setUserInput] = useState('');
-  const [filteredCards, setFilteredCards] = useState(cardList);
+  const type_options = [
+    { value: "all", label: "All" },
+    { value: "private", label: "Private" },
+    { value: "public", label: "Public" },
+  ]
+  const language_options = [
+    { value: "all", label: "All" },
+    { value: "private", label: "Private" },
+    { value: "public", label: "Public" },
+  ]
+  const ect_options = [
+    { value: "all", label: "All" },
+    { value: "private", label: "Private" },
+    { value: "public", label: "Public" },
+  ]
+  const optionStyles = {
+    control: (baseStyles, state) => ({
+      ...baseStyles,
+      backgroundColor: "#000000",
+    }),
+    option: (baseStyles, state) => ({
+      ...baseStyles,
+      backgroundColor: state.isFocused ? "#e2e2e2" : "",
+      color: state.isFocused ? "#333333" : "#FFFFFF",
+    }),
+    menu: (baseStyles, state) => ({
+      ...baseStyles,
+      backgroundColor: "#333333",
+    }),
+  }
+
+  useEffect(() => {
+    fetch("https://jsonplaceholder.typicode.com/users", {
+      method: "GET",
+    })
+      .then((res) => res.json()) 
+      .then((result) => { 
+        setRepositories(result); 
+    });
+  }, []);
 
   const handleUserInputChange = (e) => {
-    const input = e.target.value;
-    setUserInput(input);
-
-    const filtered = cardList.filter((itemList) => {
-      return itemList.name.toUpperCase().includes(input.toUpperCase());
-    });
-  
-    setFilteredCards(filtered);
+    setUserInput(e.target.value);
   }
+  const filteredRepositories = repositories.filter(((repositories) => {
+    return repositories.name.toLowerCase().includes(userInput.toLowerCase());
+  }));
 
   return (
     <div>
@@ -41,20 +73,18 @@ function RepositoriesPage() {
             placeholder=" Search"
           />
         </label>
-        <button className="search-type-button">Type</button>
-        <button className="search-language-button">Language</button>
-        <button className="search-temp-button">Ect</button>
+        <div className="select">
+          <Select options={type_options} styles={optionStyles} placeholder="Type" className="select-type"/>
+          <Select options={language_options} styles={optionStyles} placeholder="Language"/>
+          <Select options={ect_options} styles={optionStyles} placeholder="Ect"/>
+        </div>
       </div>
 
-      <div className="repository-list-field">
-        <div className="cardList">
-          {filteredCards.map((itemList) => {
-            return <Card key={itemList.name} {...itemList} />;
-          })}
-        </div>
+      <div className="repository-list-field" >
+        <CardList className="repository-list" repositories={filteredRepositories} />
       </div>
     </div>
   );
 }
 
-export default RepositoriesPage;
+export default Repositories;
