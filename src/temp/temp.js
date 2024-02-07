@@ -6,25 +6,22 @@ import "./App.css";
 function Repositories() {
   const [repositories, setRepositories ] = useState([]);
   const [userInput, setUserInput ] = useState("");
-  const [userType, setUserType ] = useState("");
-  const [userLanguage, setUserLanguage ] = useState("");
-  const [userEct, setUserEct ] = useState("");
 
   // 드롭다운의 옵션들 선언
   const type_options = [
-    { value: "", label: "All" },
-    { value: "Sincere@april.biz", label: "Private" },
-    { value: "Nathan@yesenia.net", label: "Public" },
+    { value: "Sincere@april.biz", label: "All" },
+    { value: "private", label: "Private" },
+    { value: "public", label: "Public" },
   ]
   const language_options = [
-    { value: "", label: "All" },
-    { value: "hildegard.org", label: "Private" },
-    { value: "jacynthe.com", label: "Public" },
+    { value: "Shanna@melissa.tv", label: "All" },
+    { value: "private", label: "Private" },
+    { value: "public", label: "Public" },
   ]
   const ect_options = [
-    { value: "", label: "All" },
-    { value: "Kulas Light", label: "Private" },
-    { value: "Kattie Turnpike", label: "Public" },
+    { value: "Nathan@yesenia.net", label: "All" },
+    { value: "private", label: "Private" },
+    { value: "public", label: "Public" },
   ]
   // 드롭다운의 스타일
   const optionStyles = {
@@ -59,24 +56,9 @@ function Repositories() {
   const handleUserInputChange = (e) => {
     setUserInput(e.target.value);
   }
-  // 드롭다운 선택시 onchange
-  const handleUserTypeChange = (selectedOption) => {
-    setUserType(selectedOption.value);
-  }
-  const handleUserLanguageChange = (selectedOption) => {
-    setUserLanguage(selectedOption.value);
-  }
-  const handleUserEctChange = (selectedOption) => {
-    setUserEct(selectedOption.value);
-  }
-  // 검색창에 입력된 값과 드롭다운 선택값들과 일치하는 데이터를 필터링
+  // 검색창에 입력된 값과 일치하는 데이터를 필터링
   const filteredRepositories = repositories.filter(((repositories) => {
-    const userInputMatch = repositories.name.toLowerCase().includes(userInput.toLowerCase());
-    const TypeMatch = repositories.email.toLowerCase().includes(userType.toLowerCase());
-    const LanguageMatch = repositories.website.toLowerCase().includes(userLanguage.toLowerCase());
-    const EctMatch = repositories.address.street.toLowerCase().includes(userEct.toLowerCase());
-
-    return userInputMatch && TypeMatch && LanguageMatch && EctMatch;
+    return repositories.name.toLowerCase().includes(userInput.toLowerCase());
   }));
 
   return (
@@ -98,9 +80,9 @@ function Repositories() {
           />
         </label>
         <div className="select">
-          <Select options={type_options} styles={optionStyles} placeholder="Type" onChange={handleUserTypeChange} className="select-type"/>
-          <Select options={language_options} styles={optionStyles} placeholder="Language" onChange={handleUserLanguageChange}/>
-          <Select options={ect_options} styles={optionStyles} placeholder="Ect" onChange={handleUserEctChange}/>
+          <Select options={type_options} styles={optionStyles} placeholder="Type" className="select-type"/>
+          <Select options={language_options} styles={optionStyles} placeholder="Language"/>
+          <Select options={ect_options} styles={optionStyles} placeholder="Ect"/>
         </div>
       </div>
 

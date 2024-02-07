@@ -89,57 +89,6 @@
   box-sizing: border-box;
 }
 
-.search-type-button {
-  position: relative;
-  width: 70px;
-  height: 30px;
-  margin-left: 21px;
-
-  font-family: 'Roboto';
-  font-style: normal;
-  font-size: 15px;
-  color: white;
-
-  background-color: black;
-  cursor: pointer;
-  border: none;
-  border-radius: 4px;
-}
-
-.search-language-button {
-  position: relative;
-  width: 80px;
-  height: 30px;
-  margin-left: 1px;
-
-  font-family: 'Roboto';
-  font-style: normal;
-  font-size: 15px;
-  color: white;
-
-  background-color: black;
-  cursor: pointer;
-  border: none;
-  border-radius: 4px;
-}
-
-.search-temp-button {
-  position: relative;
-  width: 70px;
-  height: 30px;
-  margin-left: 1px;
-
-  font-family: 'Roboto';
-  font-style: normal;
-  font-size: 15px;
-  color: white;
-
-  background-color: black;
-  cursor: pointer;
-  border: none;
-  border-radius: 4px;
-}
-
 .repository-list-field {
   position: fixed;
 
@@ -160,14 +109,9 @@
     font-family: 'Roboto';
     font-style: normal;
     font-size: 15px;
-    color: white;
     font-weight: bold;
   }
 
-.select-type {
-
-  height: 50px;
-  width: 100px;
-  
-
-}
+  .select-type {
+    inline-size: 30%;
+  }
