@@ -1,7 +1,12 @@
 import React from 'react';
-import './App.css';
+import { useNavigate } from 'react-router-dom';
+import './Main.css';
 
 function Main() {
+  const navigate = useNavigate();
+  const handleEnterButton = () => {
+    navigate("/login");
+  }
   return (
         <div className="main">
           <div className="background">
@@ -22,7 +27,7 @@ function Main() {
             Check your project's skills{'\n'}
             Explore your Collaborative potential
           </p>
-          <button className='move-button'></button>
+          <button onClick={handleEnterButton} className='move-button'></button>
         </div>
     );
 }

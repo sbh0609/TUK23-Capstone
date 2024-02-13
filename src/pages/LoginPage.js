@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 
 function LoginPage() {
@@ -17,9 +18,9 @@ function LoginPage() {
   const handleAddPasswordButton = () => {
     setPasswords([...passwords, '']);
   }
+  const navigate = useNavigate();
   const handleEnterButton = () => {
-    console.log('Username:', username);
-    console.log('Organizations:', passwords);
+    navigate("/repository");
   }
 
   return (
