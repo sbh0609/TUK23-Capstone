@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import Select from "react-select";
-import CardList from "./components/CardList";
-import "./App.css";
+import CardList from "../components/CardList";
+import "./RepositoryList.css";
 
 function Repositories() {
   const [repositories, setRepositories ] = useState([]);
@@ -26,6 +27,10 @@ function Repositories() {
     { value: "Kulas Light", label: "Private" },
     { value: "Kattie Turnpike", label: "Public" },
   ]
+  const navigate = useNavigate();
+  const handleEnterButton = () => {
+    navigate("/main");
+  }
   // 드롭다운의 스타일
   const optionStyles = {
     control: (baseStyles, state) => ({
@@ -82,8 +87,8 @@ function Repositories() {
   return (
     <div>
       <div className="top-bar">
-        <button className="home-button">Home</button>
-        <button className="log-out-button">Log out</button>
+        <button onClick={handleEnterButton} className="home-button">Home</button>
+        <button onClick={handleEnterButton} className="log-out-button">Log out</button>
         <button className="about-us-button">About us</button>
       </div>
 
