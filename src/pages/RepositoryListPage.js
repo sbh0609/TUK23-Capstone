@@ -2,14 +2,26 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import Select from "react-select";
 import CardList from "../components/CardList";
-import "./RepositoryList.css";
+import "./RepositoryListPage.css";
 
-function Repositories() {
+function RepositoryListPage() {
   const [repositories, setRepositories ] = useState([]);
   const [userInput, setUserInput ] = useState("");
   const [userType, setUserType ] = useState("");
   const [userLanguage, setUserLanguage ] = useState("");
   const [userEct, setUserEct ] = useState("");
+
+  // 페이지 이동
+  const navigate = useNavigate();
+  const handleLogOusButton = () => {
+    navigate("/login");
+  }
+  const handleEnterButton = () => {
+    navigate("/main");
+  }
+  const handleAboutUsButton = () => {
+    navigate("/aboutUs");
+  }
 
   // 드롭다운의 옵션들 선언
   const type_options = [
@@ -19,18 +31,15 @@ function Repositories() {
   ]
   const language_options = [
     { value: "", label: "All" },
-    { value: "hildegard.org", label: "Private" },
-    { value: "jacynthe.com", label: "Public" },
+    { value: "hildegard.org", label: "1" },
+    { value: "jacynthe.com", label: "2" },
   ]
   const ect_options = [
     { value: "", label: "All" },
-    { value: "Kulas Light", label: "Private" },
-    { value: "Kattie Turnpike", label: "Public" },
+    { value: "Kulas Light", label: "1" },
+    { value: "Kattie Turnpike", label: "2" },
   ]
-  const navigate = useNavigate();
-  const handleEnterButton = () => {
-    navigate("/main");
-  }
+  
   // 드롭다운의 스타일
   const optionStyles = {
     control: (baseStyles, state) => ({
@@ -64,6 +73,7 @@ function Repositories() {
   const handleUserInputChange = (e) => {
     setUserInput(e.target.value);
   }
+
   // 드롭다운 선택시 onchange
   const handleUserTypeChange = (selectedOption) => {
     setUserType(selectedOption.value);
@@ -74,6 +84,7 @@ function Repositories() {
   const handleUserEctChange = (selectedOption) => {
     setUserEct(selectedOption.value);
   }
+  
   // 검색창에 입력된 값과 드롭다운 선택값들과 일치하는 데이터를 필터링
   const filteredRepositories = repositories.filter(((repositories) => {
     const userInputMatch = repositories.name.toLowerCase().includes(userInput.toLowerCase());
@@ -88,8 +99,8 @@ function Repositories() {
     <div>
       <div className="top-bar">
         <button onClick={handleEnterButton} className="home-button">Home</button>
-        <button onClick={handleEnterButton} className="log-out-button">Log out</button>
-        <button className="about-us-button">About us</button>
+        <button onClick={handleLogOusButton} className="log-out-button">Log out</button>
+        <button onclick={handleAboutUsButton} className="about-us-button">About us</button>
       </div>
 
       <div className="search-bar-background">
@@ -116,4 +127,4 @@ function Repositories() {
   );
 }
 
-export default Repositories;
+export default RepositoryListPage;

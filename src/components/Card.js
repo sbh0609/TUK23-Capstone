@@ -69,9 +69,9 @@ const CardContainer = styled.div`
     padding: 10px;
     width: 240px;
     height: 300px;
-    margin-top: 30px;
-    margin-left: 25px;
-    margin-right: 30px;
+    margin-top: 35px;
+    margin-left: 50px;
+    margin-right: 0px;
 
     background-color: rgba(255, 255, 255, 0.7);
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,

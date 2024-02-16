@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Main.css';
+import './MainPage.css';
 
-function Main() {
+function MainPage() {
   const navigate = useNavigate();
   const handleEnterButton = () => {
     navigate("/login");
@@ -27,9 +27,9 @@ function Main() {
             Check your project's skills{'\n'}
             Explore your Collaborative potential
           </p>
-          <button onClick={handleEnterButton} className='move-button'></button>
+          <button onClick={handleEnterButton} className='move-button'>Get Started</button>
         </div>
     );
 }
 
-export default Main;
+export default MainPage;

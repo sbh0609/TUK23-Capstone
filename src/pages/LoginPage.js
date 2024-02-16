@@ -17,6 +17,8 @@ function LoginPage() {
   };
   const handleAddPasswordButton = () => {
     setPasswords([...passwords, '']);
+
+    
   }
   const navigate = useNavigate();
   const handleEnterButton = () => {
@@ -28,7 +30,13 @@ function LoginPage() {
       <div className="LoginPage-Background">
       </div>
       
-      <p className= "enter-Phrase">Enter your Github</p>
+      <div className="enter-your-github-outer">
+        <div className="enter-your-github-inner">
+          <p className= "enter-Phrase">Enter your</p>
+          <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className="hyperlink-github">Github</a>
+        </div>
+      </div>
+
       <div className="LoginPage-LoginBox">
         <div className="LoginPage-LoginBox-Username">
           <p className="username">Username</p>
@@ -44,7 +52,7 @@ function LoginPage() {
         </div>
         
         {passwords.map((password, index)=> (
-          <div key={index}>
+          <div key={index} className="organization-box">
             <label>
               <input
                 type="text"
@@ -58,7 +66,6 @@ function LoginPage() {
           <button onClick={handleAddPasswordButton} className="LoginPage-AddPasswordButton">+ Add Organization</button><br />
           <button onClick={handleEnterButton} className="LoginPage-EnterButton">Enter</button>
       </div>
-      <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className="hyperlink-github">Github</a>
     </div>
     );
 }
