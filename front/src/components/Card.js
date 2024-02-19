@@ -6,52 +6,60 @@ import java_img from '../resources/java img.png';
 import js_img from '../resources/js img.png';
 import python_img from '../resources/python img.png';
 
-const Card = ({ name, email, phone, onClick }) => {
+const Card = ({ name, url, onClick }) => {
     let imagePath = c_img;
 
-    switch (phone) {
-        case "1-770-736-8031 x56442":
-            imagePath = c_img;
-            break;
-        case "010-692-6593 x09125":
-            imagePath = cpp_img;
-            break;
-        case "1-463-123-4447":
-            imagePath = java_img;
-            break;
-        case "493-170-9623 x156":
-            imagePath = js_img;
-            break;
-        case "(254)954-1289":
-            imagePath = python_img;
-            break;
-    /*  case "c":
-            imagePath = c_img;
-            break;
-        case "cpp":
-            imagePath = cpp_img;
-            break;
-        case "java":
-            imagePath = java_img;
-            break;
-        case "js":
-            imagePath = js_img;
-            break;
-        case "python":
-            imagePath = python_img;
-            break;
-    */
-        default:
-            break;
-        }
+    // switch (phone) {
+    //     case "1-770-736-8031 x56442":
+    //         imagePath = c_img;
+    //         break;
+    //     case "010-692-6593 x09125":
+    //         imagePath = cpp_img;
+    //         break;
+    //     case "1-463-123-4447":
+    //         imagePath = java_img;
+    //         break;
+    //     case "493-170-9623 x156":
+    //         imagePath = js_img;
+    //         break;
+    //     case "(254)954-1289":
+    //         imagePath = python_img;
+    //         break;
+    // /*  case "c":
+    //         imagePath = c_img;
+    //         break;
+    //     case "cpp":
+    //         imagePath = cpp_img;
+    //         break;
+    //     case "java":
+    //         imagePath = java_img;
+    //         break;
+    //     case "js":
+    //         imagePath = js_img;
+    //         break;
+    //     case "python":
+    //         imagePath = python_img;
+    //         break;
+    // */
+    //     default:
+    //         break;
+    //     }
 
+    // return (
+    //     <CardContainer onClick={onClick}>
+    //         <img src={imagePath} alt="Image" />
+    //         <UserInfo>
+    //             <Name>{name}</Name>
+    //             <Info>contributors: {phone}</Info>
+    //             <Info>updated: {email}</Info>
+    //         </UserInfo>
+    //     </CardContainer>
+    // );
     return (
-        <CardContainer onClick={onClick}>
-            <img src={imagePath} alt="Image" />
+        <CardContainer>
             <UserInfo>
                 <Name>{name}</Name>
-                <Info>contributors: {phone}</Info>
-                <Info>updated: {email}</Info>
+                <Info>URL: {url}</Info>
             </UserInfo>
         </CardContainer>
     );
