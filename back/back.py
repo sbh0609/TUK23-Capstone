@@ -48,7 +48,7 @@ CORS(app)  # CORS 적용
 def handle_input():
     data = request.json
     username = data.get('username')
-    organization_list = data.get('organization_list')
+    organization_list = data.get('organizations')
     repos_url = f'https://api.github.com/users/{username}/repos'
     con_repos_url = f'https://api.github.com/users/{username}/repos?type=member'
     
@@ -57,13 +57,13 @@ def handle_input():
     getframework.not_org_repo(repos_url,headers,user_repo_list)
     getframework.not_org_repo(con_repos_url,headers,user_repo_list)
     getframework.org_repo(organization_list,username,headers,user_repo_list) 
-    getframework.choose_repo_commit(user_repo_list,headers)
-    getframework.choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files)
-    print(filtered_files)
+    # getframework.choose_repo_commit(user_repo_list,headers)
+    # getframework.choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files)
+    # print(filtered_files)
     # 여기서 username과 organization_list 처리
     # 예: 데이터베이스에 저장, 처리 로직 수행 등
     return jsonify({"repositories": user_repo_list,"file_data": filtered_files})
-
+    # return jsonify({"repositories": user_repo_list})
 
 if __name__ == '__main__':
     app.run(debug=True)

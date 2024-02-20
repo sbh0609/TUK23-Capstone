@@ -3,6 +3,7 @@ import { useNavigate,useLocation } from 'react-router-dom';
 import Select from "react-select";
 import CardList from "../components/CardList";
 import "./RepositoryList.css";
+import axios from 'axios';
 function Repositories() {
   const [repositories, setRepositories ] = useState([]);
   const [userInput, setUserInput ] = useState("");
@@ -10,8 +11,10 @@ function Repositories() {
   const [userLanguage, setUserLanguage ] = useState("");
   const [userEct, setUserEct ] = useState("");
 
-  const [data, setData] = useState({ repositories: [], fileData: {} });
+  const [data, setData] = useState({ repositories: [], fileData: {}, isLoading: true });
+  // const [data, setData] = useState({ repositories: [] });
   const location = useLocation();
+  const navigate = useNavigate();
    // 드롭다운의 옵션들 선언
    const type_options = [
     { value: "", label: "All" },
@@ -28,7 +31,6 @@ function Repositories() {
     { value: "Kulas Light", label: "Private" },
     { value: "Kattie Turnpike", label: "Public" },
   ]
-  const navigate = useNavigate();
   const handleEnterButton = () => {
     navigate("/main");
   }
@@ -51,12 +53,28 @@ function Repositories() {
   }
   useEffect(() => {
     if (location.state) {
-      setData({
-        repositories: location.state.repositories,
-        fileData: location.state.fileData
-      });
+      const { username, organizations } = location.state;
+      // 백엔드에 요청 보내기
+      axios.post('http://localhost:5000/api/input', { username, organizations })
+        .then(response => {
+          setData({ repositories: response.data.repositories,file_data: response.data.filtered_files,isLoading: false });
+        })
+        .catch(error => {
+          console.error('Error fetching repositories', error);
+          setData({ ...data, isLoading: false });
+        });
     }
-  }, [location.state]);
+  }, [location]);
+  
+  
+  // useEffect(() => {
+  //   if (location.state) {
+  //     setData({
+  //       repositories: location.state.repositories,
+  //       // fileData: location.state.fileData
+  //     });
+  //   }
+  // }, [location.state]);
 
   // 검색창에 값 입력시 입력한 값을 검색창에 출력
   const handleUserInputChange = (e) => {
@@ -98,7 +116,11 @@ function Repositories() {
       </div>
 
       <div className="repository-list-field" >
-        <CardList className="repository-list" repositories={data.repositories} />
+        {data.isLoading ? (
+          <div>데이터 처리 중...</div>
+        ) : (
+          <CardList className="repository-list" repositories={data.repositories} />
+        )}
       </div>
     </div>
   );

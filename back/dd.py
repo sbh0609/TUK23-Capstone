@@ -6,7 +6,7 @@ import os
 import base64
 import re
 
-def get_paged_response(url,headers):
+def get_paged_response(url):
     results = []
     page = 1
     while True:
@@ -27,40 +27,39 @@ def get_paged_response(url,headers):
     return results
 
 
-def not_org_repo(url,headers,user_repo_list):
-    response= get_paged_response(url,headers)
+def not_org_repo(url):
+    response= get_paged_response(url)
     for repo in response:
         rn = repo['full_name'] , repo['html_url']
         user_repo_list.append(rn)
-    # return user_repo_list
+    
         
-def org_repo(org_list,username,headers,user_repo_list):
+def org_repo(org_list,username):
     for org in org_list :
         org_url = f'https://api.github.com/orgs/{org}/repos'
-        response = get_paged_response(org_url,headers)
+        response = get_paged_response(org_url)
         for repo in response:
             org_repo_name = repo['full_name']
             org_repo_url = repo['html_url'] 
             contributors_url = f'https://api.github.com/repos/{org_repo_name}/contributors'
-            contributors = get_paged_response(contributors_url,headers)
+            contributors = get_paged_response(contributors_url)
             is_contributor = any(contributor['login'] == username for contributor in contributors)
             if is_contributor:
                 rn = org_repo_name , org_repo_url
                 user_repo_list.append(rn)
-    # return user_repo_list
-   
-def choose_repo_commit(user_repo_list,headers):
+                
+def choose_repo_commit(user_repo_list):
     repos_to_remove = []
     for repo in user_repo_list:
         commits_url = f'https://api.github.com/repos/{repo[0]}/commits'
-        response = get_paged_response(commits_url,headers)
+        response = get_paged_response(commits_url)
         if len(response) < 10:
             repos_to_remove.append(repo)
 
     for repo in repos_to_remove:
         user_repo_list.remove(repo)
-    
-def get_latest_commit_data(repo_name,headers):
+
+def get_latest_commit_data(repo_name):
     commits_url = f"https://api.github.com/repos/{repo_name}/commits"
     response = requests.get(commits_url, headers=headers)
    
@@ -70,7 +69,7 @@ def get_latest_commit_data(repo_name,headers):
     else :
         return None
 
-def get_git_tree(repo_name, tree_sha,headers, recursive=True):
+def get_git_tree(repo_name, tree_sha, recursive=True):
     url = f"https://api.github.com/repos/{repo_name}/git/trees/{tree_sha}"
     params = {"recursive": "1"} if recursive else {}
     response = requests.get(url, params=params, headers=headers)
@@ -81,12 +80,14 @@ def get_git_tree(repo_name, tree_sha,headers, recursive=True):
         return None
 
 
-def choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files):
+def choose_repo_extension(user_repo_list,all_extensions):
     release_file_name = ["Makefile","requirements.txt","package.json","pop.xml","build.gradle"]
     repos_to_remove = []
     for a in user_repo_list: 
-        latest_commit = get_latest_commit_data(a[0],headers)
-        tree_data = get_git_tree(a[0],latest_commit,headers,recursive=True)
+        
+        
+        latest_commit = get_latest_commit_data(a[0])
+        tree_data = get_git_tree(a[0],latest_commit,recursive=True)
         
         repo_files = []
         
@@ -108,9 +109,9 @@ def choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files):
         user_repo_list.remove(repo)
     
     return user_repo_list,filtered_files
-   
+    
         
-def classify_personal_team(user_repo_list,headers):
+def classify_personal_team(user_repo_list):
     for repo in user_repo_list:
         contributors_url = f"https://api.github.com/repos/{repo[0]}/contributors"
         response = requests.get(contributors_url, headers=headers)
@@ -123,39 +124,39 @@ def classify_personal_team(user_repo_list,headers):
     return personal_repo,team_repo
 
 # pr_percent, issue_percent, commit_percent, get_merged_pr_stas,get_used_lang,get_file_data 는 사용자가 user_repo_list에서 선택한 repo_name이 인자로 필요
-def pr_percent(username,repo_name,headers):
+def pr_percent(username,repo_name):
     pr_url = f"https://api.github.com/repos/{repo_name}/pulls?state=all"
-    response=get_paged_response(pr_url,headers)
+    response=get_paged_response(pr_url)
     total_pr = len(response)
     user_pr = sum(1 for pr in response if pr['user']['login']==username)
     pr_per = user_pr/total_pr * 100
     return pr_per
         
-def issue_percent(username, repo_name,headers):
+def issue_percent(username, repo_name):
     issue_url = f"https://api.github.com/repos/{repo_name}/issues?state=all"
-    response = get_paged_response(issue_url,headers)
+    response = get_paged_response(issue_url)
     total_issues = len(response)
     user_issues = sum(1 for issue in response if issue['user']['login'] == username)
     issue_per = user_issues / total_issues * 100 if total_issues > 0 else 0
     return issue_per
 
-def commit_percent(username, repo_name,headers):
+def commit_percent(username, repo_name):
     commit_url = f"https://api.github.com/repos/{repo_name}/commits"
-    response = get_paged_response(commit_url,headers)
+    response = get_paged_response(commit_url)
     total_commits = len(response)
     user_commits = sum(1 for commit in response if commit['author']['login'] == username)
     user_commit_percentage = (user_commits / total_commits) * 100 if total_commits > 0 else 0
     return user_commit_percentage
 
-def get_merged_pr_stats(username, repo_name,headers):
+def get_merged_pr_stats(username, repo_name):
     pr_url = f"https://api.github.com/repos/{repo_name}/pulls?state=all&creator={username}"
-    response = get_paged_response(pr_url,headers)
+    response = get_paged_response(pr_url)
     total_user_prs = len(response)
     merged_prs = sum(1 for pr in response if pr['state'] == 'closed' and pr.get('merged_at'))
     merged_pr_percentage = (merged_prs / total_user_prs) * 100 if total_user_prs > 0 else 0
     return merged_prs, merged_pr_percentage
 
-def get_used_lang(repo_name,all_lang,headers):
+def get_used_lang(repo_name,all_lang):
     main_lang = []
     lang_url = f'https://api.github.com/repos/{repo_name}/languages'
     response = requests.get(lang_url,headers=headers).json()
@@ -165,7 +166,7 @@ def get_used_lang(repo_name,all_lang,headers):
             main_lang.append(lang)
     return main_lang
 
-def get_file_data(filtered_files,repo_name,headers):
+def get_file_data(filtered_files,repo_name):
     file_data_dict = {}
     file_path_list=filtered_files.get(repo_name, [])
     for file_path in file_path_list:
@@ -285,6 +286,10 @@ def detect_code_duplication(file_data):
 
 
 
+
+
+
+
 if __name__ == '__main__':
     
     user_repo_list = []
@@ -320,25 +325,24 @@ if __name__ == '__main__':
     "Swift": [".swift"],
     "TypeScript": [".ts"],
     "Kotlin": [".kt", ".kts"]
-    }
+}
 
     all_extensions = [ext for ext_list in source_file_extensions.values() for ext in ext_list]
     all_lang = [lang_name for lang_name in source_file_extensions.keys()]
-    not_org_repo(repos_url,headers,user_repo_list)  
 
-    not_org_repo(con_repos_url,headers,user_repo_list)
+    not_org_repo(repos_url)
     print(user_repo_list)
-    # org_repo(organization_name,username,headers,user_repo_list) 
+    #not_org_repo(con_repos_url)
 
-    # choose_repo_commit(user_repo_list,headers)
+    #org_repo(organization_name,username) 
 
-    # choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files)
-    # classify_personal_team(user_repo_list,headers)
+    #choose_repo_commit(user_repo_list)
+
+    #choose_repo_extension(user_repo_list,all_extensions)
+    #classify_personal_team(user_repo_list)
 
     # get_personal_repo_file(filtered_files,personal_repo)
-    # repo_file_data=get_file_data(filtered_files,"sbh0609/SHManagement",headers)
+    # repo_file_data=get_file_data(filtered_files,"sbh0609/SHManagement")
     # print(detect_code_duplication(repo_file_data))
     # print(analyze_dependencies(repo_file_data))
     # print(comment_percent(repo_file_data))
-
-    

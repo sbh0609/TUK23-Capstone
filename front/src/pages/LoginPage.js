@@ -25,20 +25,26 @@ function LoginPage() {
   //   navigate("/repository");
   // }
   const handleSubmit = () => {
-    axios.post('http://localhost:5000/api/input', {
-      username: username,
-      organization_list: organizations.filter(org => org) // 빈 문자열 제외
-    })
-    .then(response => {
-      // 여기서 응답 처리
-      console.log(response.data);
-      navigate("/repository", { state: { repositories: response.data.repositories, fileData: response.data.file_data } });
-    })
-    .catch(error => {
-      // 오류 처리
-      console.error('Error submitting data', error);
-    });
+    // 데이터 처리 페이지로 바로 이동
+    navigate("/repository", { state: { username, organizations: organizations.filter(org => org) } });
   };
+  // const handleSubmit = () => {
+  //   axios.post('http://localhost:5000/api/input', {
+  //     username: username,
+  //     organization_list: organizations.filter(org => org) // 빈 문자열 제외
+  //   })
+  //   .then(response => {
+  //     // 여기서 응답 처리
+  //     console.log(response.data);
+  //     // navigate("/repository", { state: { repositories: response.data.repositories, fileData: response.data.file_data } });
+  //     navigate("/repository", { state: { username, organizations: organizations.filter(org => org) } });
+  //     // navigate("/repository", { state: { repositories: response.data.repositories } });
+  //   })
+  //   .catch(error => {
+  //     // 오류 처리
+  //     console.error('Error submitting data', error);
+  //   });
+  // };
 
   return (
     <div className="LoginPage">
