@@ -1,23 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Main.css';
-import axios from 'axios';
+import './MainPage.css';
 
-function fetchData() {
-  axios.get('http://localhost:5000')
-    .then(response => {
-      // 응답 처리
-      console.log(response.data);
-    })
-    .catch(error => {
-      // 오류 처리
-      console.error('There was an error!', error);
-    });
-}
-function Main() {
+function MainPage() {
   const navigate = useNavigate();
   const handleEnterButton = () => {
-    fetchData();
     navigate("/login");
   }
   return (
@@ -40,9 +27,9 @@ function Main() {
             Check your project's skills{'\n'}
             Explore your Collaborative potential
           </p>
-          <button onClick={handleEnterButton} className='move-button'></button>
+          <button onClick={handleEnterButton} className='move-button'>Move</button>
         </div>
     );
 }
 
-export default Main;
+export default MainPage;

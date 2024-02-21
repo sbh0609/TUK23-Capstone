@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate,useLocation } from 'react-router-dom';
 import Select from "react-select";
 import CardList from "../components/CardList";
-import "./RepositoryList.css";
+import "./RepositoryListPage.css";
 import axios from 'axios';
-function Repositories() {
+
+function RepositoryListPage() {
   const [repositories, setRepositories ] = useState([]);
   const [userInput, setUserInput ] = useState("");
   const [userType, setUserType ] = useState("");
@@ -126,7 +127,7 @@ function Repositories() {
   );
 }
 
-export default Repositories;
+export default RepositoryListPage;
 
 
 
