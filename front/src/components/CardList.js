@@ -1,12 +1,14 @@
 import React from 'react';
 import Card from "./Card";
-function CardList({ repositories, onClick }) {
+function CardList({ repositories, data }) {
   return (
     <div className="cardList" style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-start' }}>
       {repositories.map((repository, index) => {
         return (
           <Card
             key={index}
+            repositories={repositories}
+            data={data}
             name={repository[0]}
             url={repository[1]}
           />

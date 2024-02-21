@@ -11,8 +11,8 @@ function RepositoryListPage() {
   const [userType, setUserType ] = useState("");
   const [userLanguage, setUserLanguage ] = useState("");
   const [userEct, setUserEct ] = useState("");
-
   const [data, setData] = useState({ repositories: [], fileData: {}, isLoading: true });
+
   // const [data, setData] = useState({ repositories: [] });
   const location = useLocation();
   const navigate = useNavigate();
@@ -35,6 +35,14 @@ function RepositoryListPage() {
   const handleEnterButton = () => {
     navigate("/main");
   }
+
+  const handleCardClick = (repositoryId) => {
+    // repositoryId를 이용하여 해당 카드에 대한 데이터를 가져옴
+    const clickedRepository = data.repositories.find(repo => repo.id === repositoryId);
+    // 클릭한 카드에 대한 데이터 처리
+    console.log('Clicked repository:', clickedRepository);
+    // 필요한 작업을 수행하거나 상태로 관리할 수 있음
+}
   // 드롭다운의 스타일
   const optionStyles = {
     control: (baseStyles, state) => ({
@@ -58,7 +66,8 @@ function RepositoryListPage() {
       // 백엔드에 요청 보내기
       axios.post('http://localhost:5000/api/input', { username, organizations })
         .then(response => {
-          setData({ repositories: response.data.repositories,file_data: response.data.filtered_files,isLoading: false });
+          console.log("response:" , response);
+          setData({ repositories: response.data.repositories, file_data: response.data.filtered_files, isLoading: false });
         })
         .catch(error => {
           console.error('Error fetching repositories', error);
@@ -120,7 +129,7 @@ function RepositoryListPage() {
         {data.isLoading ? (
           <div>데이터 처리 중...</div>
         ) : (
-          <CardList className="repository-list" repositories={data.repositories} />
+          <CardList className="repository-list" repositories={data.repositories} data={data.fileData} onCardClick={handleCardClick} />
         )}
       </div>
     </div>
