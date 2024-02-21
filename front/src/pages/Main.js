@@ -1,23 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Main.css';
-import axios from 'axios';
 
-function fetchData() {
-  axios.get('http://localhost:5000')
-    .then(response => {
-      // 응답 처리
-      console.log(response.data);
-    })
-    .catch(error => {
-      // 오류 처리
-      console.error('There was an error!', error);
-    });
-}
 function Main() {
   const navigate = useNavigate();
   const handleEnterButton = () => {
-    fetchData();
     navigate("/login");
   }
   return (
