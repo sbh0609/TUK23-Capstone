@@ -14,8 +14,6 @@ function RepositoryDetailPage() {
   const url = location.state.url;
   const data = location.state.data;
 
-  console.log("state:", location.state);
-
   console.log("data:", data);
 
   const handleLogOutButton = () => {

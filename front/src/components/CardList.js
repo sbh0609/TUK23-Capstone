@@ -7,7 +7,6 @@ function CardList({ repositories, data }) {
         return (
           <Card
             key={index}
-            repositories={repositories}
             data={data}
             name={repository[0]}
             url={repository[1]}
