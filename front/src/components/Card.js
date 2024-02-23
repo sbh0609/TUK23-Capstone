@@ -6,10 +6,25 @@ import cpp_img from '../resources/c++ img.png';
 import java_img from '../resources/java img.png';
 import js_img from '../resources/js img.png';
 import python_img from '../resources/python img.png';
+import { useRepository } from './RepositoryContext'; // Context를 가져옵니다.
 
-const Card = ({ name, url, data }) => {
-    let imagePath = c_img;
+const Card = ({ name, url, fileList }) => {
+    const { setRepositoryDetail } = useRepository();
     const navigate = useNavigate();
+    let imagePath = c_img;
+    const onClickCard = () => {
+        setRepositoryDetail({ name, fileList });
+        navigate("/repositoryDetail");
+    };
+    return (
+        <CardContainer onClick={onClickCard} >
+            <UserInfo>
+                <Name>{name}</Name>
+                <Info>URL: {url}</Info>
+            </UserInfo>
+        </CardContainer>
+    );
+    
     
     //  switch (phone) {
     //      case "1-770-736-8031 x56442":
@@ -48,24 +63,45 @@ const Card = ({ name, url, data }) => {
     //      }
     //         <img src={imagePath} alt="Image" />
     
-    const onClickCard = () => {
-        navigate("/repositoryDetail", { 
-            state: { 
-              name: name,
-              url: url,
-              data: data
-            }
-        });
-    };
+    // const onClickCard = () => {
 
-    return (
-        <CardContainer onClick={onClickCard} >
-            <UserInfo>
-                <Name>{name}</Name>
-                <Info>URL: {url}</Info>
-            </UserInfo>
-        </CardContainer>
-    );
+
+    //     navigate("/repositoryDetail", { 
+    //         state: { 
+    //           name: name,
+    //           url: url,
+    //           fileList : fileList
+    //         }
+    //     });
+    // };
+
+    // return (
+    //     <CardContainer onClick={onClickCard} >
+    //         <UserInfo>
+    //             <Name>{name}</Name>
+    //             <Info>URL: {url}</Info>
+    //         </UserInfo>
+    //     </CardContainer>
+    // );
+    // return (
+    //     <CardContainer>
+    //         <UserInfo>
+    //             <Name>{name}</Name>
+    //             <Info>URL: {url}</Info>
+    //             {/* 파일 목록 표시 */}
+    //             {files && (
+    //                 <div>
+    //                     <strong>Files:</strong>
+    //                     <ul>
+    //                         {files.map((file, idx) => (
+    //                             <li key={idx}>{file}</li>
+    //                         ))}
+    //                     </ul>
+    //                 </div>
+    //             )}
+    //         </UserInfo>
+    //     </CardContainer>
+    // );
 };
 //<img src={image} alt="https://robohash.org/${}?set=set2&size=180x180" />
 export default Card;
@@ -109,5 +145,11 @@ const Info = styled.span`
     font-family: 'Roboto';
     font-style: normal;
     font-size: 14px;
+    padding-top: 10px;
+`;
+const File = styled.span`
+    font-family: 'Roboto';
+    font-style: normal;
+    font-size: 10px;
     padding-top: 10px;
 `;

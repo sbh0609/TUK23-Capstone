@@ -1,39 +1,22 @@
 import React from 'react';
 import Card from "./Card";
-function CardList({ repositories, data }) {
+function CardList({ repositories, file_data }) {
   return (
     <div className="cardList" style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-start' }}>
       {repositories.map((repository, index) => {
+        const repositoryName = repository[0];
+        const fileList = file_data[repositoryName]; // 해당 레포지토리의 파일 리스트
         return (
           <Card
             key={index}
-            data={data}
-            name={repository[0]}
+            name={repositoryName}
             url={repository[1]}
+            fileList={fileList}
           />
         );
       })}
     </div>
   );
 }
-
-// function CardList({ repositories, onClick }) {
-
-//   return (
-//     <div className="cardList" style={{ display: 'flex', flexWrap: 'wrap',  alignContent: 'flex-start' }}>
-//       {repositories.map((repositories) => {
-//         return (
-//           <Card
-//             key={repositories.id}
-//             id={repositories.id}
-//             name={repositories.name}
-//             email={repositories.email}
-//             phone={repositories.phone}
-//             />
-//         );
-//       })}
-//     </div>
-//   );
-// }
 
 export default CardList;

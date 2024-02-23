@@ -5,38 +5,15 @@ import Select from "react-select";
 import CardList from "../components/CardList";
 import "./RepositoryDetailPage.css";
 import Card from "../components/Card";
+import { useRepository } from '../components/RepositoryContext'; // Context를 가져옵니다.
 
-function RepositoryDetailPage() {
-  // 페이지 이동
-  const navigate = useNavigate();
-  const location = useLocation();
-  const name = location.state.name;
-  const url = location.state.url;
-  const data = location.state.data;
-
-  console.log("data:", data);
-
-  const handleLogOutButton = () => {
-    navigate("/login");
-  }
+const RepositoryDetailPage = () => {
+  const { repositoryDetail } = useRepository();
 
   return (
     <div>
-      <div className="top-bar">
-        <button  className="home-button">Home</button>
-        <button  className="log-out-button">Log out</button>
-        <button  className="about-us-button">About us</button>
-      </div>
-
-      <div className="repository-list-field" >
-        <Card
-            value={data}
-            name={name}
-            url={url}
-          />
-      </div>
+      {repositoryDetail.fileList}
     </div>
   );
-}
-
+};
 export default RepositoryDetailPage;

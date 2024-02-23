@@ -59,6 +59,8 @@ def handle_input():
     getframework.org_repo(organization_list,username,headers,user_repo_list) 
     getframework.choose_repo_commit(user_repo_list,headers)
     getframework.choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files)
+    print(user_repo_list)
+    print(filtered_files)
     return jsonify({"repositories": user_repo_list,"file_data": filtered_files})
 
 if __name__ == '__main__':
