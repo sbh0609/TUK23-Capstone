@@ -3,8 +3,10 @@ const RepositoryContext = createContext(null);
 export const useRepository = () => useContext(RepositoryContext);
 export const RepositoryProvider = ({ children }) => {
   const [repositoryDetail, setRepositoryDetail] = useState({
-    name: '',
-    fileList: []
+    repo_name: '',
+    fileList: [],
+    username: '',
+    repo_type: ''
   });
   return (
     <RepositoryContext.Provider value={{ repositoryDetail, setRepositoryDetail }}>

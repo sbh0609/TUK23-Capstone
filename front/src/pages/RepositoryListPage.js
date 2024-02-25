@@ -12,13 +12,15 @@ function RepositoryListPage() {
   const [userType, setUserType ] = useState("");
   const [userLanguage, setUserLanguage ] = useState("");
   const [userEct, setUserEct ] = useState("");
-// const [data, setData] = useState({ repositories: [], file_data: {}, isLoading: true });
+  const [repositoryClassification, setData] = useState({ personal_list: [], team_list: []});
 
   const { repositoryListData, setRepositoryListData } = useMaintainPage(); // Context 사용
 
   const { repositories, file_data, isLoading } = repositoryListData; // Context 데이터 분해 할당
-const location = useLocation();
+  const location = useLocation();
   const navigate = useNavigate();
+  const { username, organizations } = location.state;
+
    // 드롭다운의 옵션들 선언
    const type_options = [
     { value: "", label: "All" },
@@ -60,34 +62,22 @@ const location = useLocation();
   
   useEffect(() => {
 
-    console.log("RepositoryListPage 마운트됨");
-
-  
-
     if (repositories.length > 0) {
-
       return;
-
     }
-
-  
     if (location.state) {
-
-      console.log("백엔드 요청 시작", location.state);
-      const { username, organizations } = location.state;
-
       // 백엔드에 요청 보내기
       axios.post('http://localhost:5000/api/input', { username, organizations })
         .then(response => {
-
-
-          console.log("백엔드 요청 완료", response.data);
-
           setRepositoryListData({ 
             repositories: response.data.repositories, 
             file_data: response.data.file_data, 
             isLoading: false 
           });
+          setData({
+            personal_list: response.data.personal_list,
+            team_list : response.data.team_list
+          })
 
         })
         .catch(error => {
@@ -98,17 +88,6 @@ const location = useLocation();
           setRepositoryListData({ ...repositoryListData, isLoading: false });
         });
     }
-
- 
-
-  
-
-    return () => {
-
-      console.log("RepositoryListPage 언마운트됨");
-
-    };
-
   }, []);
 
   // 검색창에 값 입력시 입력한 값을 검색창에 출력
@@ -156,10 +135,11 @@ const location = useLocation();
           <div>데이터 처리 중...</div>
         ) : (
           <CardList 
-
             repositories={repositories} 
-
             file_data={file_data} 
+            username = {username}
+            personal_list = {repositoryClassification.personal_list}
+            team_list = {repositoryClassification.team_list}
           />
         )}
       </div>

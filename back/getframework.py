@@ -110,7 +110,7 @@ def choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files):
     return user_repo_list,filtered_files
    
         
-def classify_personal_team(user_repo_list,headers):
+def classify_personal_team(user_repo_list,headers,personal_repo,team_repo):
     for repo in user_repo_list:
         contributors_url = f"https://api.github.com/repos/{repo[0]}/contributors"
         response = requests.get(contributors_url, headers=headers)
@@ -120,7 +120,8 @@ def classify_personal_team(user_repo_list,headers):
                 personal_repo.append(repo)
             else:
                 team_repo.append(repo)
-    return personal_repo,team_repo
+    
+    # return personal_repo,team_repo
 
 # pr_percent, issue_percent, commit_percent, get_merged_pr_stas,get_used_lang,get_file_data 는 사용자가 user_repo_list에서 선택한 repo_name이 인자로 필요
 def pr_percent(username,repo_name,headers):
@@ -165,9 +166,8 @@ def get_used_lang(repo_name,all_lang,headers):
             main_lang.append(lang)
     return main_lang
 
-def get_file_data(filtered_files,repo_name,headers):
+def get_file_data(file_path_list,repo_name,headers):
     file_data_dict = {}
-    file_path_list=filtered_files.get(repo_name, [])
     for file_path in file_path_list:
         file_url = f'https://api.github.com/repos/{repo_name}/contents/{file_path}'
         response = requests.get(file_url,headers=headers).json()
@@ -232,9 +232,9 @@ def comment_percent(repo_file_data):
     return average_comment_ratio
 
 
-def analyze_dependencies(file_data):
+def analyze_dependencies(repo_file_data):
     frameworks = []
-    for file_path, content in file_data.items():
+    for file_path, content in repo_file_data.items():
         file_name = os.path.basename(file_path)
         if file_name == 'package.json':
             # JSON 파일 분석
@@ -255,12 +255,12 @@ def analyze_dependencies(file_data):
                 frameworks.append('Android')
     return frameworks
 
-def detect_code_duplication(file_data):
+def detect_code_duplication(repo_file_data):
     line_hashes = {}
     duplicates = 0
     total_lines = 0
     dup_line=[]
-    for file_path, content in file_data.items():
+    for file_path, content in repo_file_data.items():
         for line in content.split('\n'):
             total_lines += 1
             important_line = True
@@ -281,7 +281,7 @@ def detect_code_duplication(file_data):
                     line_hashes[line_hash] = 1
 
     duplicate_ratio = (duplicates / total_lines) * 100 if total_lines > 0 else 0
-    return duplicate_ratio, duplicates, total_lines,dup_line
+    return duplicate_ratio
 
 
 

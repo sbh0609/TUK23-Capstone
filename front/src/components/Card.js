@@ -10,19 +10,20 @@ import python_img from '../resources/python img.png';
 
 import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
 
-const Card = ({ name, url, fileList }) => {
+const Card = ({ repo_name, url, fileList, username, repo_type }) => {
     const { setRepositoryDetail } = useRepository();
     const navigate = useNavigate();
     let imagePath = c_img;
     const onClickCard = () => {
-        setRepositoryDetail({ name, fileList });
+        setRepositoryDetail({ repo_name, fileList, username, repo_type });
         navigate("/repositoryDetail");
     };
     return (
         <CardContainer onClick={onClickCard} >
             <UserInfo>
-                <Name>{name}</Name>
+                <Name>{repo_name}</Name>
                 <Info>URL: {url}</Info>
+                <Repo_type>{repo_type}</Repo_type>
             </UserInfo>
         </CardContainer>
     );
@@ -149,7 +150,7 @@ const Info = styled.span`
     font-size: 14px;
     padding-top: 10px;
 `;
-const File = styled.span`
+const Repo_type = styled.span`
     font-family: 'Roboto';
     font-style: normal;
     font-size: 10px;
