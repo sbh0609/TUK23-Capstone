@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 import axios from 'axios';
+import { useMaintainPage } from '../Context/MaintainPage';
 
 function LoginPage() {
   const [username, setUsername] = useState("");
   // const [passwords, setPasswords] = useState(['']);
   const [organizations, setOrganiztions] = useState(['']);
+  const { clearData } = useMaintainPage();
 
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
@@ -25,6 +27,9 @@ function LoginPage() {
     // 데이터 처리 페이지로 바로 이동
     navigate("/repository", { state: { username, organizations: organizations.filter(org => org) } });
   };
+  useEffect(()=>{
+    clearData();
+  },[]);
   return (
     <div className="LoginPage">
       <div className="LoginPage-Background">

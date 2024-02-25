@@ -6,7 +6,9 @@ import cpp_img from '../resources/c++ img.png';
 import java_img from '../resources/java img.png';
 import js_img from '../resources/js img.png';
 import python_img from '../resources/python img.png';
-import { useRepository } from './RepositoryContext'; // Context를 가져옵니다.
+
+
+import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
 
 const Card = ({ name, url, fileList }) => {
     const { setRepositoryDetail } = useRepository();

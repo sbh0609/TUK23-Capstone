@@ -4,7 +4,7 @@ import Select from "react-select";
 import CardList from "../components/CardList";
 import "./RepositoryListPage.css";
 import axios from 'axios';
-import { useRepository } from '../components/RepositoryContext'; // Context를 가져옵니다.
+import { useMaintainPage } from '../Context/MaintainPage'; // Context를 가져옵니다.
 
 function RepositoryListPage() {
 
@@ -12,9 +12,12 @@ function RepositoryListPage() {
   const [userType, setUserType ] = useState("");
   const [userLanguage, setUserLanguage ] = useState("");
   const [userEct, setUserEct ] = useState("");
-  const [data, setData] = useState({ repositories: [], file_data: {}, isLoading: true });
+// const [data, setData] = useState({ repositories: [], file_data: {}, isLoading: true });
 
-  const location = useLocation();
+  const { repositoryListData, setRepositoryListData } = useMaintainPage(); // Context 사용
+
+  const { repositories, file_data, isLoading } = repositoryListData; // Context 데이터 분해 할당
+const location = useLocation();
   const navigate = useNavigate();
    // 드롭다운의 옵션들 선언
    const type_options = [
@@ -53,25 +56,60 @@ function RepositoryListPage() {
       backgroundColor: "#333333",
     }),
   }
+
+  
   useEffect(() => {
+
+    console.log("RepositoryListPage 마운트됨");
+
+  
+
+    if (repositories.length > 0) {
+
+      return;
+
+    }
+
+  
     if (location.state) {
+
+      console.log("백엔드 요청 시작", location.state);
       const { username, organizations } = location.state;
+
       // 백엔드에 요청 보내기
       axios.post('http://localhost:5000/api/input', { username, organizations })
         .then(response => {
-          setData({ 
+
+
+          console.log("백엔드 요청 완료", response.data);
+
+          setRepositoryListData({ 
             repositories: response.data.repositories, 
             file_data: response.data.file_data, 
             isLoading: false 
           });
-          console.log(response.data.file_data)
+
         })
         .catch(error => {
           console.error('Error fetching repositories', error);
+
           // 에러 처리
+
+          setRepositoryListData({ ...repositoryListData, isLoading: false });
         });
     }
-  }, []); // 위치 정보가 변경될 때마다 효과를 재실행
+
+ 
+
+  
+
+    return () => {
+
+      console.log("RepositoryListPage 언마운트됨");
+
+    };
+
+  }, []);
 
   // 검색창에 값 입력시 입력한 값을 검색창에 출력
   const handleUserInputChange = (e) => {
@@ -113,12 +151,15 @@ function RepositoryListPage() {
       </div>
 
       <div className="repository-list-field" >
-        {data.isLoading ? (
+
+        {isLoading ? (
           <div>데이터 처리 중...</div>
         ) : (
           <CardList 
-            repositories={data.repositories} 
-            file_data={data.file_data} 
+
+            repositories={repositories} 
+
+            file_data={file_data} 
           />
         )}
       </div>

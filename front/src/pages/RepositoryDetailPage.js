@@ -5,7 +5,7 @@ import Select from "react-select";
 import CardList from "../components/CardList";
 import "./RepositoryDetailPage.css";
 import Card from "../components/Card";
-import { useRepository } from '../components/RepositoryContext'; // Context를 가져옵니다.
+import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
 
 const RepositoryDetailPage = () => {
   const { repositoryDetail } = useRepository();

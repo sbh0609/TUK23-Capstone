@@ -51,7 +51,7 @@ def handle_input():
     organization_list = data.get('organizations')
     repos_url = f'https://api.github.com/users/{username}/repos'
     con_repos_url = f'https://api.github.com/users/{username}/repos?type=member'
-    
+    print(username)
     user_repo_list = []
     filtered_files = {}
     getframework.not_org_repo(repos_url,headers,user_repo_list)

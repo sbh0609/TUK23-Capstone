@@ -1,12 +1,18 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './MainPage.css';
+import { useMaintainPage } from '../Context/MaintainPage';
+import React, { useState, useEffect } from "react";
 
 function MainPage() {
   const navigate = useNavigate();
+  const { clearData } = useMaintainPage();
   const handleEnterButton = () => {
     navigate("/login");
   }
+  
+  useEffect(()=>{
+    clearData();
+  },[]);
   return (
         <div className="main">
           <div className="background">
