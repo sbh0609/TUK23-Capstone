@@ -16,7 +16,10 @@ export const RepositoryListProvider = ({ children }) => {
     setRepositoryListData({ 
         repositories: [], 
         file_data: {}, 
-        isLoading: true });
+        isLoading: true ,
+        personal_list: [], 
+        team_list: [],
+        globusername:''})
   };
 
   return (

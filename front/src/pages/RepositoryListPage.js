@@ -12,14 +12,12 @@ function RepositoryListPage() {
   const [userType, setUserType ] = useState("");
   const [userLanguage, setUserLanguage ] = useState("");
   const [userEct, setUserEct ] = useState("");
-  const [repositoryClassification, setData] = useState({ personal_list: [], team_list: []});
+  // const [repositoryClassification, setData] = useState({ personal_list: [], team_list: [],globusername:''});
 
   const { repositoryListData, setRepositoryListData } = useMaintainPage(); // Context 사용
-
-  const { repositories, file_data, isLoading } = repositoryListData; // Context 데이터 분해 할당
+  const { repositories, file_data, isLoading,team_list,personal_list,globusername } = repositoryListData; // Context 데이터 분해 할당
   const location = useLocation();
   const navigate = useNavigate();
-  const { username, organizations } = location.state;
 
    // 드롭다운의 옵션들 선언
    const type_options = [
@@ -63,28 +61,33 @@ function RepositoryListPage() {
   useEffect(() => {
 
     if (repositories.length > 0) {
+      setRepositoryListData({ ...repositoryListData, isLoading: false });
+
       return;
     }
     if (location.state) {
+      const { username, organizations } = location.state;
       // 백엔드에 요청 보내기
       axios.post('http://localhost:5000/api/input', { username, organizations })
         .then(response => {
           setRepositoryListData({ 
             repositories: response.data.repositories, 
             file_data: response.data.file_data, 
-            isLoading: false 
-          });
-          setData({
+            isLoading: false, 
             personal_list: response.data.personal_list,
-            team_list : response.data.team_list
-          })
+            team_list : response.data.team_list,
+            globusername : username
+          });
+          // setData({
+          //   personal_list: response.data.personal_list,
+          //   team_list : response.data.team_list,
+          //   globusername : username
+
+          // })
 
         })
         .catch(error => {
           console.error('Error fetching repositories', error);
-
-          // 에러 처리
-
           setRepositoryListData({ ...repositoryListData, isLoading: false });
         });
     }
@@ -137,9 +140,9 @@ function RepositoryListPage() {
           <CardList 
             repositories={repositories} 
             file_data={file_data} 
-            username = {username}
-            personal_list = {repositoryClassification.personal_list}
-            team_list = {repositoryClassification.team_list}
+            username = {globusername}
+            personal_list = {personal_list}
+            team_list = {team_list}
           />
         )}
       </div>
