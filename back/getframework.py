@@ -130,7 +130,7 @@ def pr_percent(username,repo_name,headers):
     total_pr = len(response)
     user_pr = sum(1 for pr in response if pr['user']['login']==username)
     pr_per = user_pr/total_pr * 100
-    return pr_per
+    return total_pr, user_pr, pr_per
         
 def issue_percent(username, repo_name,headers):
     issue_url = f"https://api.github.com/repos/{repo_name}/issues?state=all"
@@ -154,7 +154,7 @@ def get_merged_pr_stats(username, repo_name,headers):
     total_user_prs = len(response)
     merged_prs = sum(1 for pr in response if pr['state'] == 'closed' and pr.get('merged_at'))
     merged_pr_percentage = (merged_prs / total_user_prs) * 100 if total_user_prs > 0 else 0
-    return merged_prs, merged_pr_percentage
+    return total_user_prs, merged_prs, merged_pr_percentage
 
 def get_used_lang(repo_name,all_lang,headers):
     main_lang = []
