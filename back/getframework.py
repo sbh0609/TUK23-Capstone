@@ -100,13 +100,14 @@ def choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files):
                 if release_file in release_file_name:
                     repo_files.append(file_info["path"])
                     release_num+=1
-        if not repo_files:
+
+        if not repo_files :
             repos_to_remove.append(a)
         else :
             filtered_files[a[0]] = repo_files
-        if release_num==0:
+        if release_num==0 :
             repos_to_remove.append(a)
-    
+            
     for repo in repos_to_remove:
         user_repo_list.remove(repo)
     
