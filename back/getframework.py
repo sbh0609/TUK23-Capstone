@@ -82,6 +82,7 @@ def get_git_tree(repo_name, tree_sha,headers, recursive=True):
 
 
 def choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files):
+    release_num=0
     release_file_name = ["Makefile","requirements.txt","package.json","pop.xml","build.gradle"]
     repos_to_remove = []
     for a in user_repo_list: 
@@ -98,12 +99,14 @@ def choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files):
                 release_file = os.path.basename(file_info["path"])
                 if release_file in release_file_name:
                     repo_files.append(file_info["path"])
+                    release_num+=1
         if not repo_files:
             repos_to_remove.append(a)
-        
         else :
             filtered_files[a[0]] = repo_files
-        
+        if release_num==0:
+            repos_to_remove.append(a)
+    
     for repo in repos_to_remove:
         user_repo_list.remove(repo)
     
