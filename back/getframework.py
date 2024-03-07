@@ -129,11 +129,15 @@ def classify_personal_team(user_repo_list,headers,personal_repo,team_repo):
 
 # pr_percent, issue_percent, commit_percent, get_merged_pr_stas,get_used_lang,get_file_data 는 사용자가 user_repo_list에서 선택한 repo_name이 인자로 필요
 def pr_percent(username,repo_name,headers):
+    pr_per=0
     pr_url = f"https://api.github.com/repos/{repo_name}/pulls?state=all"
     response=get_paged_response(pr_url,headers)
     total_pr = len(response)
-    user_pr = sum(1 for pr in response if pr['user']['login']==username)
-    pr_per = user_pr/total_pr * 100
+    if total_pr==0:
+        pr_per=0
+    else:
+        user_pr = sum(1 for pr in response if pr['user']['login']==username)
+        pr_per = user_pr/total_pr * 100
     return pr_per
         
 def issue_percent(username, repo_name,headers):
