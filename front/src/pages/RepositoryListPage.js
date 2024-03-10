@@ -5,6 +5,7 @@ import CardList from "../components/CardList";
 import "./RepositoryListPage.css";
 import axios from 'axios';
 import { useMaintainPage } from '../Context/MaintainPage'; // Context를 가져옵니다.
+import gifLoading from '../resources/Loading_icon.gif';
 
 function RepositoryListPage() {
 
@@ -135,7 +136,14 @@ function RepositoryListPage() {
       <div className="repository-list-field" >
 
         {isLoading ? (
-          <div>데이터 처리 중...</div>
+          <div className="loading">
+            <img src={gifLoading} alt="GIF" className="gifLoading" />
+            <div className="loading-title" >Load Repositories...</div>
+            <div className="loading-explain">
+              commit 수와 의존성 파일 유무를 통해<br />
+              분석할 repository들을 선별하고 있습니다.
+            </div>
+          </div>
         ) : (
           <CardList 
             repositories={repositories} 
