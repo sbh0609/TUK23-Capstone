@@ -182,8 +182,12 @@ const RepositoryDetailPage = () => {
       
       <div className="repo-info">
       <h2 className="repo-name">{repoName} Repository</h2>
-      {prData.prPercentage  !== null && (
-      <h3 className="repo-type">{prData.prPercentage  ? 'Team Repository' : 'Personal Repository'}</h3>
+
+      
+
+      {prData.prPercentage !== null && (
+        <h3 className="repo-type">{prData.prPercentage > 0 ? 'Team Repository' : 'Personal Repository'}</h3>
+
       )}
       </div>
     <div className="info-box">
