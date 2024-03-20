@@ -12,7 +12,7 @@ function CardList({ repositories, file_data, username,personal_list, team_list }
             <Card
               key={index}
               repo_name={repositoryName}
-              url={repository[1]}
+              
               fileList={fileList}
               username={username}
               repo_type={'personal'}
@@ -24,7 +24,7 @@ function CardList({ repositories, file_data, username,personal_list, team_list }
             <Card
               key={index}
               repo_name={repositoryName}
-              url={repository[1]}
+              
               fileList={fileList}
               username={username}
               repo_type={'team'}

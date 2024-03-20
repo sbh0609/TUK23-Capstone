@@ -138,7 +138,7 @@ def pr_percent(username,repo_name,headers):
     else:
         user_pr = sum(1 for pr in response if pr['user']['login']==username)
         pr_per = user_pr/total_pr * 100
-    return pr_per
+    return total_pr, user_pr, pr_per;
         
 def issue_percent(username, repo_name,headers):
     issue_url = f"https://api.github.com/repos/{repo_name}/issues?state=all"
@@ -146,7 +146,7 @@ def issue_percent(username, repo_name,headers):
     total_issues = len(response)
     user_issues = sum(1 for issue in response if issue['user']['login'] == username)
     issue_per = user_issues / total_issues * 100 if total_issues > 0 else 0
-    return issue_per
+    return total_issues, user_issues, issue_per;
 
 def commit_percent(username, repo_name,headers):
     commit_url = f"https://api.github.com/repos/{repo_name}/commits"
@@ -154,7 +154,7 @@ def commit_percent(username, repo_name,headers):
     total_commits = len(response)
     user_commits = sum(1 for commit in response if commit['author']['login'] == username)
     user_commit_percentage = (user_commits / total_commits) * 100 if total_commits > 0 else 0
-    return user_commit_percentage
+    return total_commits, user_commits, user_commit_percentage;
 
 def get_merged_pr_stats(username, repo_name,headers):
     pr_url = f"https://api.github.com/repos/{repo_name}/pulls?state=all&creator={username}"
@@ -162,7 +162,7 @@ def get_merged_pr_stats(username, repo_name,headers):
     total_user_prs = len(response)
     merged_prs = sum(1 for pr in response if pr['state'] == 'closed' and pr.get('merged_at'))
     merged_pr_percentage = (merged_prs / total_user_prs) * 100 if total_user_prs > 0 else 0
-    return merged_prs, merged_pr_percentage
+    return total_user_prs, merged_prs, merged_pr_percentage;
 
 def get_used_lang(repo_name,all_lang,headers):
     main_lang = []
@@ -211,7 +211,10 @@ def comment_percent(repo_file_data):
     result = {}
     total_comment_ratio = 0
     file_count = 0
+    comment_lines1 = 0
+    total_lines1 = 0
     for file_name, file_data in repo_file_data.items():
+        total_lines1+=len(file_data.split('\n'))
         _, ext = os.path.splitext(file_name)
         if ext in comment_styles:
             lines = file_data.split('\n')
@@ -236,8 +239,9 @@ def comment_percent(repo_file_data):
             total_comment_ratio += comment_ratio
             file_count += 1
             result[file_name] = comment_ratio
+            comment_lines1 += comment_lines
     average_comment_ratio = total_comment_ratio / file_count
-    return average_comment_ratio
+    return total_lines1,comment_lines1,average_comment_ratio, file_count;
 
 
 def analyze_dependencies(repo_file_data):
@@ -289,7 +293,7 @@ def detect_code_duplication(repo_file_data):
                     line_hashes[line_hash] = 1
 
     duplicate_ratio = (duplicates / total_lines) * 100 if total_lines > 0 else 0
-    return duplicate_ratio
+    return total_lines, duplicates, duplicate_ratio;
 
 
 
@@ -348,5 +352,3 @@ if __name__ == '__main__':
     # print(detect_code_duplication(repo_file_data))
     # print(analyze_dependencies(repo_file_data))
     # print(comment_percent(repo_file_data))
-
-    

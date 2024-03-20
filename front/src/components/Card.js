@@ -7,9 +7,7 @@ import java_img from '../resources/java img.png';
 import js_img from '../resources/js img.png';
 import python_img from '../resources/python img.png';
 
-
 import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
-
 const Card = ({ repo_name, url, fileList, username, repo_type }) => {
     const { setRepositoryDetail } = useRepository();
     const navigate = useNavigate();
@@ -22,7 +20,7 @@ const Card = ({ repo_name, url, fileList, username, repo_type }) => {
         <CardContainer onClick={onClickCard} >
             <UserInfo>
                 <Name>{repo_name}</Name>
-                <Info>URL: {url}</Info>
+
                 <Repo_type>{repo_type}</Repo_type>
             </UserInfo>
         </CardContainer>
@@ -153,6 +151,6 @@ const Info = styled.span`
 const Repo_type = styled.span`
     font-family: 'Roboto';
     font-style: normal;
-    font-size: 10px;
+    font-size: 20px;
     padding-top: 10px;
 `;
