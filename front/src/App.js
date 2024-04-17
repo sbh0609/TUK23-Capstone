@@ -7,6 +7,10 @@ import RepositoryDetailPage from './pages/RepositoryDetailPage'
 import { RepositoryProvider } from './Context/RepositoryContext'; // 방금 만든 컨텍스트를 가져옵니다
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RepositoryListProvider } from './Context/MaintainPage';
+import LoginSelectPage from './pages/LoginSelectPage';
+import Temptemp from './pages/Temptemp';
+import Validation from './login/Validation';
+import Register from './pages/RegisterPage';
 
 function App(){
   return (
@@ -19,6 +23,10 @@ function App(){
             <Route path='/repository' element={<RepositoryListPage />} />
             <Route path='/aboutUs' element={<AboutUsPage />} />
             <Route path='/repositoryDetail' element={<RepositoryDetailPage/>} />
+            <Route path='/loginSelect' element={<LoginSelectPage/>} />
+            <Route path='/tempTemp' element={<Temptemp/>} />
+            <Route path='/validation' element={<Validation/>} />
+            <Route path='/register' element={<Register/>} />
             <Route index element={<MainPage />} />
           </Routes>
         </BrowserRouter>

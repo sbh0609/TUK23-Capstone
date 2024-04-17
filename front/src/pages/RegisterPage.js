@@ -5,11 +5,8 @@ import './Temptemp.css';
 function Login() {
     const [userID, setUserID] = useState("");
     const [password, setPassword] = useState("");
+    const [loginCheck, setLoginCheck] = useState(false);
     const [buttonCheck, setButtonCheck] = useState(false);
-    const [isButtonClicked, setIsButtonClicked] = useState(false);
-    const [isVisible, setIsVisible] = useState(false);
-    const [buttonText, setButtonText] = useState('> 로그인을 해야하는 이유가 무엇인가요?');
-    //const [loginCheck, setLoginCheck] = useState(false);
 
     const navigate = useNavigate();
 
@@ -19,25 +16,6 @@ function Login() {
     const onPasswordChangeHandler = (e) => {
         setPassword(e.target.value);
     };
-    const onClickRegisterButtonHandler = (e) => {
-        navigate('/register');
-    }
-    const onClickGoRepositoryButtonHandler = (e) => {
-        navigate('/login');
-    }
-    const onClickPhaseButtonHandler = (e) => {
-        if(isVisible === false) 
-        {
-            setIsVisible(true);
-            setButtonText('∨ 로그인을 해야하는 이유가 무엇인가요?');
-        }
-        else {
-            setIsVisible(false);
-            setButtonText('> 로그인을 해야하는 이유가 무엇인가요?');
-        }
-
-
-    }
     const onSubmmitHandler = async (e) => {
         e.preventDefault();
 
@@ -79,7 +57,7 @@ function Login() {
         </div>
       
         <div className="phase">
-            <p>Login</p>
+            <p>Register</p>
         </div>
         
         <div className="login-box">
@@ -113,46 +91,11 @@ function Login() {
                 disabled={!buttonCheck} 
                 className={`submmit-button ${!buttonCheck ? 'submmit-button-disabled' : ''}`}
                 >
-                    로그인
+                    회원가입
                 </button>
             </form>
         </div>
-        <div>
-            <button 
-            onClick={onClickRegisterButtonHandler}
-            className="register-button"
-            >
-                회원가입
-            </button>
-        </div>
 
-        <div>
-            <button
-            onClick={onClickPhaseButtonHandler}
-            className="phase-button"
-            >
-                {buttonText}
-            </button>
-            {isVisible && (
-                <div className="phase-invisible">
-                    <p>대병학</p>
-                    <p>엄준표</p>
-                    <button 
-                    onClick={onClickGoRepositoryButtonHandler}
-                    className="go-to-enter-repository"
-                    >
-                        로그인 없이 사용하기
-                    </button>
-                </div>
-            )}
-
-        </div>
-        
-        
-        {/* 위 문장을 접었다 펼 수 있도록 만들고,
-        로그인 하는 이점들을 쓰고
-        로그인 없이 이용하고 싶으신가요?
-        로그인 없이 이용하러 가기 버튼 */}
     </div>
     )
 }
