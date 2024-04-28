@@ -193,18 +193,18 @@ def get_personal_repo_file(filtered_files, personal_repo):
                   
 def comment_percent(repo_file_data):
     comment_styles = {
-    ".c": {"inline": "//", "block_start": "/*", "block_end": "*/"},
-    ".cpp": {"inline": "//", "block_start": "/*", "block_end": "*/"},
-    ".h": {"inline": "//", "block_start": "/*", "block_end": "*/"},
+    # ".c": {"inline": "//", "block_start": "/*", "block_end": "*/"},
+    # ".cpp": {"inline": "//", "block_start": "/*", "block_end": "*/"},
+    # ".h": {"inline": "//", "block_start": "/*", "block_end": "*/"},
     ".java": {"inline": "//", "block_start": "/*", "block_end": "*/"},
     ".js": {"inline": "//", "block_start": "/*", "block_end": "*/"},
-    ".cs": {"inline": "//", "block_start": "/*", "block_end": "*/"},
+    # ".cs": {"inline": "//", "block_start": "/*", "block_end": "*/"},
     ".py": {"inline": "#", "block_start": '"""', "block_end": '"""'},
-    ".rb": {"inline": "#"},
-    ".php": {"inline": "//", "block_start": "/*", "block_end": "*/"},
-    ".go": {"inline": "//", "block_start": "/*", "block_end": "*/"},
-    ".scala": {"inline": "//", "block_start": "/*", "block_end": "*/"},
-    ".swift": {"inline": "//", "block_start": "/*", "block_end": "*/"},
+    # ".rb": {"inline": "#"},
+    # ".php": {"inline": "//", "block_start": "/*", "block_end": "*/"},
+    # ".go": {"inline": "//", "block_start": "/*", "block_end": "*/"},
+    # ".scala": {"inline": "//", "block_start": "/*", "block_end": "*/"},
+    # ".swift": {"inline": "//", "block_start": "/*", "block_end": "*/"},
     ".ts": {"inline": "//", "block_start": "/*", "block_end": "*/"},
     ".kt": {"inline": "//", "block_start": "/*", "block_end": "*/"}
     }
@@ -319,17 +319,17 @@ if __name__ == '__main__':
     repos_url = f'https://api.github.com/users/{username}/repos'
     con_repos_url = f'https://api.github.com/users/{username}/repos?type=member'
     source_file_extensions = {
-    "C": [".c", ".h"],
-    "C++": [".cpp", ".cxx", ".cc", ".hpp", ".hxx", ".h"],
-    "C#": [".cs"],
+    # "C": [".c", ".h"],
+    # "C++": [".cpp", ".cxx", ".cc", ".hpp", ".hxx", ".h"],
+    # "C#": [".cs"],
     "Python": [".py"],
     "JavaScript": [".js"],
-    "Go": [".go"],
+    # "Go": [".go"],
     "Java": [".java"],
-    "PHP": [".php", ".phtml"],
-    "Ruby": [".rb"],
-    "Scala": [".scala"],
-    "Swift": [".swift"],
+    # "PHP": [".php", ".phtml"],
+    # "Ruby": [".rb"],
+    # "Scala": [".scala"],
+    # "Swift": [".swift"],
     "TypeScript": [".ts"],
     "Kotlin": [".kt", ".kts"]
     }
