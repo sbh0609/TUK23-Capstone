@@ -1,9 +1,13 @@
 from dotenv import load_dotenv
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+import numpy as np
+import pandas as pd
 import requests
 import re
 import os
-import spacy
-import language_tool_python
+# import spacy
 
 # 정확도를 높이기 위한 동사 데이터 (사용 빈도 순으로 상위에 있는 동사를 가져옴.)
 verb_like_words = {"add", "fix", "update", "remove", "delete","refactor", "implement", "rename",
@@ -49,7 +53,7 @@ def get_repository_commits(repo_owner, repo_name, user, access_token):
             for commit in commits:
                 message = commit['commit']['message']
 
-                if message.startswith("Merge") or message.startswith("Revert") or message.startswith("Conflict") or "README.md" in message or message == "Initial commit":
+                if message.startswith("Merge") or message.startswith("Revert") or message.startswith("Conflict"):
                     continue
 
                 message = preprocess_commit_message(message)
@@ -125,21 +129,55 @@ def evaluate_messages(commit_messages):
 
     return grammar_score_ratio * 100
 
-def check_grammar(commit_messages):
-    tool = language_tool_python.LanguageTool('en-US')
+def check_grammar(repo_owner, repo_name, user, token):
+    total_commits, user_commits = get_repository_commits(repo_owner, repo_name, user, token)
+    total_grammar = evaluate_messages(user_commits)
+    user_grammar = evaluate_messages(total_commits)
+    return total_grammar, user_grammar
 
-    no_error_count = 0
 
-    for msg in commit_messages:
-        matches = tool.check(msg)
-        if not matches:
-            no_error_count += 1
+def classify_commit_quality(repo_owner, repo_name, user, token):
+    total_commits, user_commits = get_repository_commits(repo_owner, repo_name, user, token)
 
-    total_messages = len(commit_messages)
-    no_error_ratio = no_error_count / total_messages if total_messages > 0 else 0
-    return no_error_ratio * 100
+    model = load_model('2_model.h5')
+    data = pd.read_csv("TrainingData.csv", encoding='Windows-1252')
+    
+    total_result = [0, 0, 0, 0]
+    user_result = [0, 0, 0, 0]
+
+    tokenizer = Tokenizer()
+    tokenizer.fit_on_texts(data['message'])
+
+    for commit in total_commits:
+        sequence = tokenizer.texts_to_sequences([commit])
+        max_sequence_len = max([len(seq) for seq in sequence])
+        sequence = pad_sequences(sequence, maxlen=max_sequence_len)
+
+        predictions = model.predict(sequence)
+
+        label = np.argmax(predictions)
+        total_result[label] += 1
+    
+    for commit in user_commits:
+        sequence = tokenizer.texts_to_sequences([commit])
+        max_sequence_len = max([len(seq) for seq in sequence])
+        sequence = pad_sequences(sequence, maxlen=max_sequence_len)
+
+        predictions = model.predict(sequence)
+
+        label = np.argmax(predictions)
+        user_result[label] += 1
+    
+    return total_result, user_result
 
 if __name__ == '__main__':
     load_dotenv()
     token = os.environ.get('token')
-    print(f"token: {token}")
+
+    tq, uq = classify_commit_quality('hep-lbdl', 'adversarial-jets', 'lukedeo', token)
+    print('total quality :', tq)
+    print('user quality :', uq)
+
+    # tg, ug = check_grammar('hep-lbdl', 'adversarial-jets', 'lukedeo', token)
+    # print('total grammar score :', tg)
+    # print('user grammar score :', ug)
