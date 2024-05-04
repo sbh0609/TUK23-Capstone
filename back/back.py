@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS,cross_origin
-import requests,hashlib, json, os, base64, re
+import os
 from dotenv import load_dotenv
 import getframework
 import func
@@ -97,8 +97,8 @@ def analyze_repo():
         commit_per = getframework.commit_percent(user_name,repo_name,headers)
         merged_pr_stats =getframework.get_merged_pr_stats(user_name, repo_name,headers)
 
-        total_quality, user_quality = func.classify_commit_quality(repo_owner, repo_name, user_name, token)
-        total_grammar, user_grammar = func.check_grammar(repo_owner, repo_name, user_name, token)
+        total_quality, user_quality = func.classify_commit_quality(repo_name, user_name, token)
+        total_grammar, user_grammar = func.check_grammar(repo_name, user_name, token)
 
         repo_analyze={
             "program_lang": program_lang,

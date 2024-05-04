@@ -7,7 +7,7 @@ import pandas as pd
 import requests
 import re
 import os
-# import spacy
+import spacy
 
 # 정확도를 높이기 위한 동사 데이터 (사용 빈도 순으로 상위에 있는 동사를 가져옴.)
 verb_like_words = {"add", "fix", "update", "remove", "delete","refactor", "implement", "rename",
@@ -32,8 +32,8 @@ def preprocess_commit_message(message):
 
     return message
 
-def get_repository_commits(repo_owner, repo_name, user, access_token):
-    commits_endpoint = f"https://api.github.com/repos/{repo_owner}/{repo_name}/commits"
+def get_repository_commits(repo_name, user, access_token):
+    commits_endpoint = f"https://api.github.com/repos/{repo_name}/commits"
     commits_headers = {"Authorization": f"Bearer {access_token}"}
 
     per_page = 100
@@ -73,8 +73,8 @@ def get_repository_commits(repo_owner, repo_name, user, access_token):
         
     return total_commit_message, user_commit_message
 
-def get_repository_pull_requests(repo_owner, repo_name, user, access_token):
-    pull_requests_endpoint = f"https://api.github.com/repos/{repo_owner}/{repo_name}/pulls"
+def get_repository_pull_requests(repo_name, user, access_token):
+    pull_requests_endpoint = f"https://api.github.com/repos/{repo_name}/pulls"
     pull_requests_headers = {"Authorization": f"Bearer {access_token}"}
 
     per_page = 100
@@ -129,15 +129,15 @@ def evaluate_messages(commit_messages):
 
     return grammar_score_ratio * 100
 
-def check_grammar(repo_owner, repo_name, user, token):
-    total_commits, user_commits = get_repository_commits(repo_owner, repo_name, user, token)
+def check_grammar(repo_name, user, token):
+    total_commits, user_commits = get_repository_commits(repo_name, user, token)
     total_grammar = evaluate_messages(user_commits)
     user_grammar = evaluate_messages(total_commits)
     return total_grammar, user_grammar
 
 
-def classify_commit_quality(repo_owner, repo_name, user, token):
-    total_commits, user_commits = get_repository_commits(repo_owner, repo_name, user, token)
+def classify_commit_quality(repo_name, user, token):
+    total_commits, user_commits = get_repository_commits(repo_name, user, token)
 
     model = load_model('2_model.h5')
     data = pd.read_csv("TrainingData.csv", encoding='Windows-1252')
