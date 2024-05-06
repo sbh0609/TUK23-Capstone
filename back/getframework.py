@@ -5,7 +5,8 @@ import requests
 import os
 import base64
 import re
-
+import boto3
+import subprocess
 def get_paged_response(url,headers):
     results = []
     page = 1
@@ -174,7 +175,22 @@ def get_used_lang(repo_name,all_lang,headers):
             main_lang.append(lang)
     return main_lang
 
-def get_file_data(file_path_list,repo_name,headers):
+def get_file_data(file_path_list,repo_name,user_id,headers):
+    # load_dotenv() 
+    # aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
+    # aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+    # aws_region = os.getenv('AWS_REGION')
+    # bucket_name = os.getenv('S3_BUCKKET')
+    # # S3 클라이언트 설정
+    # s3 = boto3.client(
+    #     's3',
+    #     aws_access_key_id=aws_access_key_id,
+    #     aws_secret_access_key=aws_secret_access_key,
+    #     region_name=aws_region
+    # )
+    local_save_dir = os.path.join('file_data', user_id, repo_name)
+    os.makedirs(local_save_dir, exist_ok=True)
+    saved_file_paths = []
     file_data_dict = {}
     for file_path in file_path_list:
         file_url = f'https://api.github.com/repos/{repo_name}/contents/{file_path}'
@@ -182,9 +198,23 @@ def get_file_data(file_path_list,repo_name,headers):
         file_data = response['content']
         encoded_content = file_data
         decoded_content = base64.b64decode(encoded_content)
+        
+        # 로컬 파일 경로 설정
+        local_file_path = os.path.join(local_save_dir, file_path.replace('/', os.sep))
+        os.makedirs(os.path.dirname(local_file_path), exist_ok=True)
+        # s3_key = f"repofiledata-{user_id}/{repo_name}/{file_path}"
+
+        # s3.put_object(Bucket=bucket_name, Key=s3_key, Body=decoded_content)
+        # print(f"Saved {file_path} to S3 at {s3_key}")
+        # 파일 저장
+        with open(local_file_path, 'wb') as file:
+            file.write(decoded_content)
+        # print(f"Saved {file_path} to {local_file_path}")
+
+        saved_file_paths.append(local_file_path)
         readme_text = decoded_content.decode('utf-8')
         file_data_dict[file_path] = readme_text
-    return file_data_dict
+    return file_data_dict,saved_file_paths
 
 def get_personal_repo_file(filtered_files, personal_repo):
     for key in personal_repo:
@@ -296,6 +326,59 @@ def detect_code_duplication(repo_file_data):
     return total_lines, duplicates, duplicate_ratio;
 
 
+def analyze_file(file_path):
+    command = ""
+    if file_path.endswith(".py"):
+        command = f"pylint {file_path} --rcfile=analyzeTool/.pylintrc"
+    elif file_path.endswith(".java"):
+        command = f"java -jar analyzeTool/checkstyle-10.15.0-all.jar -c analyzeTool/google_checks.xml {file_path}"
+    elif file_path.endswith(".js") or file_path.endswith(".ts"):
+        command = f"eslint {file_path} --format=json"
+    elif file_path.endswith(".kt") or file_path.endswith(".kts"):
+        command = f"java -Dfile.encoding=UTF-8 analyzeTool/-jar detekt-cli-1.23.6-all.jar --input {file_path} --config analyzeTool/detekt.yml"
+
+    result = subprocess.run(command, shell=True, capture_output=True, text=True, encoding='utf-8', errors='replace')
+    
+    if result.stderr:
+        print("Errors:", result.stderr)
+    
+    if file_path.endswith(".js") or file_path.endswith(".ts"):
+        return json.loads(result.stdout)  # JSON 데이터 반환
+    else:
+        return result.stdout
+    
+def extract_complexity_messages(command_output):
+    complexity_info = {}
+    if isinstance(command_output, str):  # 문자열 처리
+        patterns = [
+            (r'.*?:(\d+):\d+: Cyclomatic Complexity is (\d+)', lambda line, value: (int(line), int(value))),  # Checkstyle
+            (r'.*?:(\d+):.*?: R\d+: .*? is too complex. The McCabe rating is (\d+)', lambda line, value: (int(line), int(value))),  # Pylint
+            (r'CyclomaticComplexMethod - \d+/\d+ - \[.*?\] at .*?:(\d+):(\d+)', lambda line, value: (int(line), int(value)))  # Detekt
+        ]
+        for pattern, extractor in patterns:
+            for match in re.findall(pattern, command_output, re.MULTILINE):
+                line_number, complexity_value = extractor(*match)
+                if line_number in complexity_info:
+                    complexity_info[line_number] = max(complexity_info[line_number], complexity_value)
+                else:
+                    complexity_info[line_number] = complexity_value
+
+    elif isinstance(command_output, list):  # JSON 데이터 처리 (ESLint)
+        for item in command_output:
+            for message in item.get('messages', []):
+                if message['ruleId'] == "complexity":
+                    complexity_value = int(re.search(r'\d+', message['message']).group())
+                    line_number = message.get('line', None)
+                    if line_number:
+                        if line_number in complexity_info:
+                            complexity_info[line_number] = max(complexity_info[line_number], complexity_value)
+                        else:
+                            complexity_info[line_number] = complexity_value
+
+    return complexity_info
+
+
+
 
 if __name__ == '__main__':
     
@@ -337,18 +420,4 @@ if __name__ == '__main__':
     all_extensions = [ext for ext_list in source_file_extensions.values() for ext in ext_list]
     all_lang = [lang_name for lang_name in source_file_extensions.keys()]
     not_org_repo(repos_url,headers,user_repo_list)  
-
     not_org_repo(con_repos_url,headers,user_repo_list)
-    print(user_repo_list)
-    # org_repo(organization_name,username,headers,user_repo_list) 
-
-    # choose_repo_commit(user_repo_list,headers)
-
-    # choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files)
-    # classify_personal_team(user_repo_list,headers)
-
-    # get_personal_repo_file(filtered_files,personal_repo)
-    # repo_file_data=get_file_data(filtered_files,"sbh0609/SHManagement",headers)
-    # print(detect_code_duplication(repo_file_data))
-    # print(analyze_dependencies(repo_file_data))
-    # print(comment_percent(repo_file_data))
