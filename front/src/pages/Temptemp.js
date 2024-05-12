@@ -135,8 +135,8 @@ function Login() {
             </button>
             {isVisible && (
                 <div className="phase-invisible">
-                    <p>대병학</p>
-                    <p>엄준표</p>
+                    <p>대병학을 찬양하고</p>
+                    <p>엄준표를 숭배해야하기 때문입니다.</p>
                     <button 
                     onClick={onClickGoRepositoryButtonHandler}
                     className="go-to-enter-repository"
