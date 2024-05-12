@@ -57,6 +57,7 @@ def handle_input():
     getframework.choose_repo_commit(user_repo_list,headers)
     getframework.choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files)
     getframework.classify_personal_team(user_repo_list,headers,personal_repo,team_repo)
+    print(filtered_files)
     personal_list = [i[0]for i in personal_repo]
     team_list = [i[0]for i in team_repo]
     print(team_list)
@@ -72,13 +73,20 @@ def analyze_repo():
     repo_name = datas.get('repo_name')
     repo_file = datas.get('fileList')
     repo_type = datas.get('repo_type')
+    all_files_complexity = {}
+    user_id="a"
     print(user_name)
     if(repo_type=='personal'):
         program_lang= getframework.get_used_lang(repo_name,all_lang,headers)
-        repo_file_data=getframework.get_file_data(repo_file,repo_name,headers)
+        repo_file_data,complex_file_path=getframework.get_file_data(repo_file,repo_name,user_id,headers)
+        for file_path in complex_file_path:
+            result = getframework.analyze_file(file_path)
+            complexity_info=getframework.extract_complexity_messages(result)
+            all_files_complexity[file_path] = complexity_info
         comment_per=getframework.comment_percent(repo_file_data)
         framework=getframework.analyze_dependencies(repo_file_data)
         dup_code=getframework.detect_code_duplication(repo_file_data)
+        print(all_files_complexity)
         repo_analyze={
             "program_lang": program_lang,
             "comment_per": comment_per,
@@ -88,7 +96,13 @@ def analyze_repo():
         return jsonify(repo_analyze)
     elif(repo_type=='team'):
         program_lang= getframework.get_used_lang(repo_name,all_lang,headers)
-        repo_file_data=getframework.get_file_data(repo_file,repo_name,headers)
+        print(repo_file)
+        repo_file_data,complex_file_path=getframework.get_file_data(repo_file,repo_name,user_id,headers)
+        for file_path in complex_file_path:
+            result = getframework.analyze_file(file_path)
+            complexity_info=getframework.extract_complexity_messages(result)
+            all_files_complexity[file_path] = complexity_info
+        print(all_files_complexity)
         comment_per=getframework.comment_percent(repo_file_data)
         framework=getframework.analyze_dependencies(repo_file_data)
         dup_code=getframework.detect_code_duplication(repo_file_data)

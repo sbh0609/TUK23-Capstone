@@ -1,0 +1,26 @@
+build:
+  maxIssues: 0
+
+config:
+  validation: true
+
+processors:
+  active: true
+  exclude:
+    - 'DetektProgressListener'
+
+console-reports:
+  active: true
+  exclude:
+    - 'ProjectStatisticsReport'
+    - 'ComplexityReport'
+    - 'NotificationReport'
+    - 'FindingsReport'
+    - 'BuildFailureReport'
+
+complexity:
+  CyclomaticComplexMethod:
+    active: true
+    threshold: 0  # 최대 복잡도를 10으로 설정
+
+
