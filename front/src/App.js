@@ -12,6 +12,7 @@ import Temptemp from './pages/Temptemp';
 import Validation from './login/Validation';
 import Register from './pages/RegisterPage';
 import DBtest from './tests/dbtest';
+import Login from './login/Login';
 
 function App(){
   return (
@@ -20,7 +21,7 @@ function App(){
         <BrowserRouter>
           <Routes>
             <Route path='/main' element={<MainPage />} />
-            <Route path='/login' element={<LoginPage />} />
+            <Route path='/login1' element={<LoginPage />} />
             <Route path='/repository' element={<RepositoryListPage />} />
             <Route path='/aboutUs' element={<AboutUsPage />} />
             <Route path='/repositoryDetail' element={<RepositoryDetailPage/>} />
@@ -29,6 +30,7 @@ function App(){
             <Route path='/validation' element={<Validation/>} />
             <Route path='/register' element={<Register/>} />
             <Route path='/dbtest' element={<DBtest/>} />
+            <Route path='/login' element={<Login/>} />
 
             <Route index element={<MainPage />} />
           </Routes>
