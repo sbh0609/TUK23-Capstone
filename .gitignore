@@ -24,3 +24,5 @@ yarn-error.log*
 .env
 /.pyc
 test.py
+
+back/file_data/
