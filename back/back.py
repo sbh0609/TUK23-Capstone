@@ -1,8 +1,9 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS,cross_origin
-import requests,hashlib, json, os, base64, re
+import os
 from dotenv import load_dotenv
 import getframework
+import func
 
 # 환경 변수 로드 및 토큰 설정
 load_dotenv()
@@ -95,6 +96,10 @@ def analyze_repo():
         issue_per=getframework.issue_percent(user_name,repo_name,headers)
         commit_per = getframework.commit_percent(user_name,repo_name,headers)
         merged_pr_stats =getframework.get_merged_pr_stats(user_name, repo_name,headers)
+
+        total_quality, user_quality = func.classify_commit_quality(repo_name, user_name, token)
+        total_grammar, user_grammar = func.check_grammar(repo_name, user_name, token)
+
         repo_analyze={
             "program_lang": program_lang,
             "comment_per": comment_per,
@@ -104,6 +109,10 @@ def analyze_repo():
             "commit_per": commit_per,
             "merged_pr_stats": merged_pr_stats,
             "issue_per": issue_per,
+            "total_quality": total_quality,
+            "user_quality": user_quality,
+            "total_grammar": total_grammar,
+            "user_grammar": user_grammar
         }
         return jsonify(repo_analyze)
     
