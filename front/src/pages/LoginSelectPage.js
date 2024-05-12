@@ -12,7 +12,7 @@ function LoginSelect() {
         navigate('/Temptemp'); // '/page1' 경로로 이동
         break;
       case 2:
-        navigate('/login'); // '/page2' 경로로 이동
+        navigate('/dbtest'); // '/page2' 경로로 이동
         break;
       default:
         break;

@@ -11,6 +11,7 @@ import LoginSelectPage from './pages/LoginSelectPage';
 import Temptemp from './pages/Temptemp';
 import Validation from './login/Validation';
 import Register from './pages/RegisterPage';
+import DBtest from './tests/dbtest';
 
 function App(){
   return (
@@ -27,6 +28,8 @@ function App(){
             <Route path='/tempTemp' element={<Temptemp/>} />
             <Route path='/validation' element={<Validation/>} />
             <Route path='/register' element={<Register/>} />
+            <Route path='/dbtest' element={<DBtest/>} />
+
             <Route index element={<MainPage />} />
           </Routes>
         </BrowserRouter>
