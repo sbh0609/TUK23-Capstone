@@ -1,5 +1,6 @@
 import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './RegisterPage.css';
 
 function Login() {
@@ -9,35 +10,40 @@ function Login() {
     const [buttonCheck, setButtonCheck] = useState(false);
 
     const navigate = useNavigate();
-
+    
+    const isIDValidInput = (value) => {
+        return /^[a-zA-Z0-9]+$/.test(value);
+    };
+    const isPasswordValidInput = (value) => {
+        return /^[^\u3131-\uD79D]+$/g.test(value);
+    };
     const onUserIdChangeHandler = (e) => {
-        setUserID(e.target.value);
+        const value = e.target.value;
+        if (value === '' || isIDValidInput(value)) {
+            setUserID(value);
+        }
     };
     const onPasswordChangeHandler = (e) => {
-        setPassword(e.target.value);
+        const value = e.target.value;
+        if (value === '' || isPasswordValidInput(value)) {
+            setPassword(value);
+        }
     };
     const onSubmmitHandler = async (e) => {
         e.preventDefault();
 
         try {
-            const response = await fetch('/api/validation', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ userID, password })
+            const response = await axios.post('http://localhost:5000/api/register', {
+                userID,
+                password
             });
 
-            // 로그인 성공 시 다음 페이지로 이동
-            if (response.ok) {
-                navigate('/dashboard');
-            } 
-            // 로그인 실패 시 처리
-            else {
-                console.log('로그인 실패');
-            }
+            console.log('Login successful:', response.data);
+            navigate("/loginUserDefault");
+            // 로그인 성공 시 리다이렉트 또는 다음 작업 수행
         } catch (error) {
-            console.error('서버에 문제가 발생하였습니다.\n 잠시 후에 다시 시도해 주세요.', error);
+            console.error('Login error:', error);
+            // 로그인 실패 시 처리
         }
 
     };
