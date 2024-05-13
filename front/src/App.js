@@ -13,6 +13,7 @@ import Validation from './login/Validation';
 import Register from './pages/RegisterPage';
 import DBtest from './tests/dbtest';
 import Login from './login/Login';
+import LoginUserDefault from './login_user_pages/LoginUserDefaultPage';
 
 function App(){
   return (
@@ -31,6 +32,7 @@ function App(){
             <Route path='/register' element={<Register/>} />
             <Route path='/dbtest' element={<DBtest/>} />
             <Route path='/login' element={<Login/>} />
+            <Route path='/loginUserDefault' element={<LoginUserDefault/>} />
 
             <Route index element={<MainPage />} />
           </Routes>

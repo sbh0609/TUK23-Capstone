@@ -7,7 +7,7 @@ function LoginUserDefault() {
     useEffect(() => {
         const fetchSession = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/login', { withCredentials: true });
+                const response = await axios.post('http://localhost:5000/api/session', { withCredentials: true });
                 setSessionData(response.data);
             } catch (error) {
                 console.error('Error fetching session data:', error);
