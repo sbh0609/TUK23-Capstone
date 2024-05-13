@@ -49,9 +49,16 @@ def get_session():
     
 @app.route('/api/register', methods=['POST'])
 def register():
-    if:
-        return
+    data = request.get_json()
+    userID = data.get('userID')
+    password = data.get('password')
+    try:
+        with connection.cursor() as cursor:
+            sql = ""
+            cursor.execute(sql, (userID, password))
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
     
-
 if __name__ == '__main__':
     app.run(debug=True)

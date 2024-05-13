@@ -38,14 +38,13 @@ function Login() {
                 password
             });
 
-            console.log('Login successful:', response.data);
-            navigate("/loginUserDefault");
-            // 로그인 성공 시 리다이렉트 또는 다음 작업 수행
+            console.log('Register successful:', response.data);
+            //alert 필요해
+            navigate("/login");
         } catch (error) {
             console.error('Login error:', error);
             // 로그인 실패 시 처리
         }
-
     };
 
     useEffect(() => {
