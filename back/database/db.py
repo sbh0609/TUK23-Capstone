@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, session
 from flask_cors import CORS
 import pymysql
 
@@ -23,12 +23,13 @@ def login():
     password = data.get('password')
     try:
         with connection.cursor() as cursor:
-            
             sql = "SELECT * FROM user WHERE web_user_id = %s AND pwd = %s"
             cursor.execute(sql, (userID, password))
             user = cursor.fetchone()
 
             if user:
+                userID = user.get('web_user_id')
+                session['id'] = userID
                 return jsonify({'message': 'Login successful', 'user': user}), 200
             else:
                 return jsonify({'error': 'Invalid credentials'}), 401
