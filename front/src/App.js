@@ -9,8 +9,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RepositoryListProvider } from './Context/MaintainPage';
 import LoginSelectPage from './pages/LoginSelectPage';
 import Temptemp from './pages/Temptemp';
-import Validation from './login/Validation';
-import Register from './pages/RegisterPage';
+import Register from './login/RegisterPage';
 import DBtest from './tests/dbtest';
 import Login from './login/Login';
 import LoginUserDefault from './login_user_pages/LoginUserDefaultPage';
@@ -28,7 +27,6 @@ function App(){
             <Route path='/repositoryDetail' element={<RepositoryDetailPage/>} />
             <Route path='/loginSelect' element={<LoginSelectPage/>} />
             <Route path='/tempTemp' element={<Temptemp/>} />
-            <Route path='/validation' element={<Validation/>} />
             <Route path='/register' element={<Register/>} />
             <Route path='/dbtest' element={<DBtest/>} />
             <Route path='/login' element={<Login/>} />

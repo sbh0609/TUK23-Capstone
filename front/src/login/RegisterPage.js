@@ -1,6 +1,6 @@
 import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Temptemp.css';
+import './RegisterPage.css';
 
 function Login() {
     const [userID, setUserID] = useState("");
@@ -82,6 +82,15 @@ function Login() {
                         value={password}
                         onChange={onPasswordChangeHandler}
                         placeholder="비밀번호를 입력해 주세요."
+                        />
+                    </label>
+
+                    <label>
+                        <input
+                        type="password"
+                        value={password}
+                        onChange={onPasswordChangeHandler}
+                        placeholder="비밀번호를 다시 입력해 주세요."
                         />
                     </label>
                 </div>
