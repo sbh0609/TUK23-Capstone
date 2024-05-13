@@ -1,5 +1,6 @@
 import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './Temptemp.css';
 
 function Login() {
@@ -35,31 +36,22 @@ function Login() {
             setIsVisible(false);
             setButtonText('> 로그인을 해야하는 이유가 무엇인가요?');
         }
-
-
     }
     const onSubmmitHandler = async (e) => {
         e.preventDefault();
 
         try {
-            const response = await fetch('/api/validation', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ userID, password })
+            const response = await axios.post('http://localhost:5000/api/login', {
+                userID,
+                password
             });
 
-            // 로그인 성공 시 다음 페이지로 이동
-            if (response.ok) {
-                navigate('/dashboard');
-            } 
-            // 로그인 실패 시 처리
-            else {
-                console.log('로그인 실패');
-            }
+            console.log('Login successful:', response.data);
+            navigate("/loginUserDefault");
+            // 로그인 성공 시 리다이렉트 또는 다음 작업 수행
         } catch (error) {
-            console.error('서버에 문제가 발생하였습니다.\n 잠시 후에 다시 시도해 주세요.', error);
+            console.error('Login error:', error);
+            // 로그인 실패 시 처리
         }
 
     };
@@ -147,12 +139,6 @@ function Login() {
             )}
 
         </div>
-        
-        
-        {/* 위 문장을 접었다 펼 수 있도록 만들고,
-        로그인 하는 이점들을 쓰고
-        로그인 없이 이용하고 싶으신가요?
-        로그인 없이 이용하러 가기 버튼 */}
     </div>
     )
 }

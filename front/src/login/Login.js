@@ -6,8 +6,11 @@ import './Login.css';
 function Login() {
     const [userID, setUserID] = useState("");
     const [password, setPassword] = useState("");
-    const [loginCheck, setLoginCheck] = useState(false);
     const [buttonCheck, setButtonCheck] = useState(false);
+    const [isButtonClicked, setIsButtonClicked] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
+    const [buttonText, setButtonText] = useState('> 로그인을 해야하는 이유가 무엇인가요?');
+    //const [loginCheck, setLoginCheck] = useState(false);
 
     const navigate = useNavigate();
 
@@ -17,9 +20,24 @@ function Login() {
     const onPasswordChangeHandler = (e) => {
         setPassword(e.target.value);
     };
-    // 빈칸 존재시 로그인버튼 비활성화
-    const handleLogin = async (e) => {
-     
+    const onClickGoRegisterButtonHandler = (e) => {
+        navigate('/register');
+    }
+    const onClickGoRepositoryButtonHandler = (e) => {
+        navigate('/login1');
+    }
+    const onClickPhaseButtonHandler = (e) => {
+        if(isVisible === false) 
+        {
+            setIsVisible(true);
+            setButtonText('∨ 로그인을 해야하는 이유가 무엇인가요?');
+        }
+        else {
+            setIsVisible(false);
+            setButtonText('> 로그인을 해야하는 이유가 무엇인가요?');
+        }
+    }
+    const onSubmmitHandler = async (e) => {
         e.preventDefault();
 
         try {
@@ -35,6 +53,7 @@ function Login() {
             console.error('Login error:', error);
             // 로그인 실패 시 처리
         }
+
     };
 
     useEffect(() => {
@@ -56,6 +75,7 @@ function Login() {
         </div>
         
         <div className="login-box">
+            <form onSubmit={onSubmmitHandler}>
                 <div>
                     <p className="userID">ID</p>
                 
@@ -82,15 +102,43 @@ function Login() {
 
                 <button 
                 type="submit" 
-                onClick={handleLogin}
                 disabled={!buttonCheck} 
                 className={`submmit-button ${!buttonCheck ? 'submmit-button-disabled' : ''}`}
                 >
                     로그인
                 </button>
-
+            </form>
+        </div>
+        <div>
+            <button 
+            onClick={onClickGoRegisterButtonHandler}
+            className="register-button"
+            >
+                회원가입
+            </button>
         </div>
 
+        <div>
+            <button
+            onClick={onClickPhaseButtonHandler}
+            className="phase-button"
+            >
+                {buttonText}
+            </button>
+            {isVisible && (
+                <div className="phase-invisible">
+                    <p>대병학을 찬양하고</p>
+                    <p>엄준표를 숭배해야하기 때문입니다.</p>
+                    <button 
+                    onClick={onClickGoRepositoryButtonHandler}
+                    className="go-to-enter-repository"
+                    >
+                        로그인 없이 사용하기
+                    </button>
+                </div>
+            )}
+
+        </div>
     </div>
     )
 }

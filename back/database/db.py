@@ -46,6 +46,12 @@ def get_session():
         return jsonify({'user_id': user_id}), 200
     else:
         return jsonify({'error': 'User not authenticated'}), 401
+    
+@app.route('/api/register', methods=['POST'])
+def register():
+    if:
+        return
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
