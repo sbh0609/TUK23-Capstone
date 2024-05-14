@@ -1,11 +1,11 @@
-from flask import Flask, jsonify, request, session
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import pymysql
 
 app = Flask(__name__)
 SECRETKEY = 'root'
 app.secret_key = SECRETKEY
-cors = CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+CORS(app, supports_credentials=True, origins='http://localhost:3000')
 
 # MySQL 데이터베이스 연결 설정
 connection = pymysql.connect(
@@ -30,8 +30,7 @@ def login():
             user = cursor.fetchone()
 
             if user:
-                session['id'] = user.get("web_user_id")
-                return jsonify({'message': 'Login successful', 'user': user, 'session': session['id']}), 200
+                return jsonify({'message': 'Login successful', 'userID': user['web_user_id']}), 200
             else:
                 return jsonify({'error': 'Invalid credentials'}), 401
 
@@ -59,15 +58,6 @@ def register():
             
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    
-@app.route('/api/session', methods=['POST'])
-def get_session():
-    if 'id' in session:
-        user_id = session['id']
-        # 세션에 저장된 사용자 ID로 프로필 정보 조회 또는 작업 수행
-        return jsonify({'user_id': user_id}), 200
-    else:
-        return jsonify({'error': 'User not authenticated'}), 401    
-    
+       
 if __name__ == '__main__':
     app.run(debug=True)
