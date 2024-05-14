@@ -1,5 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect } from "react";
+import { Link } from 'react-router-dom';
+import { Link as ScrollLink, Element } from 'react-scroll';  // Link 컴포넌트 임포트
+
 import { Doughnut } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
@@ -21,6 +25,19 @@ const RepositoryDetailPage = () => {
     totalPR: null,
     userPR: null,
     prPercentage: null
+});
+const [barData, setBarData] = useState({
+  WhatIF: 82,
+  What: 1,
+  IF: 13,
+  None: 47
+});
+
+const [LineData, setLineData] = useState({
+  WhatIF: 82,
+  What: 1,
+  IF: 13,
+  None: 47
 });
   const [commitsData, setcommitsData] = useState({
   totalCommits: null,
@@ -48,6 +65,8 @@ const RepositoryDetailPage = () => {
   userDuplicates: null,
   DuplicatesPercentage: null
 });
+  const complexity_data = {1: 2, 2: 2}
+
   const [loading, setLoading] = useState(true);
   const [userInput, setUserInput ] = useState("");
   const [userType, setUserType ] = useState("");
@@ -464,15 +483,64 @@ const RepositoryDetailPage = () => {
       }
     }
   };
+  const barDatachart = {
+    labels: ['What+IF', 'What', 'IF', 'None'],
+    datasets: [{
+          label: 'Commit Message Chart',
+          data: [barData.WhatIF, barData.What, barData.IF, barData.None],
+          backgroundColor: [
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(122, 162, 235, 0.2)',
+              'rgba(30, 162, 235, 0.2)'
+          ],
+          borderColor: [
+              'rgba(255, 206, 86, 1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(122, 162, 235, 1)',
+              'rgba(30, 162, 235, 1)'
+          ],
+          borderWidth: 1
+      }]
+    };
+  
+    const barDataoptions = {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom'
+        },
+        title: {
+          display: true,
+          text: 'Commit Message Chart',
+          font: {
+            size: 20
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              let label = context.label || '';
+              if (label) {
+                label += ': ';
+              }
+              
+              return label;
+            }
+          }
+        }
+      }
+    };
   return (
+  <div id="page-wrap">
     
-    <div  className="RepositoryDetailPage" >
-      <div>
-      {loading ? <Loading /> : null} // Loading이 true면 컴포넌트를 띄우고, false면 null(빈 값)처리 하여 컴포넌트 숨김
+    <div>
+      {loading ? <Loading /> : null} 
       <div className="top-bar">
         <button onClick={handleEnterButton} className="home-button">Home</button>
         <button onClick={handleEnterButton} className="log-out-button">Log out</button>
-        <button className="about-us-button">About us</button>34
+        <button className="about-us-button">About us</button>
       </div>
       <div className="search-bar-background">
         <label>
@@ -490,27 +558,114 @@ const RepositoryDetailPage = () => {
           <Select options={ect_options} styles={optionStyles} placeholder="Ect" onChange={handleUserEctChange}/>
         </div>
       </div>
-      
-      <div className="repo-info">
-      <h2 className="repo-name">{repoName} Repository</h2>
-      {prData.prPercentage !== null && (
-      <h3 className="repo-type">{prData.prPercentage > 0 ? 'Team Repository' : 'Personal Repository'}</h3>
-      )}
-      </div>
-     
-    <div className="info-boxx">
-      <h3>Used Language</h3>
-      <p>{programLanguages.join(', ')}</p> {/* 언어들을 쉼표로 구분하여 표시 */}
-    </div>
 
-    <div className="info-boxx">
-      <h3>Used Framework</h3>
-      <p>{framework.join(', ')}</p> {/* 프레임워크들을 쉼표로 구분하여 표시 */}
-    </div>
-    
-    <div className="chart-with-info">
-      <div className="chart-and-info-container">
-        {/* 도넛 차트 추가 */}
+ 
+
+    <div>
+    <Fragment>
+      <Element name="section-one">
+        <h2>Section One</h2>
+        <div className="repo-info">
+          <h2 className="repo-name">{repoName} Repository</h2>
+          {prData.prPercentage !== null && (
+            <h3 className="repo-type">{prData.prPercentage > 0 ? 'Team Repository' : 'Personal Repository'}</h3>
+          )}
+        </div>
+        <div className="info-boxx">
+          <h3>Used Language</h3>
+          <p>{programLanguages.join(', ')}</p> {/* 언어들을 쉼표로 구분하여 표시 */}
+        </div>
+        <div className="info-boxx">
+          <h3>Used Framework</h3>
+          <p>{framework.join(', ')}</p> {/* 프레임워크들을 쉼표로 구분하여 표시 */}
+        </div>
+      </Element>
+
+      <Element name="section-two">
+        <h2>Section Two</h2>
+        {repo_type === 'Team' ? (
+          <>
+            <div className="chart-with-info">
+	            <div className="chart-and-info-container">
+              {/* 도넛 차트 추가 */}
+        
+              <div className="chart-container">
+              <Doughnut data={doughnutData} options={options} />
+              </div>
+
+              <div className="info-box">
+              <h3>Total PR</h3>
+              <p>총 PR: {prData.totalPR}</p>
+              <p>사용자 PR: {prData.userPR}</p>
+              {/* 배열의 각 요소를 개별적으로 렌더링합니다. */}
+              <p>PR 비중:  {prData.prPercentage }</p>
+              </div>
+              </div>
+	          <div className="chart-and-info-container">
+              <div className="chart-container">
+                <Doughnut data={merged_prDataChart} options={merged_PRoptions} />
+              </div>
+              <div className="info-box">
+                <h3>Total Merged_PR</h3>
+                <p>총 PR: {merged_prData.totalusers_PR}</p>
+                <p>병합된 PR: {merged_prData.Merged_PR}</p>
+                {/* 배열의 각 요소를 개별적으로 렌더링합니다. */}
+                <p>병합된 PR 비중:  {merged_prData.Merged_prPercentage }</p>
+              </div>
+            </div>
+            <div className="chart-and-info-container">
+              <div className="chart-container">
+                <Doughnut data={issuesDataChart} options={issuesoptions} />
+              </div>
+              <div className="info-box">
+                <h3>Total Issues</h3>
+                <p>총 Issues: {issuesData.totalIssues}</p>
+                <p>사용자 Issues: {issuesData.userIssues}</p>
+                <p>Issues 비중: {issuesData.IssuesPercentage}</p>
+              </div>
+            </div>
+	      <div className="chart-and-info-container">
+          <div className="chart-container">
+           <Doughnut data={commitsDataChart} options={commitsoptions} />
+          </div>
+          <div className="info-box">
+            <h3>Total Commits</h3>
+            <p>총 Commit: {commitsData.totalCommits}</p>
+            <p>사용자 Commit: {commitsData.userCommits}</p>
+            {/* 배열의 각 요소를 개별적으로 렌더링합니다. */}
+            <p>Commit 비중:  {commitsData.CommitsPercentage }</p>
+          </div>
+       </div>
+	     <div className="chart-and-info-container">
+        <div className="chart-container">
+          <Doughnut data={duplicatesDataChart} options={duplicatesoptions} />
+        </div>
+        <div className="info-box">
+          <h3>Total PR</h3>
+          <p>총 라인수: {duplicatesData. total_lines}</p>
+          <p>중복 라인수 : {duplicatesData.userDuplicates}</p>
+          {/* 배열의 각 요소를 개별적으로 렌더링합니다. */}
+          <p>중복 비율:  {duplicatesData.DuplicatesPercentage }</p>
+       </div>
+      </div>
+	    <div className="chart-and-info-container">
+      <div className="chart-container">
+       <Doughnut data={commentsDataChart} options={commentsoptions} />
+     </div>
+     <div className="info-box">
+     <h3>Total Comments</h3>
+       <p>총 라인수: {commentsData.totalines}</p>
+        <p>주석 라인수: {commentsData.commentlines}</p>
+       <p>파일수: {commentsData.fliecounts}</p>
+        <p>평균 comments 비율: {commentsData.CommentsPercentage}</p>
+      </div>
+      </div>
+      </div>
+          </>
+        ) : (
+          <>
+             <div className="chart-with-info">
+	    {/* 도넛 차트 추가 */}
         
         <div className="chart-container">
         <Doughnut data={doughnutData} options={options} />
@@ -524,33 +679,7 @@ const RepositoryDetailPage = () => {
         <p>PR 비중:  {prData.prPercentage }</p>
         </div>
       </div>
-      <div className="chart-and-info-container">
-        <div className="chart-container">
-        <Doughnut data={merged_prDataChart} options={merged_PRoptions} />
-        </div>
-        <div className="info-box">
-       <h3>Total Merged_PR</h3>
-         <p>총 PR: {merged_prData.totalusers_PR}</p>
-         <p>병합된 PR: {merged_prData.Merged_PR}</p>
-         {/* 배열의 각 요소를 개별적으로 렌더링합니다. */}
-         <p>병합된 PR 비중:  {merged_prData.Merged_prPercentage }</p>
-         </div>
-       </div>
-
-      <div className="chart-and-info-container">
-      <div className="chart-container">
-        <Doughnut data={commitsDataChart} options={commitsoptions} />
-      </div>
-      <div className="info-box">
-        <h3>Total Commits</h3>
-        <p>총 Commit: {commitsData.totalCommits}</p>
-        <p>사용자 Commit: {commitsData.userCommits}</p>
-        {/* 배열의 각 요소를 개별적으로 렌더링합니다. */}
-        <p>Commit 비중:  {commitsData.CommitsPercentage }</p>
-       </div>
-       </div>
-
-       <div className="chart-and-info-container">
+	    <div className="chart-and-info-container">
       <div className="chart-container">
         <Doughnut data={issuesDataChart} options={issuesoptions} />
       </div>
@@ -562,7 +691,7 @@ const RepositoryDetailPage = () => {
        <p>Issues 비중:  {issuesData.IssuesPercentage }</p>
       </div>
       </div>
-      <div className="chart-and-info-container">
+	    <div className="chart-and-info-container">
       <div className="chart-container">
        <Doughnut data={commentsDataChart} options={commentsoptions} />
      </div>
@@ -574,24 +703,41 @@ const RepositoryDetailPage = () => {
         <p>평균 comments 비율: {commentsData.CommentsPercentage}</p>
       </div>
       </div>
-      <div className="chart-and-info-container">
+      
+          </>
+        )}
+        <p><ScrollLink to="section-one" spy={true} smooth={true} duration={500}>Scroll to Section One</ScrollLink></p>
+      </Element>
+
+      <Element name="section-three">
+        <h2>Section Three</h2>
+        {/* 섹션 3 내용이 비어 있음 */}
+        <p><ScrollLink to="section-one" spy={true} smooth={true} duration={500}>Scroll to Section One</ScrollLink></p>
+      </Element>
+
+      <Element name="section-four">
+        <h2>Section Four</h2>
+	    <div className="chart-with-info">
+            <div className="chart-and-info-container">
       <div className="chart-container">
-      <Doughnut data={duplicatesDataChart} options={duplicatesoptions} />
+      <Bar data={barDatachart} options={barDataoptions} />
       </div>
      <div className="info-box">
      <h3>Total PR</h3>
-      <p>총 라인수: {duplicatesData. total_lines}</p>
-      <p>중복 라인수 : {duplicatesData.userDuplicates}</p>
-      {/* 배열의 각 요소를 개별적으로 렌더링합니다. */}
-      <p>중복 비율:  {duplicatesData.DuplicatesPercentage }</p>
+      <p>WhatIF: {barData. WhatIF}</p>
+      <p>What : {barData.What}</p>
+      <p>IF : {barData.IF}</p>
+      <p>None:  {barData.None }</p>
         </div>
-        
-        
-       </div>
-    
-    </div>
-    </div>
-    </div>
+        </div>
+        </div>
+        <p><ScrollLink to="section-one" spy={true} smooth={true} duration={500}>top</ScrollLink></p>
+      </Element>
+    </Fragment>
+  </div>
+  </div>
+  </div>
   );
 };
+
 export default RepositoryDetailPage;
