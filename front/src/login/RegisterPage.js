@@ -29,7 +29,7 @@ function Login() {
             setPassword(value);
         }
     };
-    const onSubmmitHandler = async (e) => {
+    const onSubmitHandler = async (e) => {
         e.preventDefault();
 
         try {
@@ -42,7 +42,7 @@ function Login() {
             //alert 필요해
             navigate("/login");
         } catch (error) {
-            console.error('Login error:', error);
+            console.error('Login error (registerPage):', error);
             // 로그인 실패 시 처리
         }
     };
@@ -66,7 +66,7 @@ function Login() {
         </div>
         
         <div className="login-box">
-            <form onSubmit={onSubmmitHandler}>
+            <form onSubmit={onSubmitHandler}>
                 <div>
                     <p className="userID">ID</p>
                 
@@ -87,15 +87,6 @@ function Login() {
                         value={password}
                         onChange={onPasswordChangeHandler}
                         placeholder="비밀번호를 입력해 주세요."
-                        />
-                    </label>
-
-                    <label>
-                        <input
-                        type="password"
-                        value={password}
-                        onChange={onPasswordChangeHandler}
-                        placeholder="비밀번호를 다시 입력해 주세요."
                         />
                     </label>
                 </div>

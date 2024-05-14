@@ -38,15 +38,6 @@ def login():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/session', methods=['POST'])
-def get_session():
-    if 'id' in session:
-        user_id = session['id']
-        # 세션에 저장된 사용자 ID로 프로필 정보 조회 또는 작업 수행
-        return jsonify({'user_id': user_id}), 200
-    else:
-        return jsonify({'error': 'User not authenticated'}), 401
-    
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -54,11 +45,29 @@ def register():
     password = data.get('password')
     try:
         with connection.cursor() as cursor:
-            sql = ""
-            cursor.execute(sql, (userID, password))
+            sql_check = "SELECT * FROM user WHERE web_user_id = %s"
+            cursor.execute(sql_check, (userID), )
+            user = cursor.fetchone()
+
+            if user is None:
+                sql_insert = "INSERT INTO user (web_user_id, pwd) VALUES (%s, %s)"
+                cursor.execute(sql_insert, (userID, password))
+                connection.commit() 
+                return jsonify({'message(@register)': '회원가입 성공'}), 200
+            else:
+                return jsonify({'error(@register)': '중복 아이디'}), 409
             
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/api/session', methods=['POST'])
+def get_session():
+    if 'id' in session:
+        user_id = session['id']
+        # 세션에 저장된 사용자 ID로 프로필 정보 조회 또는 작업 수행
+        return jsonify({'user_id': user_id}), 200
+    else:
+        return jsonify({'error': 'User not authenticated'}), 401    
     
 if __name__ == '__main__':
     app.run(debug=True)
