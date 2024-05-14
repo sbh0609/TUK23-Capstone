@@ -7,7 +7,12 @@ function MainPage() {
   const navigate = useNavigate();
   const { clearData } = useMaintainPage();
   const handleEnterButton = () => {
-    navigate("/loginSelect");
+    if (sessionStorage.getItem('userID') == null) {
+      navigate("/loginSelect");
+    }
+    else {
+      navigate("/loginUserDefault")
+    }
   }
   
   useEffect(()=>{

@@ -39,11 +39,11 @@ function Login() {
             });
 
             console.log('Register successful:', response.data);
-            //alert 필요해
+            alert('회원가입이 완료되었습니다!');
             navigate("/login");
         } catch (error) {
+            alert('중복된 아이디입니다.');
             console.error('Login error (registerPage):', error);
-            // 로그인 실패 시 처리
         }
     };
 
