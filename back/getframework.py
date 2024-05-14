@@ -137,11 +137,11 @@ def pr_percent(username,repo_name,headers):
     if total_pr==0:
         user_pr = sum(1 for pr in response if pr['user']['login']==username)
         pr_per=0
-        return total_pr, user_pr, pr_per;
+        
     else:
         user_pr = sum(1 for pr in response if pr['user']['login']==username)
         pr_per = user_pr/total_pr * 100
-        return total_pr, user_pr, pr_per;
+    return total_pr, user_pr, pr_per;
     
         
 def issue_percent(username, repo_name,headers):
