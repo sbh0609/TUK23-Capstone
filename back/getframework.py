@@ -135,11 +135,14 @@ def pr_percent(username,repo_name,headers):
     response=get_paged_response(pr_url,headers)
     total_pr = len(response)
     if total_pr==0:
+        user_pr = sum(1 for pr in response if pr['user']['login']==username)
         pr_per=0
+        return total_pr, user_pr, pr_per;
     else:
         user_pr = sum(1 for pr in response if pr['user']['login']==username)
         pr_per = user_pr/total_pr * 100
-    return total_pr, user_pr, pr_per;
+        return total_pr, user_pr, pr_per;
+    
         
 def issue_percent(username, repo_name,headers):
     issue_url = f"https://api.github.com/repos/{repo_name}/issues?state=all"
@@ -312,7 +315,7 @@ def detect_code_duplication(repo_file_data):
                 important_line = False
             else :
                 important_line = True
-            if important_line:
+            if important_line:  
                 line_hash = hashlib.md5(line.encode()).hexdigest()
                 if line_hash in line_hashes:
                     if line_hashes[line_hash] == 1:
@@ -333,7 +336,7 @@ def analyze_file(file_path):
     elif file_path.endswith(".java"):
         command = f"java -jar analyzeTool/checkstyle-10.15.0-all.jar -c analyzeTool/google_checks.xml {file_path}"
     elif file_path.endswith(".js") or file_path.endswith(".ts"):
-        command = f"eslint {file_path} --config .eslintrc.json --format=json"
+        command = f"npx eslint {file_path} --config .eslintrc.json --format=json"
     elif file_path.endswith(".kt") or file_path.endswith(".kts"):
         command = f"java -Dfile.encoding=UTF-8 analyzeTool/-jar detekt-cli-1.23.6-all.jar --input {file_path} --config analyzeTool/detekt.yml"
 

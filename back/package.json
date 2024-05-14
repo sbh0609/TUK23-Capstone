@@ -21,5 +21,8 @@
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-vue": "^9.25.0",
     "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "eslint-config-react-app": "^7.0.1"
   }
 }
