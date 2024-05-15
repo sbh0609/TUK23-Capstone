@@ -95,12 +95,30 @@ def register():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/own_repo', methods=['POST'])
+def find_own_repo():
+    data = request.get_json()
+    #userID = data.get('session_userID')
+    userID = "test1"
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT * FROM analyzed_repo_data WHERE web_user_id = %s"
+            cursor.execute(sql, (userID))
+            user = cursor.fetchone()
+            username = user['repo_contributor_name']
+            print(username)
+            return jsonify({"username": username}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
 
 @app.route('/api/input', methods=['POST'])
 @cross_origin()
 def handle_input():
     data = request.json
     username = data.get('username')
+    print("Gotten username: ", username)
     organization_list = data.get('organizations')
     repos_url = f'https://api.github.com/users/{username}/repos'
     con_repos_url = f'https://api.github.com/users/{username}/repos?type=member'
