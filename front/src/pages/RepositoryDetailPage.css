@@ -62,8 +62,9 @@
   cursor: pointer;
   border: none;
 }
+
 .search-bar-background {
-  position: relative;
+  position: fixed;
   top: 60px;
   width: 100%;
   height: 100px;
@@ -78,7 +79,7 @@
   width: 400px; /* 너비를 늘릴 값으로 조정하세요 */
   height: 30px;
   margin-left: 20px; /* 좌측 여백을 조정합니다 */
-
+  margin-bottom: 0px;;
   font-size: 14px;
   font-family: 'Roboto';
   font-style: normal;
@@ -88,11 +89,23 @@
   box-sizing: border-box;
 }
 .select {
-  position: absolute;
-  right: 1600px; /* Type, Language, Ect를 오른쪽에 고정합니다 */
-  top: 50%; /* 위 아래 중앙 정렬을 위한 값입니다 */
-  transform: translateY(-50%);
+  position: fixed;  
+  display: flex;
+  margin-left: 440px;
+  flex-direction: row; /* 가로 방향으로 정렬 */
+  gap: 10px; /* 드롭다운 사이에 공간 추가 */
+  align-items: center; /* 세로 중앙 정렬 */
 }
+
+.select > div {
+  flex-grow: 1; /* 각 드롭다운이 동일한 너비를 가지도록 설정 */
+}
+
+.select > div:not(:first-child) { 
+  margin-left: -10px; /* 첫 번째를 제외한 모든 드롭다운을 왼쪽으로 약간 이동 */
+}
+
+
 #page-wrap {
   width: 100%; /* 전체 너비 사용 */
   max-width: none; /* 최대 너비 설정 */
@@ -101,27 +114,12 @@
   padding: 1rem 1rem 1rem 0; /* 좌측 패딩을 제거 */
   display: flex;
   flex-direction: column;
+  align-items: start; 
 }
 .repo-info, .info-boxx {
   text-align: left; /* 텍스트 왼쪽 정렬 */
   margin-left: 0px; /* 왼쪽 여백 추가 */
   width: auto; /* 너비 자동 조절 */
-}
-
-.chart-container {
-  width: 300px;
-  height: 300px;
-}
-.info-box {
-  width: 200px; /* 상황에 따라 조정 */
-  padding: 10px;
-  text-align: left;
-  background-color: #333;
-  color: white;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
 .repo-info h2 {
@@ -159,7 +157,7 @@
   margin: 20px 0; /* 상하 여백은 그대로 두고 좌우 여백만 0으로 설정하여 가운데 정렬 제거 */
   max-width: 200px; /* 최대 너비 설정 */
   text-align: left; /* 왼쪽 정렬 */
-  margin-left: 0px; /* 왼쪽 여백 추가하여 상자를 왼쪽으로 옮김 */
+  margin-left: 20px; /* 왼쪽 여백 추가하여 상자를 왼쪽으로 옮김 */
   display: flex; /* 유연한 레이아웃을 위해 flex로 설정 */
   flex-direction: column; /* 세로 방향으로 요소를 정렬 */
 }
@@ -174,28 +172,33 @@
   font-size: 1.2rem; /* 문단의 폰트 사이즈 조정 */
 }
 .chart-with-info {
+   
   display: flex;
   flex-direction: row; /* 가로로 나열 */
   flex-wrap: wrap; /* 내용이 많아지면 다음 줄로 넘어감 */
   justify-content: flex-start; /* 왼쪽에서 시작 */
   align-items: flex-start; /* 상단 정렬 */
-  gap: 20px; /* 세트 사이의 간격 */
+  gap: 50px; /* 세트 사이의 간격 */
 }
 
 .chart-and-info-container {
+   
   display: flex;
   flex-direction: column; /* 세로로 나열 */
   align-items: center; /* 세로축 중앙 정렬 */
   width: 300px; /* 적절한 너비 설정 */
+  margin-left: 20px;  
+  
 }
 
 .chart-container {
   width: 100%; /* 전체 너비 사용 */
   height: 300px; /* 높이 설정 */
+  margin-left: 20px;
 }
 
 .info-box {
-  width: 100%; /* 전체 너비 사용 */
+  width: 300px; /* 전체 너비 사용 */
   padding: 20px;
   background-color: #333;
   color: #fff;
@@ -205,12 +208,25 @@
   align-items: center;
   text-align: center;
   margin-top: 10px; /* 차트와 정보 상자 사이의 간격 */
+  margin-left: 20px;
 } 
 
+.scroll-link-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100px; /* Adjust width as needed */
+  padding: 20px;
+  background-color: #333; /* Dark background for the box */
+  color: #fff; /* White text color */
+  margin-left: 100px;
+  border-radius: 25px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  text-decoration: none; /* Remove underline from link */
+  margin-top: 20px; /* Margin from the top element */
+  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
 
-
-
-a {
-color: blue; /* 링크 색상 */
-cursor: pointer; /* 커서 스타일 */
+.scroll-link-box:hover {
+  background-color: #555; /* Slightly lighter on hover */
 }
