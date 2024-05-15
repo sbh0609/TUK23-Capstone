@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import getframework
 import func
 import pymysql
+import json
 
 app = Flask(__name__)
 api=CORS(app)  # CORS 적용
@@ -130,7 +131,7 @@ def analyze_repo():
     repo_file = datas.get('fileList')
     repo_type = datas.get('repo_type')
     all_files_complexity = {}
-    user_id="a"
+    user_id = datas.get('session_userID')
     print(user_name)
     if(repo_type=='personal'):
         program_lang= getframework.get_used_lang(repo_name,all_lang,headers)
@@ -151,6 +152,53 @@ def analyze_repo():
             "duplicate_code": dup_code,
             "complexity": all_files_complexity
         }
+        
+        json_framework = json.dumps(framework)
+        json_main_lang = json.dumps(program_lang)
+        json_complexity_data = json.dumps(all_files_complexity)
+        
+        try:
+            with connection.cursor() as cursor:
+                sql_insert = """
+                    INSERT INTO analyzed_repo_data (
+                        web_user_id, 
+                        
+                        repo_name, 
+                        repo_contributor_name, 
+                        frameworks, 
+                        main_lang,              
+                        total_lines,
+                        comment_lines,
+                        total_comment_percentage,
+                        duplicates,
+                        duplicate_percentage,
+                        complexity_data        
+                    ) 
+                    VALUES (
+                        %s,  %s, %s, %s, %s, %d, %d, %f, %f, %f, %s
+                    )
+                """
+                cursor.execute(sql_insert, 
+                               (    
+                                user_id, 
+                                
+                                repo_name, 
+                                user_name, 
+                                json_framework,
+                                json_main_lang,
+                                comment_per.get("total_lines1"),
+                                comment_per.get("comment_lines1"),
+                                comment_per.get("total_comment_ratio"),
+                                dup_code.get("duplicates"),
+                                dup_code.get("duplicate_ratio"),
+                                json_complexity_data
+                                ))
+                connection.commit() 
+        except Exception as e:
+            return jsonify({'DataBase Insert Error': str(e)}), 500
+        
+        
+        
         return jsonify(repo_analyze)
     elif(repo_type=='team'):
         program_lang= getframework.get_used_lang(repo_name,all_lang,headers)
