@@ -156,7 +156,7 @@ def commit_percent(username, repo_name,headers):
     commit_url = f"https://api.github.com/repos/{repo_name}/commits"
     response = get_paged_response(commit_url,headers)
     total_commits = len(response)
-    user_commits = sum(1 for commit in response if commit['author']['login'] == username)
+    user_commits = sum(1 for commit in response if commit['author'] is not None and commit['author']['login'] == username)
     user_commit_percentage = (user_commits / total_commits) * 100 if total_commits > 0 else 0
     return total_commits, user_commits, user_commit_percentage;
 

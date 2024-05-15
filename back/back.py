@@ -132,7 +132,7 @@ def analyze_repo():
     repo_type = datas.get('repo_type')
     all_files_complexity = {}
     user_id = datas.get('session_userID')
-    print(user_name)
+    
     if(repo_type=='personal'):
         program_lang= getframework.get_used_lang(repo_name,all_lang,headers)
         repo_file_data,complex_file_path=getframework.get_file_data(repo_file,repo_name,user_id,headers)
@@ -144,7 +144,7 @@ def analyze_repo():
             result = getframework.analyze_file(file_path)
             complexity_info=getframework.extract_complexity_messages(result)
             all_files_complexity[file_path] = complexity_info
-        print(all_files_complexity)
+
         repo_analyze={
             "program_lang": program_lang,
             "comment_per": comment_per,
@@ -159,7 +159,6 @@ def analyze_repo():
         
         repo_selected_time1 = "2024-05-18 01:24:40"
         
-        print("commet 값 : ", comment_per[0], comment_per[1], comment_per[2], dup_code[1], dup_code[2])
         try:
             with connection.cursor() as cursor:
                 sql_insert = """
@@ -239,6 +238,84 @@ def analyze_repo():
             "total_grammar": total_grammar,
             "user_grammar": user_grammar
         }
+        
+        json_framework = json.dumps(framework)
+        json_main_lang = json.dumps(program_lang)
+        json_complexity_data = json.dumps(all_files_complexity)
+        json_total_quality = json.dumps(total_quality[0])
+        json_user_quality = json.dumps(user_quality[1])
+        
+        repo_selected_time1 = "2024-04-01 01:24:40"
+        
+        try:
+            with connection.cursor() as cursor:
+                sql_insert = """
+                    INSERT INTO analyzed_repo_data (
+                        web_user_id, 
+                        repo_selected_time,
+                        repo_name, 
+                        repo_contributor_name, 
+                        frameworks, 
+                        main_lang,              
+                        total_lines,
+                        comment_lines,
+                        total_comment_percentage,
+                        duplicates,
+                        duplicate_percentage,
+                        complexity_data,
+                        total_pr,
+                        user_pr,
+                        pr_per,
+                        total_commits,
+                        user_commits,
+                        user_commit_percentage,
+                        merged_prs,
+                        merged_prs_percentage,
+                        total_issues,
+                        user_issues,
+                        issue_per,
+                        total_result,
+                        user_result,
+                        total_grammar,
+                        user_grammar
+                    ) 
+                    VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )
+                """
+                
+                cursor.execute(sql_insert, 
+                               (    
+                                user_id,
+                                repo_selected_time1,
+                                repo_name, 
+                                user_name, 
+                                json_framework,
+                                json_main_lang,
+                                comment_per[0], 
+                                comment_per[1], 
+                                comment_per[2], 
+                                dup_code[1], 
+                                dup_code[2],
+                                json_complexity_data,    
+                                pr_per[0],
+                                pr_per[1],
+                                pr_per[2],
+                                commit_per[0],
+                                commit_per[1],
+                                commit_per[2],
+                                merged_pr_stats[1],
+                                merged_pr_stats[2],
+                                issue_per[0],
+                                issue_per[1],
+                                issue_per[2],
+                                json_total_quality,
+                                json_user_quality,
+                                total_grammar,
+                                user_grammar  
+                                ))
+                connection.commit() 
+        except Exception as e:
+            return jsonify({'DataBase Insert Error': str(e)}), 500
+        
         return jsonify(repo_analyze)
     
 if __name__ == '__main__':
