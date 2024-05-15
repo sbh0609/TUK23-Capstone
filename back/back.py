@@ -6,25 +6,27 @@ import getframework
 import func
 import pymysql
 import json
+# 환경 변수 로드 및 토큰 설정
 
+load_dotenv()
 app = Flask(__name__)
 api=CORS(app)  # CORS 적용
 SECRETKEY = 'root'
 app.secret_key = SECRETKEY
 CORS(app, supports_credentials=True, origins='http://localhost:3000')
+passwd=os.environ.get('db_pwd')
 
 connection = pymysql.connect(
     host='localhost',  # 호스트 주소
     port=3306,
     user='root',  # 데이터베이스 사용자 이름
-    password='passwd',  # 데이터베이스 암호
+    password=passwd,  # 데이터베이스 암호
     database='tuk23_capstone',  # 사용할 데이터베이스 이름
     charset='utf8mb4',  # 문자 인코딩 설정
     cursorclass=pymysql.cursors.DictCursor  # 결과를 딕셔너리 형태로 반환
 )
 
-# 환경 변수 로드 및 토큰 설정
-load_dotenv()
+
 token = os.environ.get('token')
 headers = {
     'Authorization': f'token {token}',
@@ -211,7 +213,6 @@ def analyze_repo():
         framework=getframework.analyze_dependencies(repo_file_data)
         dup_code=getframework.detect_code_duplication(repo_file_data)
         pr_per=getframework.pr_percent(user_name,repo_name,headers)
-        # pr_per=0
         issue_per=getframework.issue_percent(user_name,repo_name,headers)
         commit_per = getframework.commit_percent(user_name,repo_name,headers)
         merged_pr_stats =getframework.get_merged_pr_stats(user_name, repo_name,headers)
@@ -244,7 +245,6 @@ def analyze_repo():
         json_complexity_data = json.dumps(all_files_complexity)
         json_total_quality = json.dumps(total_quality[0])
         json_user_quality = json.dumps(user_quality[1])
-        
         repo_selected_time1 = "2024-04-01 01:24:40"
         
         try:
