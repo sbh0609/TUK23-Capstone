@@ -141,7 +141,7 @@ function RepositoryListPage() {
             <div className="loading-title" >Load Repositories...</div>
             <div className="loading-explain">
               commit 수와 의존성 파일 유무를 통해<br />
-              분석할 repository들을 선별하고 있습니다.
+              분석할 repository들을 선별하고 있습니다.<br /><br />
             </div>
           </div>
         ) : (

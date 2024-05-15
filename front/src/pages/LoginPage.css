@@ -133,3 +133,9 @@
 .organization-box {
   margin: 2px;
 }
+
+.loading-explain {
+  margin-top: 200px;
+
+  font-size: 100px;
+}

@@ -71,6 +71,11 @@ function LoginPage() {
           <button onClick={handleAddOrganiztionButton} className="LoginPage-AddOrganizationButton">+ Add Organization</button><br />
           <button onClick={handleSubmit} className="LoginPage-EnterButton">Enter</button>
       </div>
+
+      <div className="loading-explain">
+        <br /><br />입력하신 깃허브 아이디와 조직 이름을 기반으로 분석 가능한 저장소를 찾아냅니다<br /><br />
+        입력한 깃허브 아이디에 대한 기준으로 저장소를 분석합니다
+      </div>
     </div>
     );
 }

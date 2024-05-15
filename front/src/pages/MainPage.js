@@ -8,11 +8,11 @@ function MainPage() {
   const { clearData } = useMaintainPage();
   const handleEnterButton = () => {
     if (sessionStorage.getItem('userID') == null) {
-      navigate("/loginSelect");
+      navigate("/login1");
     }
-    else {
-      navigate("/loginUserDefault")
-    }
+    //else {
+      //navigate("/loginUserDefault")
+    //}
   }
   
   useEffect(()=>{
