@@ -17,8 +17,7 @@ import axios from 'axios';
 import Loading from "../components/DetailLoading";
 
 const RepositoryDetailPage = () => {
-  //const session_userID = sessionStorage.getItem("userID");
-  const session_userID = "DAETAEMIN";
+  const session_userID = sessionStorage.getItem("userID");
 
   const { repositoryDetail } = useRepository();
   const { repo_name, fileList, username, repo_type, token } = repositoryDetail;
@@ -119,7 +118,7 @@ const [grammardata, setGrammarData] = useState({
       }),
     }
   useEffect(()=>{
-    axios.post('http://localhost:5000/api/analyze',{repo_name,username, fileList,repo_type, session_userID})
+    axios.post('http://localhost:5000/api/analyze',{repo_name, username, fileList, repo_type, session_userID})
       .then(response=>{
         console.log(response);
             setProgramLanguages(response.data.program_lang);

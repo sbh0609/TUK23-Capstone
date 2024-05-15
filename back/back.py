@@ -157,12 +157,15 @@ def analyze_repo():
         json_main_lang = json.dumps(program_lang)
         json_complexity_data = json.dumps(all_files_complexity)
         
+        repo_selected_time1 = "2024-05-18 01:24:40"
+        
+        print("commet 값 : ", comment_per[0], comment_per[1], comment_per[2], dup_code[1], dup_code[2])
         try:
             with connection.cursor() as cursor:
                 sql_insert = """
                     INSERT INTO analyzed_repo_data (
                         web_user_id, 
-                        
+                        repo_selected_time,
                         repo_name, 
                         repo_contributor_name, 
                         frameworks, 
@@ -175,22 +178,22 @@ def analyze_repo():
                         complexity_data        
                     ) 
                     VALUES (
-                        %s,  %s, %s, %s, %s, %d, %d, %f, %f, %f, %s
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                     )
                 """
                 cursor.execute(sql_insert, 
                                (    
-                                user_id, 
-                                
+                                user_id,
+                                repo_selected_time1,
                                 repo_name, 
                                 user_name, 
                                 json_framework,
                                 json_main_lang,
-                                comment_per.get("total_lines1"),
-                                comment_per.get("comment_lines1"),
-                                comment_per.get("total_comment_ratio"),
-                                dup_code.get("duplicates"),
-                                dup_code.get("duplicate_ratio"),
+                                comment_per[0], 
+                                comment_per[1], 
+                                comment_per[2], 
+                                dup_code[1], 
+                                dup_code[2],
                                 json_complexity_data
                                 ))
                 connection.commit() 

@@ -273,8 +273,7 @@ def comment_percent(repo_file_data):
             file_count += 1
             result[file_name] = comment_ratio
             comment_lines1 += comment_lines
-    average_comment_ratio = total_comment_ratio / file_count
-    return total_lines1,comment_lines1,average_comment_ratio, file_count;
+    return total_lines1,comment_lines1, total_comment_ratio;
 
 
 def analyze_dependencies(repo_file_data):
