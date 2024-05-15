@@ -34,7 +34,7 @@ const [teambarData, setTotalQualityData] = useState({
   TWhy: null,
   TWhat: null 
 });
-const [barData, setUserlQualityData] = useState({
+const [barData, setUserQualityData] = useState({
   WhatWhy: null,
   None: null,
   Why: null,
@@ -131,23 +131,25 @@ const [grammardata, setGrammarData] = useState({
             const {comment_per} = response.data;
             console.log("Before update:", duplicate_code);
             const fetchedComplexityData = response.data.complexity_info || {}; // 서버 응답이 없거나 오류가 있을 경우 빈 객체를 사용
-             setComplexityData(fetchedComplexityData);
+            setComplexityData(response.data.complexity);
+
+            // 품질 데이터 설정
             setTotalQualityData({
-              TWhatWhy: response.data.WhatWhy,
-              TNone: response.data.None,
-              TWhy: response.data.Why,
-              TWhat: response.data.What
+              TWhatWhy: response.data.total_quality[0],
+              TNone: response.data.total_quality[1],
+              TWhy: response.data.total_quality[2],
+              TWhat: response.data.total_quality[3]
             });
-            setUserlQualityData({
-              WhatWhy: response.data.WhatWhy,
-              None: response.data.None,
-              Why: response.data.Why,
-              What: response.data.What});
+            setUserQualityData({
+              WhatWhy: response.data.user_quality[0],
+              None: response.data.user_quality[1],
+              Why: response.data.user_quality[2],
+              What: response.data.user_quality[3]
+            });
             setGrammarData({
               totalGrammar: response.data.total_grammar,
               userGrammar: response.data.user_grammar
             });
-      
             if (pr_per && pr_per.length >= 3) {
               // prData 상태를 업데이트합니다.
               setPRData({
@@ -259,7 +261,7 @@ const [grammardata, setGrammarData] = useState({
   const handleUserEctChange = (selectedOption) => {
     setUserEct(selectedOption.value);
   }
-  const doughnutData = {
+  const PullRequestData = {
     labels: [
       'User PR',
       'Other'
@@ -510,97 +512,149 @@ const [grammardata, setGrammarData] = useState({
   };
   const barDatachart = {
     labels: ['WhatWhy', 'What', 'Why', 'None'],
-    datasets: [{
-      label: 'Commit Message Chart',
-      data: [
-        barData?.WhatWhy || 0,  // Use optional chaining and fallback to 0
-        barData?.What || 0,
-        barData?.Why || 0,
-        barData?.None || 0
-      ],
-      backgroundColor: [
-          'rgba(255, 206, 86, 0.2)',
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(122, 162, 235, 0.2)',
-          'rgba(30, 162, 235, 0.2)'
-      ],
-      borderColor: [
-          'rgba(255, 206, 86, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(122, 162, 235, 1)',
-          'rgba(30, 162, 235, 1)'
-      ],
-      borderWidth: 1
-    }]
+    datasets: [
+      {
+        label: 'Team Quality',
+        data: [
+          teambarData?.TWhatWhy || 0,
+          teambarData?.TWhat || 0,
+          teambarData?.TWhy || 0,
+          teambarData?.TNone || 0
+        ],
+        backgroundColor: 'rgba(54, 162, 235, 0.2)', // Team Quality 색상
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      },
+      {
+        label: 'User Quality',
+        data: [
+          barData?.WhatWhy || 0,
+          barData?.What || 0,
+          barData?.Why || 0,
+          barData?.None || 0
+        ],
+        backgroundColor: 'rgba(255, 99, 132, 0.2)', // User Quality 색상
+        borderColor: 'rgba(255, 99, 132, 1)',
+        borderWidth: 1
+      }
+    ]
   };
   
-    const barDataoptions = {
-      responsive: true,
-      plugins: {
-        legend: {
-          display: true,
-          position: 'bottom'
-        },
-        title: {
-          display: true,
-          text: 'Commit Message Chart',
-          font: {
-            size: 20
-          }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              let label = context.label || '';
-              if (label) {
-                label += ': ';
-              }
-              
-              return label;
+  const barDataoptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom'
+      },
+      title: {
+        display: true,
+        text: 'Commit Message Chart',
+        font: {
+          size: 20
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
             }
+            if (context.raw !== undefined) {
+              label += `${context.raw}`;
+            }
+            return label;
           }
         }
       }
-    };
-    const lineChartData = {
-      labels: Object.keys(complexityData).map(line => `Line ${line}`),
-      datasets: [
-        {
-          label: 'Cyclomatic Complexity per Line',
-          data: Object.values(complexityData),
-          fill: false,
-          backgroundColor: 'rgb(75, 192, 192)',
-          borderColor: 'rgba(75, 192, 192, 0.2)',
-        }
-      ]
-    };
-  
-    const chartOptions = {
-      scales: {
-        y: {
-          beginAtZero: true,
-          title: {
-            display: true,
-            text: 'Cyclomatic Complexity'
-          }
-        },
-        x: {
-          title: {
-            display: true,
-            text: 'Source Code Lines'
-          }
-        }
-      },
-      plugins: {
-        legend: {
+    },
+    scales: {
+      x: {
+        title: {
           display: true,
-          position: 'top'
+          text: 'Categories'
+        },
+        grouped: true
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Values'
+        },
+        beginAtZero: true
+      }
+    }
+  };
+  const totalGrammarData = {
+    labels: ['Total Grammar'],
+    datasets: [
+      {
+        data: [grammardata.totalGrammar || 0, 100 - (grammardata.totalGrammar || 0)],
+        backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(255, 255, 255, 0.1)'],
+        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(75, 192, 192, 1)'],
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const userGrammarData = {
+    labels: ['User Grammar'],
+    datasets: [
+      {
+        data: [grammardata.userGrammar || 0, 100 - (grammardata.userGrammar || 0)],
+        backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(255, 255, 255, 0.1)'],
+        borderColor: ['rgba(255, 99, 132, 1)', 'rgba(255, 99, 132, 1)'],
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const grammeroptions = (titleText, percentage) => ({
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        enabled: false,
+      },
+      centerText: {
+        text: `${titleText.includes('Total') ? grammardata.totalGrammar : grammardata.userGrammar || 0}%`,
+        color: '#000000',
+        fontStyle: 'Arial',
+        sidePadding: 20,
+      },
+      title: {
+        display: true,
+        text: titleText,
+        font: {
+          size: 20,
+        },
+      },
+    },
+    cutout: '70%',
+  });
+
+  const plugins = [
+    {
+      id: 'centerText',
+      beforeDraw: function (chart) {
+        if (chart.config.options.plugins.centerText) {
+          const ctx = chart.ctx;
+          const centerConfig = chart.config.options.plugins.centerText;
+          const fontSize = (chart.height / 114).toFixed(2);
+          ctx.font = `${fontSize}em ${centerConfig.fontStyle}`;
+          ctx.textBaseline = 'middle';
+          const text = centerConfig.text;
+          const textX = Math.round((chart.width - ctx.measureText(text).width) / 2);
+          const textY = Math.round(chart.height / 2+20);
+          ctx.fillStyle = centerConfig.color;
+          ctx.fillText(text, textX, textY);
         }
       },
-      responsive: true,
-      maintainAspectRatio: false
-    };
- 
+    },
+  ];
+
   return (
   <div id="page-wrap">
     
@@ -633,13 +687,13 @@ const [grammardata, setGrammarData] = useState({
     <div>
     <Fragment>
       <Element name="section-one">
-        <h2>Section One</h2>
         <div className="repo-info">
           <h2 className="repo-name">{repoName} Repository</h2>
           {prData.prPercentage !== null && (
             <h3 className="repo-type">{prData.prPercentage > 0 ? 'Team Repository' : 'Personal Repository'}</h3>
           )}
         </div>
+        <div className="info-boxset">
         <div className="info-boxx">
           <h3>Used Language</h3>
           <p>{programLanguages.join(', ')}</p> {/* 언어들을 쉼표로 구분하여 표시 */}
@@ -648,28 +702,30 @@ const [grammardata, setGrammarData] = useState({
           <h3>Used Framework</h3>
           <p>{framework.join(', ')}</p> {/* 프레임워크들을 쉼표로 구분하여 표시 */}
         </div>
+        </div>
       </Element>
 
       <Element name="section-two">
-        <h2>Repository info</h2>
+      
+        <h2 className="section-container">Repository info</h2>
           <>
-            <div className="chart-with-info">
-	            <div className="chart-and-info-container">
+            <div className="team-chart-with-info">
+	            <div className="team-chart-and-info-container">
               {prData.prPercentage === '0.00' ? (
-  <div className="chart-and-info-container">
-    <img src={imageData} alt="No Data Available" style={{ width: '100%', height: 'auto' }} />
-    <div className="info-box">
+  <div className="team-chart-and-info-container">
+    <img src={imageData} alt="No Data Available" style={{ width: '300px', height: 'auto' }} />
+    <div className="team-info-box">
       <h3>Total PR</h3>
-      <p>해당 프로젝트는 personal 프로젝트라 데이터가 없습니다.</p>
+      <p>해당 프로젝트는 Total PR 데이터가 없습니다.</p>
     </div>
   </div>
 ) : (
-  <div className="chart-and-info-container">
-    <div className="chart-container">
-      <Doughnut data={doughnutData} options={options} />
+  <div className="team-chart-and-info-container">
+    <div className="team-chart-container">
+      <Doughnut data={PullRequestData} options={options} />
     </div>
-    <div className="info-box">
-      <h3>Total Commits</h3>
+    <div className="team-info-box">
+      <h3>Total PR</h3>
       <p>총 PR: {prData.totalPR}</p>
       <p>사용자 PR: {prData.userPR}</p>
       <p>PR 비중:  {prData.prPercentage }</p>
@@ -677,21 +733,21 @@ const [grammardata, setGrammarData] = useState({
   </div>
 )}
               </div>
-	          <div className="chart-and-info-container">
+	          <div className="team-chart-and-info-container">
             {merged_prData.Merged_prPercentage === '0.00' ? (
-  <div className="chart-and-info-container">
-    <img src={imageData} alt="No Data Available" style={{ width: '100%', height: 'auto' }} />
-    <div className="info-box">
-      <h3>Total PR</h3>
-      <p>해당 프로젝트는 personal 프로젝트라 데이터가 없습니다.</p>
+  <div className="team-chart-and-info-container">
+    <img src={imageData} alt="No Data Available" style={{ width: '300px', height: 'auto' }} />
+    <div className="team-info-box">
+      <h3>Total Merged PR</h3>
+      <p>해당 프로젝트는 Total Merged PR 데이터가 없습니다.</p>
     </div>
   </div>
 ) : (
-  <div className="chart-and-info-container">
-    <div className="chart-container">
+  <div className="team-chart-and-info-container">
+    <div className="team-chart-container">
       <Doughnut data={merged_prDataChart} options={merged_PRoptions} />
     </div>
-    <div className="info-box">
+    <div className="team-info-box">
       <h3>Total Merged_PR</h3>
       <p>총 PR: {merged_prData.totalusers_PR}</p>
       <p>병합된 PR: {merged_prData.Merged_PR}</p>
@@ -700,22 +756,22 @@ const [grammardata, setGrammarData] = useState({
   </div>
 )}
             </div>
-            <div className="chart-and-info-container">
+            <div className="team-chart-and-info-container">
             {issuesData.IssuesPercentage === '0.00' ? (
- <div className="chart-and-info-container">
-    <img src={imageData} alt="No Data Available" style={{ width: '100%', height: 'auto' }} />
-    <div className="info-box">
-      <h3>Total PR</h3>
-      <p>해당 프로젝트는 personal 프로젝트라 데이터가 없습니다.</p>
+ <div className="team-chart-and-info-container">
+    <img src={imageData} alt="No Data Available" style={{ width: '300px', height: 'auto' }} />
+    <div className="team-info-box">
+      <h3>Total Issues</h3>
+      <p>해당 프로젝트는 Total Issues 데이터가 없습니다.</p>
     </div>
   </div>
 ) : (
-  <div className="chart-and-info-container">
-    <div className="chart-container">
+  <div className="team-chart-and-info-container">
+    <div className="team-chart-container">
       <Doughnut data={issuesDataChart} options={issuesoptions} />
     </div>
-    <div className="info-box">
-      <h3>Total Merged_PR</h3>
+    <div className="team-info-box">
+      <h3>Total Issues</h3>
       <p>총 Issues: {issuesData.totalIssues}</p>
       <p>사용자 Issues: {issuesData.userIssues}</p>
       <p>Issues 비중: {issuesData.IssuesPercentage}</p>
@@ -723,13 +779,15 @@ const [grammardata, setGrammarData] = useState({
   </div>
 )}
             </div>
+            </div>
+            <div className="all-chart-with-info">
             <div className="chart-and-info-container">
               {commitsData.CommitsPercentage === '0.00' ? (
                 <div className="chart-and-info-container">
-                <img src={imageData} alt="No Data Available" style={{ width: '100%', height: 'auto' }} />
+                <img src={imageData} alt="No Data Available" style={{ width: '300px', height: 'auto' }} />
                   <div className="info-box">
                   <h3>Total Commits</h3>
-                  <p>해당 프로젝트는 personal 프로젝트라 데이터가 없습니다.</p>
+                  <p>해당 프로젝트는 Total Commits 데이터가 없습니다.</p>
                   </div>
                 </div>
                 ) : (
@@ -765,7 +823,7 @@ const [grammardata, setGrammarData] = useState({
       <Doughnut data={duplicatesDataChart} options={duplicatesoptions} />
       </div>
      <div className="info-box">
-     <h3>Total PR</h3>
+     <h3>uplicates</h3>
       <p>총 라인수: {duplicatesData. total_lines}</p>
       <p>중복 라인수 : {duplicatesData.userDuplicates}</p>
       {/* 배열의 각 요소를 개별적으로 렌더링합니다. */}
@@ -774,49 +832,56 @@ const [grammardata, setGrammarData] = useState({
        </div>
       </div>
           </>
-       
-      
-          <div className="scroll-link-box">
-            <ScrollLink to="section-one" spy={true} smooth={true} duration={500}>
-                 top
-            </ScrollLink>
-          </div>
       </Element>
 
       <Element name="section-three">
-        <h2>Section Three</h2>
-        <div>
-        <Line data={lineChartData} options={chartOptions} />
-        </div>
-        <div className="scroll-link-box">
-           <ScrollLink to="section-one" spy={true} smooth={true} duration={500}>
-             top
-           </ScrollLink>
-        </div>
+      
+          <h2 className="section-container">Complexcity</h2>
+        
+              
+
       </Element>
 
       <Element name="section-four">
-        <h2>Section Four</h2>
-	    <div className="chart-with-info">
-            <div className="chart-and-info-container">
-      <div className="chart-container">
-      <Bar data={barDatachart} options={barDataoptions} />
+      
+      <h2 className="section-container">Commit message</h2>
+      <div className="grammer-chart-and-info-container">
+        <div className="grammer-doughnut-chart-container">
+          <Doughnut
+            data={totalGrammarData}
+            options={grammeroptions('Total Grammar', grammardata.totalGrammar || 0)}
+            plugins={plugins}
+          />
+        </div>
+        <div className="grammer-doughnut-chart-container">
+          <Doughnut
+            data={userGrammarData}
+            options={grammeroptions('User Grammar', grammardata.userGrammar || 0)}
+            plugins={plugins}
+          />
+        </div>
       </div>
-     <div className="info-box">
-     <h3>Total PR</h3>
-      <p>WhatWhy: {barData. WhatWhy}</p>
-      <p>What : {barData.What}</p>
-      <p>Why : {barData.Why}</p>
-      <p>None:  {barData.None }</p>
-        </div>
-        </div>
-        </div>
-        <div className="scroll-link-box">
-          <ScrollLink to="section-one" spy={true} smooth={true} duration={500}>
-            top
-          </ScrollLink>
-        </div>
-      </Element>
+  <div className="bar-chart-with-info">
+  <div className="bar-chart-and-info-container">
+      
+  
+      
+              
+    
+    <div className="bar-chart-container">
+        <Bar data={barDatachart} options={barDataoptions} />
+      </div>
+      <div className="bar-chart-info-box">
+     <h3>Commit Message Chart</h3>
+       <p>Total What+Why: {teambarData.TWhatWhy} &nbsp;&nbsp;&nbsp;  User What+Why: {barData.WhatWhy}</p>
+        <p>Total No What: {teambarData.TWhy} &nbsp;&nbsp;&nbsp;  User No What:{barData.Why}</p>
+       <p>Total No Why: {teambarData.TWhat} &nbsp;&nbsp;&nbsp;  User No Why: {barData.What}</p>
+       <p>Total Neither Why nor What: {teambarData.TNone} &nbsp;&nbsp;&nbsp;  User Neither Why nor What: {barData.None} </p>
+      </div>
+      </div>
+  </div>
+ 
+</Element>
     </Fragment>
   </div>
   </div>
