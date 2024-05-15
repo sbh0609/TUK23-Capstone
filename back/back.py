@@ -1,8 +1,9 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS,cross_origin
-import requests,hashlib, json, os, base64, re
+import os
 from dotenv import load_dotenv
 import getframework
+import func
 import pymysql
 
 app = Flask(__name__)
@@ -30,17 +31,17 @@ headers = {
 }
 
 source_file_extensions = {
-    "C": [".c", ".h"],
-    "C++": [".cpp", ".cxx", ".cc", ".hpp", ".hxx", ".h"],
-    "C#": [".cs"],
+    # "C": [".c", ".h"],
+    # "C++": [".cpp", ".cxx", ".cc", ".hpp", ".hxx", ".h"],
+    # "C#": [".cs"],
     "Python": [".py"],
     "JavaScript": [".js"],
-    "Go": [".go"],
+    # "Go": [".go"],
     "Java": [".java"],
-    "PHP": [".php", ".phtml"],
-    "Ruby": [".rb"],
-    "Scala": [".scala"],
-    "Swift": [".swift"],
+    # "PHP": [".php", ".phtml"],
+    # "Ruby": [".rb"],
+    # "Scala": [".scala"],
+    # "Swift": [".swift"],
     "TypeScript": [".ts"],
     "Kotlin": [".kt", ".kts"]
 }
@@ -112,6 +113,7 @@ def handle_input():
     getframework.choose_repo_commit(user_repo_list,headers)
     getframework.choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files)
     getframework.classify_personal_team(user_repo_list,headers,personal_repo,team_repo)
+    print(filtered_files)
     personal_list = [i[0]for i in personal_repo]
     team_list = [i[0]for i in team_repo]
     print(team_list)
@@ -127,30 +129,50 @@ def analyze_repo():
     repo_name = datas.get('repo_name')
     repo_file = datas.get('fileList')
     repo_type = datas.get('repo_type')
+    all_files_complexity = {}
+    user_id="a"
     print(user_name)
     if(repo_type=='personal'):
         program_lang= getframework.get_used_lang(repo_name,all_lang,headers)
-        repo_file_data=getframework.get_file_data(repo_file,repo_name,headers)
+        repo_file_data,complex_file_path=getframework.get_file_data(repo_file,repo_name,user_id,headers)
+        
         comment_per=getframework.comment_percent(repo_file_data)
         framework=getframework.analyze_dependencies(repo_file_data)
         dup_code=getframework.detect_code_duplication(repo_file_data)
+        for file_path in complex_file_path:
+            result = getframework.analyze_file(file_path)
+            complexity_info=getframework.extract_complexity_messages(result)
+            all_files_complexity[file_path] = complexity_info
+        print(all_files_complexity)
         repo_analyze={
             "program_lang": program_lang,
             "comment_per": comment_per,
             "framework": framework,
             "duplicate_code": dup_code,
+            "complexity": all_files_complexity
         }
         return jsonify(repo_analyze)
     elif(repo_type=='team'):
         program_lang= getframework.get_used_lang(repo_name,all_lang,headers)
-        repo_file_data=getframework.get_file_data(repo_file,repo_name,headers)
+        print(repo_file)
+        repo_file_data,complex_file_path=getframework.get_file_data(repo_file,repo_name,user_id,headers)
+        
         comment_per=getframework.comment_percent(repo_file_data)
         framework=getframework.analyze_dependencies(repo_file_data)
         dup_code=getframework.detect_code_duplication(repo_file_data)
         pr_per=getframework.pr_percent(user_name,repo_name,headers)
+        # pr_per=0
         issue_per=getframework.issue_percent(user_name,repo_name,headers)
         commit_per = getframework.commit_percent(user_name,repo_name,headers)
         merged_pr_stats =getframework.get_merged_pr_stats(user_name, repo_name,headers)
+        for file_path in complex_file_path:
+            result = getframework.analyze_file(file_path)
+            complexity_info=getframework.extract_complexity_messages(result)
+            all_files_complexity[file_path] = complexity_info
+        print(all_files_complexity)
+        total_quality, user_quality = func.classify_commit_quality(repo_name, user_name, token)
+        total_grammar, user_grammar = func.check_grammar(repo_name, user_name, token)
+
         repo_analyze={
             "program_lang": program_lang,
             "comment_per": comment_per,
@@ -160,6 +182,11 @@ def analyze_repo():
             "commit_per": commit_per,
             "merged_pr_stats": merged_pr_stats,
             "issue_per": issue_per,
+            "complexity": all_files_complexity,
+            "total_quality": total_quality,
+            "user_quality": user_quality,
+            "total_grammar": total_grammar,
+            "user_grammar": user_grammar
         }
         return jsonify(repo_analyze)
     

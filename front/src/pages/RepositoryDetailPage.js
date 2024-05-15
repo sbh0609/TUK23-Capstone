@@ -1,5 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect } from "react";
+import { Link } from 'react-router-dom';
+import { Link as ScrollLink, Element } from 'react-scroll';  // Link 컴포넌트 임포트
+import imageData from '../resources/image.png';
 import { Doughnut } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
@@ -16,14 +21,31 @@ const RepositoryDetailPage = () => {
   const session_userID = "DAETAEMIN";
 
   const { repositoryDetail } = useRepository();
-  const { repo_name, fileList, username, repo_type } = repositoryDetail;
+  const { repo_name, fileList, username, repo_type, token } = repositoryDetail;
   const [programLanguages, setProgramLanguages] = useState([]);
   const [repoName, setRepoName] = useState('');
   const [framework, setFramework] = useState([]);
+  const [complexityData, setComplexityData] = useState({});
   const [prData, setPRData] = useState({
     totalPR: null,
     userPR: null,
     prPercentage: null
+});
+const [teambarData, setTotalQualityData] = useState({
+  TWhatWhy: null,
+  TNone: null,
+  TWhy: null,
+  TWhat: null 
+});
+const [barData, setUserlQualityData] = useState({
+  WhatWhy: null,
+  None: null,
+  Why: null,
+  What: null 
+});
+const [grammardata, setGrammarData] = useState({
+  totalGrammar: null,
+  userGrammar: null
 });
   const [commitsData, setcommitsData] = useState({
   totalCommits: null,
@@ -51,6 +73,8 @@ const RepositoryDetailPage = () => {
   userDuplicates: null,
   DuplicatesPercentage: null
 });
+  const complexity_data = {1: 2, 2: 2}
+
   const [loading, setLoading] = useState(true);
   const [userInput, setUserInput ] = useState("");
   const [userType, setUserType ] = useState("");
@@ -95,7 +119,7 @@ const RepositoryDetailPage = () => {
       }),
     }
   useEffect(()=>{
-    axios.post('http://localhost:5000/api/analyze',{repo_name,username,fileList,repo_type, session_userID})
+    axios.post('http://localhost:5000/api/analyze',{repo_name,username, fileList,repo_type, session_userID})
       .then(response=>{
         console.log(response);
             setProgramLanguages(response.data.program_lang);
@@ -109,6 +133,24 @@ const RepositoryDetailPage = () => {
             const {duplicate_code} = response.data;
             const {comment_per} = response.data;
             console.log("Before update:", duplicate_code);
+            const fetchedComplexityData = response.data.complexity_info || {}; // 서버 응답이 없거나 오류가 있을 경우 빈 객체를 사용
+             setComplexityData(fetchedComplexityData);
+            setTotalQualityData({
+              TWhatWhy: response.data.WhatWhy,
+              TNone: response.data.None,
+              TWhy: response.data.Why,
+              TWhat: response.data.What
+            });
+            setUserlQualityData({
+              WhatWhy: response.data.WhatWhy,
+              None: response.data.None,
+              Why: response.data.Why,
+              What: response.data.What});
+            setGrammarData({
+              totalGrammar: response.data.total_grammar,
+              userGrammar: response.data.user_grammar
+            });
+      
             if (pr_per && pr_per.length >= 3) {
               // prData 상태를 업데이트합니다.
               setPRData({
@@ -199,6 +241,8 @@ const RepositoryDetailPage = () => {
             }
           })
       .catch(error => {
+        console.error('Error fetching data', error);
+        setComplexityData({}); 
         console.error('Error analyzing repositories', error);
         window.alert('Error: ' + error);
         setLoading(false);
@@ -311,7 +355,7 @@ const RepositoryDetailPage = () => {
     labels: ['User Comments', 'Other'],
     datasets: [{
       label: 'Comments Percentage',
-      data: commentsData.CommentsPercentage  != null ? [commentsData.CommentsPercentage , 100 - commentsData.CommentsPercentage ] : [0, 100],
+      data: commentsData.CommentsPercentage  != null ? [(commentsData.commentlines/commentsData.totalines)*100, 100 - (commentsData.commentlines/commentsData.totalines)*100 ] : [0, 100],
       backgroundColor: ['rgba(128, 128, 128, 0.8)', 'rgba(0, 123, 255, 0.8)'],
       borderColor: ['rgba(128, 128, 128, 1)', 'rgba(0, 123, 255, 1)'],
       borderWidth: 1
@@ -467,15 +511,108 @@ const RepositoryDetailPage = () => {
       }
     }
   };
+  const barDatachart = {
+    labels: ['WhatWhy', 'What', 'Why', 'None'],
+    datasets: [{
+      label: 'Commit Message Chart',
+      data: [
+        barData?.WhatWhy || 0,  // Use optional chaining and fallback to 0
+        barData?.What || 0,
+        barData?.Why || 0,
+        barData?.None || 0
+      ],
+      backgroundColor: [
+          'rgba(255, 206, 86, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(122, 162, 235, 0.2)',
+          'rgba(30, 162, 235, 0.2)'
+      ],
+      borderColor: [
+          'rgba(255, 206, 86, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(122, 162, 235, 1)',
+          'rgba(30, 162, 235, 1)'
+      ],
+      borderWidth: 1
+    }]
+  };
+  
+    const barDataoptions = {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom'
+        },
+        title: {
+          display: true,
+          text: 'Commit Message Chart',
+          font: {
+            size: 20
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              let label = context.label || '';
+              if (label) {
+                label += ': ';
+              }
+              
+              return label;
+            }
+          }
+        }
+      }
+    };
+    const lineChartData = {
+      labels: Object.keys(complexityData).map(line => `Line ${line}`),
+      datasets: [
+        {
+          label: 'Cyclomatic Complexity per Line',
+          data: Object.values(complexityData),
+          fill: false,
+          backgroundColor: 'rgb(75, 192, 192)',
+          borderColor: 'rgba(75, 192, 192, 0.2)',
+        }
+      ]
+    };
+  
+    const chartOptions = {
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Cyclomatic Complexity'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Source Code Lines'
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top'
+        }
+      },
+      responsive: true,
+      maintainAspectRatio: false
+    };
+ 
   return (
+  <div id="page-wrap">
     
-    <div  className="RepositoryDetailPage" >
-      <div>
-      {loading ? <Loading /> : null} // Loading이 true면 컴포넌트를 띄우고, false면 null(빈 값)처리 하여 컴포넌트 숨김
+    <div>
+      {loading ? <Loading /> : null} 
       <div className="top-bar">
         <button onClick={handleEnterButton} className="home-button">Home</button>
         <button onClick={handleEnterButton} className="log-out-button">Log out</button>
-        <button className="about-us-button">About us</button>34
+        <button className="about-us-button">About us</button>
       </div>
       <div className="search-bar-background">
         <label>
@@ -493,79 +630,128 @@ const RepositoryDetailPage = () => {
           <Select options={ect_options} styles={optionStyles} placeholder="Ect" onChange={handleUserEctChange}/>
         </div>
       </div>
-      
-      <div className="repo-info">
-      <h2 className="repo-name">{repoName} Repository</h2>
-      {prData.prPercentage !== null && (
-      <h3 className="repo-type">{prData.prPercentage > 0 ? 'Team Repository' : 'Personal Repository'}</h3>
-      )}
-      </div>
-     
-    <div className="info-boxx">
-      <h3>Used Language</h3>
-      <p>{programLanguages.join(', ')}</p> {/* 언어들을 쉼표로 구분하여 표시 */}
-    </div>
 
-    <div className="info-boxx">
-      <h3>Used Framework</h3>
-      <p>{framework.join(', ')}</p> {/* 프레임워크들을 쉼표로 구분하여 표시 */}
-    </div>
-    
-    <div className="chart-with-info">
-      <div className="chart-and-info-container">
-        {/* 도넛 차트 추가 */}
-        
-        <div className="chart-container">
-        <Doughnut data={doughnutData} options={options} />
-       </div>
+ 
 
-       <div className="info-box">
-        <h3>Total PR</h3>
-        <p>총 PR: {prData.totalPR}</p>
-        <p>사용자 PR: {prData.userPR}</p>
-       {/* 배열의 각 요소를 개별적으로 렌더링합니다. */}
-        <p>PR 비중:  {prData.prPercentage }</p>
+    <div>
+    <Fragment>
+      <Element name="section-one">
+        <h2>Section One</h2>
+        <div className="repo-info">
+          <h2 className="repo-name">{repoName} Repository</h2>
+          {prData.prPercentage !== null && (
+            <h3 className="repo-type">{prData.prPercentage > 0 ? 'Team Repository' : 'Personal Repository'}</h3>
+          )}
         </div>
-      </div>
-      <div className="chart-and-info-container">
-        <div className="chart-container">
-        <Doughnut data={merged_prDataChart} options={merged_PRoptions} />
+        <div className="info-boxx">
+          <h3>Used Language</h3>
+          <p>{programLanguages.join(', ')}</p> {/* 언어들을 쉼표로 구분하여 표시 */}
         </div>
-        <div className="info-box">
-       <h3>Total Merged_PR</h3>
-         <p>총 PR: {merged_prData.totalusers_PR}</p>
-         <p>병합된 PR: {merged_prData.Merged_PR}</p>
-         {/* 배열의 각 요소를 개별적으로 렌더링합니다. */}
-         <p>병합된 PR 비중:  {merged_prData.Merged_prPercentage }</p>
-         </div>
-       </div>
+        <div className="info-boxx">
+          <h3>Used Framework</h3>
+          <p>{framework.join(', ')}</p> {/* 프레임워크들을 쉼표로 구분하여 표시 */}
+        </div>
+      </Element>
 
-      <div className="chart-and-info-container">
-      <div className="chart-container">
-        <Doughnut data={commitsDataChart} options={commitsoptions} />
-      </div>
-      <div className="info-box">
-        <h3>Total Commits</h3>
-        <p>총 Commit: {commitsData.totalCommits}</p>
-        <p>사용자 Commit: {commitsData.userCommits}</p>
-        {/* 배열의 각 요소를 개별적으로 렌더링합니다. */}
-        <p>Commit 비중:  {commitsData.CommitsPercentage }</p>
-       </div>
-       </div>
+      <Element name="section-two">
+        <h2>Repository info</h2>
+          <>
+            <div className="chart-with-info">
+	            <div className="chart-and-info-container">
+              {prData.prPercentage === '0.00' ? (
+  <div className="chart-and-info-container">
+    <img src={imageData} alt="No Data Available" style={{ width: '100%', height: 'auto' }} />
+    <div className="info-box">
+      <h3>Total PR</h3>
+      <p>해당 프로젝트는 personal 프로젝트라 데이터가 없습니다.</p>
+    </div>
+  </div>
+) : (
+  <div className="chart-and-info-container">
+    <div className="chart-container">
+      <Doughnut data={doughnutData} options={options} />
+    </div>
+    <div className="info-box">
+      <h3>Total Commits</h3>
+      <p>총 PR: {prData.totalPR}</p>
+      <p>사용자 PR: {prData.userPR}</p>
+      <p>PR 비중:  {prData.prPercentage }</p>
+    </div>
+  </div>
+)}
+              </div>
+	          <div className="chart-and-info-container">
+            {merged_prData.Merged_prPercentage === '0.00' ? (
+  <div className="chart-and-info-container">
+    <img src={imageData} alt="No Data Available" style={{ width: '100%', height: 'auto' }} />
+    <div className="info-box">
+      <h3>Total PR</h3>
+      <p>해당 프로젝트는 personal 프로젝트라 데이터가 없습니다.</p>
+    </div>
+  </div>
+) : (
+  <div className="chart-and-info-container">
+    <div className="chart-container">
+      <Doughnut data={merged_prDataChart} options={merged_PRoptions} />
+    </div>
+    <div className="info-box">
+      <h3>Total Merged_PR</h3>
+      <p>총 PR: {merged_prData.totalusers_PR}</p>
+      <p>병합된 PR: {merged_prData.Merged_PR}</p>
+      <p>병합된 PR 비중:  {merged_prData.Merged_prPercentage }</p>
+    </div>
+  </div>
+)}
+            </div>
+            <div className="chart-and-info-container">
+            {issuesData.IssuesPercentage === '0.00' ? (
+ <div className="chart-and-info-container">
+    <img src={imageData} alt="No Data Available" style={{ width: '100%', height: 'auto' }} />
+    <div className="info-box">
+      <h3>Total PR</h3>
+      <p>해당 프로젝트는 personal 프로젝트라 데이터가 없습니다.</p>
+    </div>
+  </div>
+) : (
+  <div className="chart-and-info-container">
+    <div className="chart-container">
+      <Doughnut data={issuesDataChart} options={issuesoptions} />
+    </div>
+    <div className="info-box">
+      <h3>Total Merged_PR</h3>
+      <p>총 Issues: {issuesData.totalIssues}</p>
+      <p>사용자 Issues: {issuesData.userIssues}</p>
+      <p>Issues 비중: {issuesData.IssuesPercentage}</p>
+    </div>
+  </div>
+)}
+            </div>
+            <div className="chart-and-info-container">
+              {commitsData.CommitsPercentage === '0.00' ? (
+                <div className="chart-and-info-container">
+                <img src={imageData} alt="No Data Available" style={{ width: '100%', height: 'auto' }} />
+                  <div className="info-box">
+                  <h3>Total Commits</h3>
+                  <p>해당 프로젝트는 personal 프로젝트라 데이터가 없습니다.</p>
+                  </div>
+                </div>
+                ) : (
+              <div className="chart-and-info-container">
+                <div className="chart-container">
+                  <Doughnut data={commitsDataChart} options={commitsoptions} />
+                </div>
+                  <div className="info-box">
+                    <h3>Total Commits</h3>
+                    <p>총 Commit: {commitsData.totalCommits}</p>
+                    <p>사용자 Commit: {commitsData.userCommits}</p>
+                    <p>Commit 비중: {commitsData.CommitsPercentage}</p>
+                  </div>
+                </div>
+              )}          
+        </div>
 
-       <div className="chart-and-info-container">
-      <div className="chart-container">
-        <Doughnut data={issuesDataChart} options={issuesoptions} />
-      </div>
-     <div className="info-box">
-      <h3>Total Issues</h3>
-        <p>총 Issues: {issuesData.totalIssues}</p>
-        <p>사용자 Issues: {issuesData.userIssues}</p>
-        {/* 배열의 각 요소를 개별적으로 렌더링합니다. */}
-       <p>Issues 비중:  {issuesData.IssuesPercentage }</p>
-      </div>
-      </div>
-      <div className="chart-and-info-container">
+	     
+	    <div className="chart-and-info-container">
       <div className="chart-container">
        <Doughnut data={commentsDataChart} options={commentsoptions} />
      </div>
@@ -574,7 +760,7 @@ const RepositoryDetailPage = () => {
        <p>총 라인수: {commentsData.totalines}</p>
         <p>주석 라인수: {commentsData.commentlines}</p>
        <p>파일수: {commentsData.fliecounts}</p>
-        <p>평균 comments 비율: {commentsData.CommentsPercentage}</p>
+       <p>사용자 comments 비율: {commentsData.totalines && commentsData.totalines > 0 ? ((commentsData.commentlines / commentsData.totalines) * 100).toFixed(2) : '데이터 없음'}</p>
       </div>
       </div>
       <div className="chart-and-info-container">
@@ -588,13 +774,58 @@ const RepositoryDetailPage = () => {
       {/* 배열의 각 요소를 개별적으로 렌더링합니다. */}
       <p>중복 비율:  {duplicatesData.DuplicatesPercentage }</p>
         </div>
-        
-        
        </div>
-    
-    </div>
-    </div>
-    </div>
+      </div>
+          </>
+       
+      
+          <div className="scroll-link-box">
+            <ScrollLink to="section-one" spy={true} smooth={true} duration={500}>
+                 top
+            </ScrollLink>
+          </div>
+      </Element>
+
+      <Element name="section-three">
+        <h2>Section Three</h2>
+        <div>
+        <Line data={lineChartData} options={chartOptions} />
+        </div>
+        <div className="scroll-link-box">
+           <ScrollLink to="section-one" spy={true} smooth={true} duration={500}>
+             top
+           </ScrollLink>
+        </div>
+      </Element>
+
+      <Element name="section-four">
+        <h2>Section Four</h2>
+	    <div className="chart-with-info">
+            <div className="chart-and-info-container">
+      <div className="chart-container">
+      <Bar data={barDatachart} options={barDataoptions} />
+      </div>
+     <div className="info-box">
+     <h3>Total PR</h3>
+      <p>WhatWhy: {barData. WhatWhy}</p>
+      <p>What : {barData.What}</p>
+      <p>Why : {barData.Why}</p>
+      <p>None:  {barData.None }</p>
+        </div>
+        </div>
+        </div>
+        <div className="scroll-link-box">
+          <ScrollLink to="section-one" spy={true} smooth={true} duration={500}>
+            top
+          </ScrollLink>
+        </div>
+      </Element>
+    </Fragment>
+  </div>
+  </div>
+  </div>
   );
+
 };
+
 export default RepositoryDetailPage;
