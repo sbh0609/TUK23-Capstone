@@ -156,7 +156,7 @@ def commit_percent(username, repo_name,headers):
     commit_url = f"https://api.github.com/repos/{repo_name}/commits"
     response = get_paged_response(commit_url,headers)
     total_commits = len(response)
-    user_commits = sum(1 for commit in response if commit['author']['login'] == username)
+    user_commits = sum(1 for commit in response if commit['author'] is not None and commit['author']['login'] == username)
     user_commit_percentage = (user_commits / total_commits) * 100 if total_commits > 0 else 0
     return total_commits, user_commits, user_commit_percentage;
 
@@ -273,8 +273,7 @@ def comment_percent(repo_file_data):
             file_count += 1
             result[file_name] = comment_ratio
             comment_lines1 += comment_lines
-    average_comment_ratio = total_comment_ratio / file_count
-    return total_lines1,comment_lines1,average_comment_ratio, file_count;
+    return total_lines1,comment_lines1, total_comment_ratio;
 
 
 def analyze_dependencies(repo_file_data):
