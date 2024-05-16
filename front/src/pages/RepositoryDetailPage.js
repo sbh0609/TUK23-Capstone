@@ -366,7 +366,7 @@ const [grammardata, setGrammarData] = useState({
         enabled: false,
       },
       centerText: {
-        text: `${prData.prPercentage != null ? prData.prPercentage : 0}%`,
+        text: `${prData.prPercentage != null ? parseFloat(prData.prPercentage).toFixed(2) : '0.00'}%`,
         color: '#000000',
         fontStyle: 'Arial',
         sidePadding: 20,
@@ -421,7 +421,7 @@ const [grammardata, setGrammarData] = useState({
         enabled: false,
       },
       centerText: {
-        text: `${merged_prData.Merged_prPercentage != null ? merged_prData.Merged_prPercentage : 0}%`,
+        text: `${merged_prData.Merged_prPercentage != null ? parseFloat(merged_prData.Merged_prPercentage).toFixed(2) : '0.00'}%`,
         color: '#000000',
         fontStyle: 'Arial',
         sidePadding: 20,
@@ -475,7 +475,7 @@ const [grammardata, setGrammarData] = useState({
         enabled: false,
       },
       centerText: {
-        text: `${commentsData.CommentsPercentage != null ? commentsData.CommentsPercentage : 0}%`,
+        text: `${commentsData.CommentsPercentage != null ? parseFloat(commentsData.CommentsPercentage).toFixed(2) : '0.00'}%`,
         color: '#000000',
         fontStyle: 'Arial',
         sidePadding: 20,
@@ -529,7 +529,7 @@ const [grammardata, setGrammarData] = useState({
         enabled: false,
       },
       centerText: {
-        text: `${commitsData.CommitsPercentage != null ? commitsData.CommitsPercentage : 0}%`,
+        text: `${commitsData.CommitsPercentage != null ? parseFloat(commitsData.CommitsPercentage).toFixed(2) : '0.00'}%`,
         color: '#000000',
         fontStyle: 'Arial',
         sidePadding: 20,
@@ -583,7 +583,7 @@ const [grammardata, setGrammarData] = useState({
         enabled: false,
       },
       centerText: {
-        text: `${issuesData.IssuesPercentage != null ? issuesData.IssuesPercentage : 0}%`,
+        text: `${issuesData.IssuesPercentage != null ? parseFloat(issuesData.IssuesPercentage).toFixed(2) : '0.00'}%`,
         color: '#000000',
         fontStyle: 'Arial',
         sidePadding: 20,
@@ -637,7 +637,7 @@ const [grammardata, setGrammarData] = useState({
         enabled: false,
       },
       centerText: {
-        text: `${duplicatesData.DuplicatesPercentage != null ? duplicatesData.DuplicatesPercentage : 0}%`,
+        text: `${duplicatesData.DuplicatesPercentage != null ? parseFloat(duplicatesData.DuplicatesPercentage).toFixed(2) : '0.00'}%`,
         color: '#000000',
         fontStyle: 'Arial',
         sidePadding: 20,
