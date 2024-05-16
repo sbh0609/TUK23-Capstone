@@ -24,7 +24,46 @@ const RepositoryDetailPage = () => {
   const [programLanguages, setProgramLanguages] = useState([]);
   const [repoName, setRepoName] = useState('');
   const [framework, setFramework] = useState([]);
-  const [complexityData, setComplexityData] = useState({});
+  const [complexityData, setComplexityData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: 'Line Complexity Counts',
+        data: [],
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+      }
+    ],
+  });
+
+  const [complexDoughnutData, setComplexDoughnutData] = useState({
+    labels: ['Green (1-10)', 'Yellow (11-20)', 'Red (21+)'],
+    datasets: [
+      {
+        data: [0, 0, 0],
+        backgroundColor: ['rgba(75, 192, 192, 0.5)', 'rgba(255, 205, 86, 0.5)', 'rgba(255, 99, 132, 0.5)'],
+        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 205, 86, 1)', 'rgba(255, 99, 132, 1)'],
+        borderWidth: 1,
+      }
+    ],
+  });
+
+  const doughnutOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom'
+      },
+      title: {
+        display: true,
+        text: 'Complexity Ranges',
+        font: {
+          size: 16
+        }
+      }
+    }
+  };
   const [prData, setPRData] = useState({
     totalPR: null,
     userPR: null,
@@ -36,7 +75,7 @@ const [teambarData, setTotalQualityData] = useState({
   TWhy: null,
   TWhat: null 
 });
-const [barData, setUserlQualityData] = useState({
+const [barData, setUserQualityData] = useState({
   WhatWhy: null,
   None: null,
   Why: null,
@@ -72,7 +111,7 @@ const [grammardata, setGrammarData] = useState({
   userDuplicates: null,
   DuplicatesPercentage: null
 });
-  const complexity_data = {1: 2, 2: 2}
+
 
   const [loading, setLoading] = useState(true);
   const [userInput, setUserInput ] = useState("");
@@ -80,6 +119,7 @@ const [grammardata, setGrammarData] = useState({
   const [userLanguage, setUserLanguage ] = useState("");
   const [userEct, setUserEct ] = useState("");
   const navigate = useNavigate();
+ 
     // 드롭다운의 옵션들 선언
     const type_options = [
       { value: "", label: "All" },
@@ -132,24 +172,72 @@ const [grammardata, setGrammarData] = useState({
             const {duplicate_code} = response.data;
             const {comment_per} = response.data;
             console.log("Before update:", duplicate_code);
-            const fetchedComplexityData = response.data.complexity_info || {}; // 서버 응답이 없거나 오류가 있을 경우 빈 객체를 사용
-             setComplexityData(fetchedComplexityData);
+            const {complexity} = response.data;
+           
+            
+            // Process fetched data to count complexities
+            const complexityCounts = {};
+            Object.values(complexity).forEach(file => {
+              Object.entries(file).forEach(([line, comp]) => {
+                complexityCounts[comp] = (complexityCounts[comp] || 0) + 1;
+              });
+            });
+            
+        
+            // Prepare chart data
+            const labels = Object.keys(complexityCounts).sort((a, b) => a - b);
+            const data = labels.map(label => complexityCounts[label]);
+            setComplexityData({
+              labels,
+              datasets: [{
+                label: 'Line Complexity Counts',
+                data,
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+              }]
+            });
+
+           
+            const rangeCounts = { green: 0, yellow: 0, red: 0 };
+            Object.values(complexity).forEach(files => {
+              Object.entries(files).forEach(([line, comp]) => {
+                if (comp <= 10) {
+                  rangeCounts.green++;
+                } else if (comp <= 20) {
+                  rangeCounts.yellow++;
+                } else {
+                  rangeCounts.red++;
+                }
+              });
+              
+          setComplexDoughnutData(prevData => ({
+          ...prevData,
+          datasets: [{
+            ...prevData.datasets[0],
+            data: [rangeCounts.green, rangeCounts.yellow, rangeCounts.red]
+          }]
+         }));
+            });
+         
+           
+            
+            // 품질 데이터 설정
             setTotalQualityData({
-              TWhatWhy: response.data.WhatWhy,
-              TNone: response.data.None,
-              TWhy: response.data.Why,
-              TWhat: response.data.What
+              TWhatWhy: response.data.total_quality[0],
+              TNone: response.data.total_quality[1],
+              TWhy: response.data.total_quality[2],
+              TWhat: response.data.total_quality[3]
             });
-            setUserlQualityData({
-              WhatWhy: response.data.WhatWhy,
-              None: response.data.None,
-              Why: response.data.Why,
-              What: response.data.What});
+            setUserQualityData({
+              WhatWhy: response.data.user_quality[0],
+              None: response.data.user_quality[1],
+              Why: response.data.user_quality[2],
+              What: response.data.user_quality[3]
+            });
             setGrammarData({
-              totalGrammar: response.data.total_grammar,
-              userGrammar: response.data.user_grammar
+              totalGrammar: response.data.total_grammar.toFixed(2),
+              userGrammar: response.data.user_grammar.toFixed(2)
             });
-      
             if (pr_per && pr_per.length >= 3) {
               // prData 상태를 업데이트합니다.
               setPRData({
@@ -241,7 +329,7 @@ const [grammardata, setGrammarData] = useState({
           })
       .catch(error => {
         console.error('Error fetching data', error);
-        setComplexityData({}); 
+        
         console.error('Error analyzing repositories', error);
         window.alert('Error: ' + error);
         setLoading(false);
@@ -261,348 +349,481 @@ const [grammardata, setGrammarData] = useState({
   const handleUserEctChange = (selectedOption) => {
     setUserEct(selectedOption.value);
   }
-  const doughnutData = {
-    labels: [
-      'User PR',
-      'Other'
-    ],
+  const PullRequestData = {
+    labels: ['User PR','Other'],
     datasets: [{
-      label: 'Pull Request Percentage',
-      data: prData.prPercentage  != null ? [prData.prPercentage , 100 - prData.prPercentage ] : [0, 100], // PR 비율 또는 기본 값
-      backgroundColor: [
-        'rgba(255, 206, 86, 0.2)',
-        'rgba(54, 162, 235, 0.2)'
-      ],
-      borderColor: [
-        'rgba(255, 206, 86, 1)',
-        'rgba(54, 162, 235, 1)'
-      ],
-      borderWidth: 1
+      data: prData.prPercentage != null ? [prData.prPercentage , 100 - prData.prPercentage] : [0, 100],
+      backgroundColor: ['rgba(10, 30, 100, 1.2)', 'rgba(255, 255, 255, 0.1)'],
+      borderColor: ['rgba(10, 30, 100, 1)', 'rgba(10, 30, 100, 1)'],
+      borderWidth: 2
     }]
   };
+  
   const options = {
-    responsive: true,
     plugins: {
       legend: {
-        display: true,
-        position: 'bottom'
-      },
-      title: { // 차트 제목 설정
-        display: true,
-        text: 'Pull Request Percentage', // 원하는 제목 설정
-        font: {
-          size: 20 // 원하는 제목 크기 설정
-        }
+        display: false,
       },
       tooltip: {
-        callbacks: {
-          label: function(context) {
-            let label = context.label || '';
-            if (label) {
-              label += ': ';
-            }
-            if (context.parsed !== undefined) {
-              label += `${context.parsed.toFixed(2)}%`; // 소수점 두 자리까지만 표시
-            }
-            return label;
-          }
-        }
-      }
-    }
+        enabled: false,
+      },
+      centerText: {
+        text: `${prData.prPercentage != null ? parseFloat(prData.prPercentage).toFixed(2) : '0.00'}%`,
+        color: '#000000',
+        fontStyle: 'Arial',
+        sidePadding: 20,
+      },
+      title: {
+        display: true,
+        text: 'PR Percentage',
+        font: {
+          size: 20,
+        },
+      },
+    },
+    cutout: '70%',
   };
+  
+  const pr_plugins = [
+    {
+      id: 'centerText',
+      beforeDraw: function (chart) {
+        if (chart.config.options.plugins.centerText) {
+          const ctx = chart.ctx;
+          const centerConfig = chart.config.options.plugins.centerText;
+          const fontSize = (chart.height / 114).toFixed(2);
+          ctx.font = `${fontSize}em ${centerConfig.fontStyle}`;
+          ctx.textBaseline = 'middle';
+          const text = centerConfig.text;
+          const textX = Math.round((chart.width - ctx.measureText(text).width) / 2);
+          const textY = Math.round(chart.height / 2 + 20);
+          ctx.fillStyle = centerConfig.color;
+          ctx.fillText(text, textX, textY);
+        }
+      },
+    },
+  ];
   const merged_prDataChart = {
-    labels: ['User Merged_PR', 'Other'],
+    labels: ['User Merged_PR',
+      'Other'],
     datasets: [{
-      label: 'Merged_PR Percentage',
-      data: merged_prData.Merged_prPercentage != null ? [(merged_prData.Merged_PR/merged_prData.totalusers_PR)*100 , 100 - (merged_prData.Merged_PR/merged_prData.totalusers_PR)*100] : [0, 100],
-      backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(255, 159, 64, 0.2)'],
-      borderColor: ['rgba(255, 99, 132, 1)', 'rgba(255, 159, 64, 1)'],
-      borderWidth: 1
+      ata: merged_prData.Merged_prPercentage != null ? [(merged_prData.Merged_PR/merged_prData.totalusers_PR)*100 , 100 - (merged_prData.Merged_PR/merged_prData.totalusers_PR)*100] : [0, 100],
+      backgroundColor: ['rgba(140, 250, 100, 1.2)', 'rgba(255, 255, 255, 0.1)'],
+      borderColor: ['rgba(140, 250, 100, 1)', 'rgba(140, 250, 100, 1)'],
+      borderWidth: 2
     }]
   };
+  
   const merged_PRoptions = {
-    responsive: true,
     plugins: {
       legend: {
-        display: true,
-        position: 'bottom'
-      },
-      title: { // 차트 제목 설정
-        display: true,
-        text: 'Merged_PR Percentage', // 원하는 제목 설정
-        font: {
-          size: 20 // 원하는 제목 크기 설정
-        }
+        display: false,
       },
       tooltip: {
-        callbacks: {
-          label: function(context) {
-            let label = context.label || '';
-            if (label) {
-              label += ': ';
-            }
-            if (context.parsed !== undefined) {
-              label += `${context.parsed.toFixed(2)}%`; // 소수점 두 자리까지만 표시
-            }
-            return label;
-          }
-        }
-      }
-    }
+        enabled: false,
+      },
+      centerText: {
+        text: `${merged_prData.Merged_prPercentage != null ? parseFloat(merged_prData.Merged_prPercentage).toFixed(2) : '0.00'}%`,
+        color: '#000000',
+        fontStyle: 'Arial',
+        sidePadding: 20,
+      },
+      title: {
+        display: true,
+        text: 'Merged_PR Percentage',
+        font: {
+          size: 20,
+        },
+      },
+    },
+    cutout: '70%',
   };
+  
+  const merged_pr_plugins = [
+    {
+      id: 'centerText',
+      beforeDraw: function (chart) {
+        if (chart.config.options.plugins.centerText) {
+          const ctx = chart.ctx;
+          const centerConfig = chart.config.options.plugins.centerText;
+          const fontSize = (chart.height / 114).toFixed(2);
+          ctx.font = `${fontSize}em ${centerConfig.fontStyle}`;
+          ctx.textBaseline = 'middle';
+          const text = centerConfig.text;
+          const textX = Math.round((chart.width - ctx.measureText(text).width) / 2);
+          const textY = Math.round(chart.height / 2 + 20);
+          ctx.fillStyle = centerConfig.color;
+          ctx.fillText(text, textX, textY);
+        }
+      },
+    },
+  ];
   const commentsDataChart = {
     labels: ['User Comments', 'Other'],
     datasets: [{
-      label: 'Comments Percentage',
-      data: commentsData.CommentsPercentage  != null ? [(commentsData.commentlines/commentsData.totalines)*100, 100 - (commentsData.commentlines/commentsData.totalines)*100 ] : [0, 100],
-      backgroundColor: ['rgba(128, 128, 128, 0.8)', 'rgba(0, 123, 255, 0.8)'],
-      borderColor: ['rgba(128, 128, 128, 1)', 'rgba(0, 123, 255, 1)'],
+      data: commentsData.CommentsPercentage  != null ? [commentsData.CommentsPercentage , 100 - commentsData.CommentsPercentage ] : [0, 100],
+      backgroundColor: ['rgba(128, 175, 128, 1.2)', 'rgba(255, 255, 255, 0.1)'],
+      borderColor: ['rgba(128, 175, 128, 1)', 'rgba(128, 175, 128, 1)'],
       borderWidth: 1
     }]
   };
+  
   const commentsoptions = {
-    responsive: true,
     plugins: {
       legend: {
-        display: true,
-        position: 'bottom'
-      },
-      title: { // 차트 제목 설정
-        display: true,
-        text: 'Comments Percentage', // 원하는 제목 설정
-        font: {
-          size: 20 // 원하는 제목 크기 설정
-        }
+        display: false,
       },
       tooltip: {
-        callbacks: {
-          label: function(context) {
-            let label = context.label || '';
-            if (label) {
-              label += ': ';
-            }
-            if (context.parsed !== undefined) {
-              label += `${context.parsed.toFixed(2)}%`; // 소수점 두 자리까지만 표시
-            }
-            return label;
-          }
-        }
-      }
-    }
+        enabled: false,
+      },
+      centerText: {
+        text: `${commentsData.CommentsPercentage != null ? parseFloat(commentsData.CommentsPercentage).toFixed(2) : '0.00'}%`,
+        color: '#000000',
+        fontStyle: 'Arial',
+        sidePadding: 20,
+      },
+      title: {
+        display: true,
+        text: 'Comments Percentage',
+        font: {
+          size: 20,
+        },
+      },
+    },
+    cutout: '70%',
   };
+  
+  const comments_plugins = [
+    {
+      id: 'centerText',
+      beforeDraw: function (chart) {
+        if (chart.config.options.plugins.centerText) {
+          const ctx = chart.ctx;
+          const centerConfig = chart.config.options.plugins.centerText;
+          const fontSize = (chart.height / 114).toFixed(2);
+          ctx.font = `${fontSize}em ${centerConfig.fontStyle}`;
+          ctx.textBaseline = 'middle';
+          const text = centerConfig.text;
+          const textX = Math.round((chart.width - ctx.measureText(text).width) / 2);
+          const textY = Math.round(chart.height / 2 + 20);
+          ctx.fillStyle = centerConfig.color;
+          ctx.fillText(text, textX, textY);
+        }
+      },
+    },
+  ];
   const commitsDataChart = {
     labels: ['User Commits', 'Other'],
     datasets: [{
-      label: 'Commits Percentage',
       data: commitsData.CommitsPercentage != null ? [(commitsData.userCommits/commitsData.totalCommits)*100, 100 - (commitsData.userCommits/commitsData.totalCommits)*100] : [0, 100],
-      backgroundColor: ['rgba(153, 102, 255, 0.2)', 'rgba(201, 203, 207, 0.2)'],
-      borderColor: ['rgba(153, 102, 255, 1)', 'rgba(201, 203, 207, 1)'],
+      backgroundColor: ['rgba(153, 102, 255, 1.2)', 'rgba(255, 255, 255, 0.1)'],
+      borderColor: ['rgba(153, 102, 255, 1)', 'rgba(153, 102, 255, 1)'],
       borderWidth: 1
     }]
   };
+  
   const commitsoptions = {
-    responsive: true,
     plugins: {
       legend: {
-        display: true,
-        position: 'bottom'
-      },
-      title: { // 차트 제목 설정
-        display: true,
-        text: 'Commits Percentage', // 원하는 제목 설정
-        font: {
-          size: 20 // 원하는 제목 크기 설정
-        }
+        display: false,
       },
       tooltip: {
-        callbacks: {
-          label: function(context) {
-            let label = context.label || '';
-            if (label) {
-              label += ': ';
-            }
-            if (context.parsed !== undefined) {
-              label += `${context.parsed.toFixed(2)}%`; // 소수점 두 자리까지만 표시
-            }
-            return label;
-          }
-        }
-      }
-    }
+        enabled: false,
+      },
+      centerText: {
+        text: `${commitsData.CommitsPercentage != null ? parseFloat(commitsData.CommitsPercentage).toFixed(2) : '0.00'}%`,
+        color: '#000000',
+        fontStyle: 'Arial',
+        sidePadding: 20,
+      },
+      title: {
+        display: true,
+        text: 'Commits Percentage',
+        font: {
+          size: 20,
+        },
+      },
+    },
+    cutout: '70%',
   };
+  
+  const commit_plugins = [
+    {
+      id: 'centerText',
+      beforeDraw: function (chart) {
+        if (chart.config.options.plugins.centerText) {
+          const ctx = chart.ctx;
+          const centerConfig = chart.config.options.plugins.centerText;
+          const fontSize = (chart.height / 114).toFixed(2);
+          ctx.font = `${fontSize}em ${centerConfig.fontStyle}`;
+          ctx.textBaseline = 'middle';
+          const text = centerConfig.text;
+          const textX = Math.round((chart.width - ctx.measureText(text).width) / 2);
+          const textY = Math.round(chart.height / 2 + 20);
+          ctx.fillStyle = centerConfig.color;
+          ctx.fillText(text, textX, textY);
+        }
+      },
+    },
+  ];
   const issuesDataChart = {
-    labels: ['User Issues', 'Other'],
+    labels: ['User Issues', 'Total Lines'],
     datasets: [{
-      label: 'Issues Percentage',
-      data: issuesData.IssuesPercentage != null ? [(issuesData.userIssues/issuesData.totalIssues)*100, 100 - (issuesData.userIssues/issuesData.totalIssues)*100] : [0, 100],
-      backgroundColor: ['rgba(75, 180, 60, 0.5)', 'rgba(140, 250, 100, 0.5)'],
-      borderColor: ['rgba(75, 180, 60, 1)', 'rgba(140, 250, 100, 1)'],
-      borderWidth: 1
+      data: issuesData.IssuesPercentage != null ? [issuesData.IssuesPercentage, 100 - duplicatesData.DuplicatesPercentage] : [0, 100],
+      backgroundColor: ['rgba(30, 150, 200, 1.2)', 'rgba(255, 255, 255, 0.1)'],
+      borderColor: ['rgba(30, 150, 200, 1)', 'rgba(30, 150, 200, 1)'],
+      borderWidth: 2
     }]
   };
+  
   const issuesoptions = {
-    responsive: true,
     plugins: {
       legend: {
-        display: true,
-        position: 'bottom'
-      },
-      title: { // 차트 제목 설정
-        display: true,
-        text: 'Issues Percentage', // 원하는 제목 설정
-        font: {
-          size: 20 // 원하는 제목 크기 설정
-        }
+        display: false,
       },
       tooltip: {
-        callbacks: {
-          label: function(context) {
-            let label = context.label || '';
-            if (label) {
-              label += ': ';
-            }
-            if (context.parsed !== undefined) {
-              label += `${context.parsed.toFixed(2)}%`; // 소수점 두 자리까지만 표시
-            }
-            return label;
-          }
-        }
-      }
-    }
+        enabled: false,
+      },
+      centerText: {
+        text: `${issuesData.IssuesPercentage != null ? parseFloat(issuesData.IssuesPercentage).toFixed(2) : '0.00'}%`,
+        color: '#000000',
+        fontStyle: 'Arial',
+        sidePadding: 20,
+      },
+      title: {
+        display: true,
+        text: 'Issues Percentage',
+        font: {
+          size: 20,
+        },
+      },
+    },
+    cutout: '70%',
   };
+  
+  const issue_plugins = [
+    {
+      id: 'centerText',
+      beforeDraw: function (chart) {
+        if (chart.config.options.plugins.centerText) {
+          const ctx = chart.ctx;
+          const centerConfig = chart.config.options.plugins.centerText;
+          const fontSize = (chart.height / 114).toFixed(2);
+          ctx.font = `${fontSize}em ${centerConfig.fontStyle}`;
+          ctx.textBaseline = 'middle';
+          const text = centerConfig.text;
+          const textX = Math.round((chart.width - ctx.measureText(text).width) / 2);
+          const textY = Math.round(chart.height / 2 + 20);
+          ctx.fillStyle = centerConfig.color;
+          ctx.fillText(text, textX, textY);
+        }
+      },
+    },
+  ];
   const duplicatesDataChart = {
     labels: ['User Duplicates', 'Total Lines'],
     datasets: [{
-      label: 'Duplicates Percentage',
-      data:  duplicatesData.DuplicatesPercentage  != null ? [duplicatesData.DuplicatesPercentage , 100 - duplicatesData.DuplicatesPercentage ] : [0, 100],
-      backgroundColor: ['rgba(33, 33, 33, 0.8)', 'rgba(255, 205, 86, 0.8)'],
-      borderColor: ['rgba(33, 33, 33, 1)', 'rgba(255, 205, 86, 1)'],
-      borderWidth: 1
+      data: duplicatesData.DuplicatesPercentage != null ? [duplicatesData.DuplicatesPercentage, 100 - duplicatesData.DuplicatesPercentage] : [0, 100],
+      backgroundColor: ['rgba(255, 205, 86, 1.2)', 'rgba(255, 255, 255, 0.1)'],
+      borderColor: ['rgba(255, 205, 86, 1)', 'rgba(255, 205, 86, 1)'],
+      borderWidth: 2
     }]
   };
+  
   const duplicatesoptions = {
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        enabled: false,
+      },
+      centerText: {
+        text: `${duplicatesData.DuplicatesPercentage != null ? parseFloat(duplicatesData.DuplicatesPercentage).toFixed(2) : '0.00'}%`,
+        color: '#000000',
+        fontStyle: 'Arial',
+        sidePadding: 20,
+      },
+      title: {
+        display: true,
+        text: 'Duplicate Percentage',
+        font: {
+          size: 20,
+        },
+      },
+    },
+    cutout: '70%',
+  };
+  
+  const dup_plugins = [
+    {
+      id: 'centerText',
+      beforeDraw: function (chart) {
+        if (chart.config.options.plugins.centerText) {
+          const ctx = chart.ctx;
+          const centerConfig = chart.config.options.plugins.centerText;
+          const fontSize = (chart.height / 114).toFixed(2);
+          ctx.font = `${fontSize}em ${centerConfig.fontStyle}`;
+          ctx.textBaseline = 'middle';
+          const text = centerConfig.text;
+          const textX = Math.round((chart.width - ctx.measureText(text).width) / 2);
+          const textY = Math.round(chart.height / 2 + 20);
+          ctx.fillStyle = centerConfig.color;
+          ctx.fillText(text, textX, textY);
+        }
+      },
+    },
+  ];
+ 
+
+
+  
+
+  const barDatachart = {
+    labels: ['WhatWhy', 'What', 'Why', 'None'],
+    datasets: [
+      {
+        label: 'Team Quality',
+        data: [
+          teambarData?.TWhatWhy || 0,
+          teambarData?.TWhat || 0,
+          teambarData?.TWhy || 0,
+          teambarData?.TNone || 0
+        ],
+        backgroundColor: 'rgba(54, 162, 235, 0.2)', // Team Quality 색상
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      },
+      {
+        label: 'User Quality',
+        data: [
+          barData?.WhatWhy || 0,
+          barData?.What || 0,
+          barData?.Why || 0,
+          barData?.None || 0
+        ],
+        backgroundColor: 'rgba(255, 99, 132, 0.2)', // User Quality 색상
+        borderColor: 'rgba(255, 99, 132, 1)',
+        borderWidth: 1
+      }
+    ]
+  };
+  
+  const barDataoptions = {
     responsive: true,
     plugins: {
       legend: {
         display: true,
         position: 'bottom'
       },
-      title: { // 차트 제목 설정
+      title: {
         display: true,
-        text: 'Duplicates Percentage', // 원하는 제목 설정
+        text: 'Commit Message Chart',
         font: {
-          size: 20 // 원하는 제목 크기 설정
+          size: 20
         }
       },
       tooltip: {
         callbacks: {
           label: function(context) {
-            let label = context.label || '';
+            let label = context.dataset.label || '';
             if (label) {
               label += ': ';
             }
-            if (context.parsed !== undefined) {
-              label += `${context.parsed.toFixed(2)}%`; // 소수점 두 자리까지만 표시
+            if (context.raw !== undefined) {
+              label += `${context.raw}`;
             }
             return label;
           }
         }
       }
-    }
-  };
-  const barDatachart = {
-    labels: ['WhatWhy', 'What', 'Why', 'None'],
-    datasets: [{
-      label: 'Commit Message Chart',
-      data: [
-        barData?.WhatWhy || 0,  // Use optional chaining and fallback to 0
-        barData?.What || 0,
-        barData?.Why || 0,
-        barData?.None || 0
-      ],
-      backgroundColor: [
-          'rgba(255, 206, 86, 0.2)',
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(122, 162, 235, 0.2)',
-          'rgba(30, 162, 235, 0.2)'
-      ],
-      borderColor: [
-          'rgba(255, 206, 86, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(122, 162, 235, 1)',
-          'rgba(30, 162, 235, 1)'
-      ],
-      borderWidth: 1
-    }]
-  };
-  
-    const barDataoptions = {
-      responsive: true,
-      plugins: {
-        legend: {
-          display: true,
-          position: 'bottom'
-        },
+    },
+    scales: {
+      x: {
         title: {
           display: true,
-          text: 'Commit Message Chart',
-          font: {
-            size: 20
-          }
+          text: 'Categories'
         },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              let label = context.label || '';
-              if (label) {
-                label += ': ';
-              }
-              
-              return label;
-            }
-          }
-        }
-      }
-    };
-    const lineChartData = {
-      labels: Object.keys(complexityData).map(line => `Line ${line}`),
-      datasets: [
-        {
-          label: 'Cyclomatic Complexity per Line',
-          data: Object.values(complexityData),
-          fill: false,
-          backgroundColor: 'rgb(75, 192, 192)',
-          borderColor: 'rgba(75, 192, 192, 0.2)',
-        }
-      ]
-    };
-  
-    const chartOptions = {
-      scales: {
-        y: {
-          beginAtZero: true,
-          title: {
-            display: true,
-            text: 'Cyclomatic Complexity'
-          }
-        },
-        x: {
-          title: {
-            display: true,
-            text: 'Source Code Lines'
-          }
-        }
+        grouped: true
       },
-      plugins: {
-        legend: {
+      y: {
+        title: {
           display: true,
-          position: 'top'
+          text: 'Values'
+        },
+        beginAtZero: true
+      }
+    }
+  };
+  const totalGrammarData = {
+    labels: ['Total Grammar'],
+    datasets: [
+      {
+        data: [grammardata.totalGrammar || 0, 100 - (grammardata.totalGrammar || 0)],
+        backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(255, 255, 255, 0.1)'],
+        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(75, 192, 192, 1)'],
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const userGrammarData = {
+    labels: ['User Grammar'],
+    datasets: [
+      {
+        data: [grammardata.userGrammar || 0, 100 - (grammardata.userGrammar || 0)],
+        backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(255, 255, 255, 0.1)'],
+        borderColor: ['rgba(255, 99, 132, 1)', 'rgba(255, 99, 132, 1)'],
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const grammeroptions = (titleText, percentage) => ({
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        enabled: false,
+      },
+      centerText: {
+        text: `${titleText.includes('Total') ? grammardata.totalGrammar : grammardata.userGrammar || 0}%`,
+        color: '#000000',
+        fontStyle: 'Arial',
+        sidePadding: 20,
+      },
+      title: {
+        display: true,
+        text: titleText,
+        font: {
+          size: 20,
+        },
+      },
+    },
+    cutout: '70%',
+  });
+
+  const plugins = [
+    {
+      id: 'centerText',
+      beforeDraw: function (chart) {
+        if (chart.config.options.plugins.centerText) {
+          const ctx = chart.ctx;
+          const centerConfig = chart.config.options.plugins.centerText;
+          const fontSize = (chart.height / 114).toFixed(2);
+          ctx.font = `${fontSize}em ${centerConfig.fontStyle}`;
+          ctx.textBaseline = 'middle';
+          const text = centerConfig.text;
+          const textX = Math.round((chart.width - ctx.measureText(text).width) / 2);
+          const textY = Math.round(chart.height / 2+20);
+          ctx.fillStyle = centerConfig.color;
+          ctx.fillText(text, textX, textY);
         }
       },
-      responsive: true,
-      maintainAspectRatio: false
-    };
- 
+    },
+  ];
+
   return (
   <div id="page-wrap">
     
@@ -635,13 +856,13 @@ const [grammardata, setGrammarData] = useState({
     <div>
     <Fragment>
       <Element name="section-one">
-        <h2>Section One</h2>
         <div className="repo-info">
           <h2 className="repo-name">{repoName} Repository</h2>
           {prData.prPercentage !== null && (
             <h3 className="repo-type">{prData.prPercentage > 0 ? 'Team Repository' : 'Personal Repository'}</h3>
           )}
         </div>
+        <div className="info-boxset">
         <div className="info-boxx">
           <h3>Used Language</h3>
           <p>{programLanguages.join(', ')}</p> {/* 언어들을 쉼표로 구분하여 표시 */}
@@ -650,28 +871,30 @@ const [grammardata, setGrammarData] = useState({
           <h3>Used Framework</h3>
           <p>{framework.join(', ')}</p> {/* 프레임워크들을 쉼표로 구분하여 표시 */}
         </div>
+        </div>
       </Element>
 
       <Element name="section-two">
-        <h2>Repository info</h2>
+      
+        <h2 className="section-container">Repository info</h2>
           <>
-            <div className="chart-with-info">
-	            <div className="chart-and-info-container">
+            <div className="team-chart-with-info">
+	            <div className="team-chart-and-info-container">
               {prData.prPercentage === '0.00' ? (
-  <div className="chart-and-info-container">
-    <img src={imageData} alt="No Data Available" style={{ width: '100%', height: 'auto' }} />
-    <div className="info-box">
+  <div className="team-chart-and-info-container">
+    <img src={imageData} alt="No Data Available" style={{ width: '300px', height: 'auto' }} />
+    <div className="team-info-box">
       <h3>Total PR</h3>
-      <p>해당 프로젝트는 personal 프로젝트라 데이터가 없습니다.</p>
+      <p>해당 프로젝트는 Total PR 데이터가 없습니다.</p>
     </div>
   </div>
 ) : (
-  <div className="chart-and-info-container">
-    <div className="chart-container">
-      <Doughnut data={doughnutData} options={options} />
+  <div className="team-chart-and-info-container">
+    <div className="team-chart-container">
+      <Doughnut data={PullRequestData} options={options} plugins={pr_plugins} />
     </div>
-    <div className="info-box">
-      <h3>Total Commits</h3>
+    <div className="team-info-box">
+      <h3>Total PR</h3>
       <p>총 PR: {prData.totalPR}</p>
       <p>사용자 PR: {prData.userPR}</p>
       <p>PR 비중:  {prData.prPercentage }</p>
@@ -679,21 +902,21 @@ const [grammardata, setGrammarData] = useState({
   </div>
 )}
               </div>
-	          <div className="chart-and-info-container">
+	          <div className="team-chart-and-info-container">
             {merged_prData.Merged_prPercentage === '0.00' ? (
-  <div className="chart-and-info-container">
-    <img src={imageData} alt="No Data Available" style={{ width: '100%', height: 'auto' }} />
-    <div className="info-box">
-      <h3>Total PR</h3>
-      <p>해당 프로젝트는 personal 프로젝트라 데이터가 없습니다.</p>
+  <div className="team-chart-and-info-container">
+    <img src={imageData} alt="No Data Available" style={{ width: '300px', height: 'auto' }} />
+    <div className="team-info-box">
+      <h3>Total Merged PR</h3>
+      <p>해당 프로젝트는 Total Merged PR 데이터가 없습니다.</p>
     </div>
   </div>
 ) : (
-  <div className="chart-and-info-container">
-    <div className="chart-container">
-      <Doughnut data={merged_prDataChart} options={merged_PRoptions} />
+  <div className="team-chart-and-info-container">
+    <div className="team-chart-container">
+      <Doughnut data={merged_prDataChart} options={merged_PRoptions} plugins={merged_pr_plugins} />
     </div>
-    <div className="info-box">
+    <div className="team-info-box">
       <h3>Total Merged_PR</h3>
       <p>총 PR: {merged_prData.totalusers_PR}</p>
       <p>병합된 PR: {merged_prData.Merged_PR}</p>
@@ -702,42 +925,45 @@ const [grammardata, setGrammarData] = useState({
   </div>
 )}
             </div>
-            <div className="chart-and-info-container">
+            <div className="team-chart-and-info-container">
             {issuesData.IssuesPercentage === '0.00' ? (
- <div className="chart-and-info-container">
-    <img src={imageData} alt="No Data Available" style={{ width: '100%', height: 'auto' }} />
-    <div className="info-box">
-      <h3>Total PR</h3>
-      <p>해당 프로젝트는 personal 프로젝트라 데이터가 없습니다.</p>
+ <div className="team-chart-and-info-container">
+    <img src={imageData} alt="No Data Available" style={{ width: '300px', height: 'auto' }} />
+    <div className="team-info-box">
+      <h3>Total Issues</h3>
+      <p>해당 프로젝트는 Total Issues 데이터가 없습니다.</p>
     </div>
   </div>
 ) : (
-  <div className="chart-and-info-container">
-    <div className="chart-container">
-      <Doughnut data={issuesDataChart} options={issuesoptions} />
+  <div className="team-chart-and-info-container">
+    <div className="team-chart-container">
+    <Doughnut data={issuesDataChart} options={issuesoptions} plugins={issue_plugins} />
     </div>
-    <div className="info-box">
-      <h3>Total Merged_PR</h3>
-      <p>총 Issues: {issuesData.totalIssues}</p>
-      <p>사용자 Issues: {issuesData.userIssues}</p>
-      <p>Issues 비중: {issuesData.IssuesPercentage}</p>
+    <div className="team-info-box">
+      <h3>Total Issues</h3>
+      <p>총 issues: {issuesData. totalIssues}</p>
+      <p>사용자 issues : {issuesData.userIssues}</p>
+      {/* 배열의 각 요소를 개별적으로 렌더링합니다. */}
+      <p>issues 비율:  {issuesData.IssuesPercentage }</p>
     </div>
   </div>
 )}
             </div>
+            </div>
+            <div className="all-chart-with-info">
             <div className="chart-and-info-container">
               {commitsData.CommitsPercentage === '0.00' ? (
                 <div className="chart-and-info-container">
-                <img src={imageData} alt="No Data Available" style={{ width: '100%', height: 'auto' }} />
+                <img src={imageData} alt="No Data Available" style={{ width: '300px', height: 'auto' }} />
                   <div className="info-box">
                   <h3>Total Commits</h3>
-                  <p>해당 프로젝트는 personal 프로젝트라 데이터가 없습니다.</p>
+                  <p>해당 프로젝트는 Total Commits 데이터가 없습니다.</p>
                   </div>
                 </div>
                 ) : (
               <div className="chart-and-info-container">
                 <div className="chart-container">
-                  <Doughnut data={commitsDataChart} options={commitsoptions} />
+                <Doughnut data={commitsDataChart} options={commitsoptions} plugins={commit_plugins} />
                 </div>
                   <div className="info-box">
                     <h3>Total Commits</h3>
@@ -752,7 +978,7 @@ const [grammardata, setGrammarData] = useState({
 	     
 	    <div className="chart-and-info-container">
       <div className="chart-container">
-       <Doughnut data={commentsDataChart} options={commentsoptions} />
+       <Doughnut data={commentsDataChart} options={commentsoptions} plugins={comments_plugins} />
      </div>
      <div className="info-box">
      <h3>Total Comments</h3>
@@ -764,10 +990,10 @@ const [grammardata, setGrammarData] = useState({
       </div>
       <div className="chart-and-info-container">
       <div className="chart-container">
-      <Doughnut data={duplicatesDataChart} options={duplicatesoptions} />
+      <Doughnut data={duplicatesDataChart} options={duplicatesoptions} plugins={dup_plugins} />
       </div>
      <div className="info-box">
-     <h3>Total PR</h3>
+     <h3>Duplicates</h3>
       <p>총 라인수: {duplicatesData. total_lines}</p>
       <p>중복 라인수 : {duplicatesData.userDuplicates}</p>
       {/* 배열의 각 요소를 개별적으로 렌더링합니다. */}
@@ -776,49 +1002,79 @@ const [grammardata, setGrammarData] = useState({
        </div>
       </div>
           </>
-       
-      
-          <div className="scroll-link-box">
-            <ScrollLink to="section-one" spy={true} smooth={true} duration={500}>
-                 top
-            </ScrollLink>
-          </div>
       </Element>
 
       <Element name="section-three">
-        <h2>Section Three</h2>
-        <div>
-        <Line data={lineChartData} options={chartOptions} />
+      
+          <h2 className="section-container">Complexity</h2>
+          <div className="complex-line-chart-and-info-container">
+           <div className="complex-line-chartBox">
+             <Line data={complexityData} options={{ responsive: true, scales: { x: { title: { display: true, text: 'Complexity Level' } }, y: { title: { display: true, text: 'Count of Lines' } } }}} />
+            </div>
+          <div className="complex-line-info-box">
+           <ul>
+            {complexityData.labels.map((label, index) => (
+             <li key={index}>
+              {`Complexity Level ${label}:`}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{`${complexityData.datasets[0].data[index]} lines`}</li>
+           ))}
+           </ul>
+            </div>
+          </div>
+          <div className="complex-dough-chart-and-info-container">
+        <div className="complex-dough-container">
+          <Doughnut data={complexDoughnutData} options={doughnutOptions} />
         </div>
-        <div className="scroll-link-box">
-           <ScrollLink to="section-one" spy={true} smooth={true} duration={500}>
-             top
-           </ScrollLink>
+        <div className="complex-dough-info-box">
+        <h3>Complexity Distribute</h3>
+          <p>Green (1-10): {complexDoughnutData.datasets[0].data[0]}</p>
+          <p>Yellow (11-20): {complexDoughnutData.datasets[0].data[1]}</p>
+          <p>Red (21+): {complexDoughnutData.datasets[0].data[2]}</p>
         </div>
+      </div>
+     
       </Element>
+         
 
       <Element name="section-four">
-        <h2>Section Four</h2>
-	    <div className="chart-with-info">
-            <div className="chart-and-info-container">
-      <div className="chart-container">
-      <Bar data={barDatachart} options={barDataoptions} />
+      
+      <h2 className="section-container">Commit message</h2>
+      <div className="grammer-chart-and-info-container">
+        <div className="grammer-doughnut-chart-container">
+          <Doughnut
+            data={totalGrammarData}
+            options={grammeroptions('Total Grammar', grammardata.totalGrammar || 0)}
+            plugins={plugins}
+          />
+        </div>
+        <div className="grammer-doughnut-chart-container">
+          <Doughnut
+            data={userGrammarData}
+            options={grammeroptions('User Grammar', grammardata.userGrammar || 0)}
+            plugins={plugins}
+          />
+        </div>
       </div>
-     <div className="info-box">
-     <h3>Total PR</h3>
-      <p>WhatWhy: {barData. WhatWhy}</p>
-      <p>What : {barData.What}</p>
-      <p>Why : {barData.Why}</p>
-      <p>None:  {barData.None }</p>
-        </div>
-        </div>
-        </div>
-        <div className="scroll-link-box">
-          <ScrollLink to="section-one" spy={true} smooth={true} duration={500}>
-            top
-          </ScrollLink>
-        </div>
-      </Element>
+  <div className="bar-chart-with-info">
+  <div className="bar-chart-and-info-container">
+      
+  
+      
+              
+    
+    <div className="bar-chart-container">
+        <Bar data={barDatachart} options={barDataoptions} />
+      </div>
+      <div className="bar-chart-info-box">
+     <h3>Commit Message Chart</h3>
+       <p>Total What+Why: {teambarData.TWhatWhy} <br /> User What+Why: {barData.WhatWhy}</p>
+        <p>Total No What: {teambarData.TWhy} &nbsp;&nbsp;&nbsp;  User No What:{barData.Why}</p>
+       <p>Total No Why: {teambarData.TWhat} &nbsp;&nbsp;&nbsp;  User No Why: {barData.What}</p>
+       <p>Total Neither Why nor What: {teambarData.TNone} <br />  User Neither Why nor What: {barData.None} </p>
+      </div>
+      </div>
+  </div>
+ 
+</Element>
     </Fragment>
   </div>
   </div>
