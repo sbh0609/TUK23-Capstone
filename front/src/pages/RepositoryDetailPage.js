@@ -22,7 +22,17 @@ const RepositoryDetailPage = () => {
   const [programLanguages, setProgramLanguages] = useState([]);
   const [repoName, setRepoName] = useState('');
   const [framework, setFramework] = useState([]);
-  const [complexityData, setComplexityData] = useState({});
+  const [complexityData, setComplexityData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: 'Line Complexity Counts',
+        data: [],
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+      }
+    ],
+  });
   const [prData, setPRData] = useState({
     totalPR: null,
     userPR: null,
@@ -70,7 +80,7 @@ const [grammardata, setGrammarData] = useState({
   userDuplicates: null,
   DuplicatesPercentage: null
 });
-  const complexity_data = {1: 2, 2: 2}
+
 
   const [loading, setLoading] = useState(true);
   const [userInput, setUserInput ] = useState("");
@@ -78,6 +88,7 @@ const [grammardata, setGrammarData] = useState({
   const [userLanguage, setUserLanguage ] = useState("");
   const [userEct, setUserEct ] = useState("");
   const navigate = useNavigate();
+ 
     // 드롭다운의 옵션들 선언
     const type_options = [
       { value: "", label: "All" },
@@ -130,9 +141,35 @@ const [grammardata, setGrammarData] = useState({
             const {duplicate_code} = response.data;
             const {comment_per} = response.data;
             console.log("Before update:", duplicate_code);
-            const fetchedComplexityData = response.data.complexity_info || {}; // 서버 응답이 없거나 오류가 있을 경우 빈 객체를 사용
-            setComplexityData(response.data.complexity);
-
+            const {complexity} = response.data;
+           
+            
+            // Process fetched data to count complexities
+            const complexityCounts = {};
+            Object.values(complexity).forEach(file => {
+              Object.entries(file).forEach(([line, comp]) => {
+                complexityCounts[comp] = (complexityCounts[comp] || 0) + 1;
+              });
+            });
+    
+            // Prepare chart data
+            const labels = Object.keys(complexityCounts).sort((a, b) => a - b);
+            const data = labels.map(label => complexityCounts[label]);
+            setComplexityData({
+              labels,
+              datasets: [{
+                label: 'Line Complexity Counts',
+                data,
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+              }]
+            });
+       
+           
+            const ranges = { green: 0, yellow: 0, red: 0 }; // ranges 객체 초기화
+           
+            console.log('Processed ranges:', ranges); // ranges 객체 확인
+           
             // 품질 데이터 설정
             setTotalQualityData({
               TWhatWhy: response.data.total_quality[0],
@@ -241,7 +278,7 @@ const [grammardata, setGrammarData] = useState({
           })
       .catch(error => {
         console.error('Error fetching data', error);
-        setComplexityData({}); 
+        
         console.error('Error analyzing repositories', error);
         window.alert('Error: ' + error);
         setLoading(false);
@@ -473,43 +510,62 @@ const [grammardata, setGrammarData] = useState({
   const duplicatesDataChart = {
     labels: ['User Duplicates', 'Total Lines'],
     datasets: [{
-      label: 'Duplicates Percentage',
-      data:  duplicatesData.DuplicatesPercentage  != null ? [duplicatesData.DuplicatesPercentage , 100 - duplicatesData.DuplicatesPercentage ] : [0, 100],
-      backgroundColor: ['rgba(33, 33, 33, 0.8)', 'rgba(255, 205, 86, 0.8)'],
-      borderColor: ['rgba(33, 33, 33, 1)', 'rgba(255, 205, 86, 1)'],
-      borderWidth: 1
+      data: duplicatesData.DuplicatesPercentage != null ? [duplicatesData.DuplicatesPercentage, 100 - duplicatesData.DuplicatesPercentage] : [0, 100],
+      backgroundColor: ['rgba(255, 205, 86, 0.2)', 'rgba(255, 255, 255, 0.1)'],
+      borderColor: ['rgba(255, 205, 86, 1)', 'rgba(255, 205, 86, 1)'],
+      borderWidth: 2
     }]
   };
+  
   const duplicatesoptions = {
-    responsive: true,
     plugins: {
       legend: {
-        display: true,
-        position: 'bottom'
-      },
-      title: { // 차트 제목 설정
-        display: true,
-        text: 'Duplicates Percentage', // 원하는 제목 설정
-        font: {
-          size: 20 // 원하는 제목 크기 설정
-        }
+        display: false,
       },
       tooltip: {
-        callbacks: {
-          label: function(context) {
-            let label = context.label || '';
-            if (label) {
-              label += ': ';
-            }
-            if (context.parsed !== undefined) {
-              label += `${context.parsed.toFixed(2)}%`; // 소수점 두 자리까지만 표시
-            }
-            return label;
-          }
-        }
-      }
-    }
+        enabled: false,
+      },
+      centerText: {
+        text: `${duplicatesData.DuplicatesPercentage != null ? duplicatesData.DuplicatesPercentage : 0}%`,
+        color: '#000000',
+        fontStyle: 'Arial',
+        sidePadding: 20,
+      },
+      title: {
+        display: true,
+        text: 'Duplicate Percentage',
+        font: {
+          size: 20,
+        },
+      },
+    },
+    cutout: '70%',
   };
+  
+  const dup_plugins = [
+    {
+      id: 'centerText',
+      beforeDraw: function (chart) {
+        if (chart.config.options.plugins.centerText) {
+          const ctx = chart.ctx;
+          const centerConfig = chart.config.options.plugins.centerText;
+          const fontSize = (chart.height / 114).toFixed(2);
+          ctx.font = `${fontSize}em ${centerConfig.fontStyle}`;
+          ctx.textBaseline = 'middle';
+          const text = centerConfig.text;
+          const textX = Math.round((chart.width - ctx.measureText(text).width) / 2);
+          const textY = Math.round(chart.height / 2 + 20);
+          ctx.fillStyle = centerConfig.color;
+          ctx.fillText(text, textX, textY);
+        }
+      },
+    },
+  ];
+ 
+
+
+  
+
   const barDatachart = {
     labels: ['WhatWhy', 'What', 'Why', 'None'],
     datasets: [
@@ -820,10 +876,10 @@ const [grammardata, setGrammarData] = useState({
       </div>
       <div className="chart-and-info-container">
       <div className="chart-container">
-      <Doughnut data={duplicatesDataChart} options={duplicatesoptions} />
+      <Doughnut data={duplicatesDataChart} options={duplicatesoptions} plugins={dup_plugins} />
       </div>
      <div className="info-box">
-     <h3>uplicates</h3>
+     <h3>Duplicates</h3>
       <p>총 라인수: {duplicatesData. total_lines}</p>
       <p>중복 라인수 : {duplicatesData.userDuplicates}</p>
       {/* 배열의 각 요소를 개별적으로 렌더링합니다. */}
@@ -837,7 +893,7 @@ const [grammardata, setGrammarData] = useState({
       <Element name="section-three">
       
           <h2 className="section-container">Complexcity</h2>
-        
+          <Line data={complexityData} options={{ responsive: true, scales: { x: { title: { display: true, text: 'Complexity Level' } }, y: { title: { display: true, text: 'Count of Lines' } } }}} />
               
 
       </Element>
