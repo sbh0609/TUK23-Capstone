@@ -8,7 +8,7 @@ function MainPage() {
   const { clearData } = useMaintainPage();
   const handleEnterButton = () => {
     if (sessionStorage.getItem('userID') == null) {
-      navigate("/search");
+      navigate("/login");
     }
     //else {
       //navigate("/loginUserDefault")
