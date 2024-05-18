@@ -1,16 +1,16 @@
 import React from 'react';
 import MainPage from './pages/MainPage';
-import Register from './login/RegisterPage';
 import Login from './login/Login';
+import Register from './login/RegisterPage';
+import LoginSelectPage from './pages/LoginSelectPage';
 import MyPage from './pages/MyPage';
 import SearchPage from './repositories/RepositorySearchPage';
 import RepositoryListPage from './repositories/RepositoryListPage';
-import AboutUsPage from './pages/AboutUsPage'
 import RepositoryDetailPage from './repositories/RepositoryDetailPage'
+import AboutUsPage from './pages/AboutUsPage'
 import { RepositoryProvider } from './Context/RepositoryContext'; // 방금 만든 컨텍스트를 가져옵니다
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RepositoryListProvider } from './Context/MaintainPage';
-import LoginSelectPage from './pages/LoginSelectPage';
 import DBtest from './tests/dbtest';
 
 function App(){
@@ -20,8 +20,8 @@ function App(){
         <BrowserRouter>
           <Routes>
             <Route path='/main' element={<MainPage />} />
-            <Route path='/register' element={<Register/>} />
             <Route path='/login' element={<Login/>} />
+            <Route path='/register' element={<Register/>} />
             <Route path='/loginSelect' element={<LoginSelectPage/>} />
             <Route path='/myPage' element={<MyPage/>} />
             <Route path='/search' element={<SearchPage />} />
