@@ -8,12 +8,12 @@ import { RepositoryProvider } from './Context/RepositoryContext'; // 방금 만�
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RepositoryListProvider } from './Context/MaintainPage';
 import LoginSelectPage from './pages/LoginSelectPage';
-import Temptemp from './pages/Temptemp';
 import Register from './login/RegisterPage';
 import DBtest from './tests/dbtest';
 import Login from './login/Login';
 import LoginUserDefault from './login_user_pages/LoginUserDefaultPage';
 
+// 페이지를 import후, 엔드포인트를 생성하기 위한 작성
 function App(){
   return (
     <RepositoryProvider>
@@ -26,7 +26,6 @@ function App(){
             <Route path='/aboutUs' element={<AboutUsPage />} />
             <Route path='/repositoryDetail' element={<RepositoryDetailPage/>} />
             <Route path='/loginSelect' element={<LoginSelectPage/>} />
-            <Route path='/tempTemp' element={<Temptemp/>} />
             <Route path='/register' element={<Register/>} />
             <Route path='/dbtest' element={<DBtest/>} />
             <Route path='/login' element={<Login/>} />
