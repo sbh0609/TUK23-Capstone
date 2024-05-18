@@ -1,10 +1,9 @@
 import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './LoginPage.css';
-import axios from 'axios';
+import './RepositorySearchPage.css';
 import { useMaintainPage } from '../Context/MaintainPage';
 
-function LoginPage() {
+function SearchPage() {
   const [username, setUsername] = useState("");
   // const [passwords, setPasswords] = useState(['']);
   const [organizations, setOrganiztions] = useState(['']);
@@ -81,4 +80,4 @@ function LoginPage() {
 }
 
 
-export default LoginPage;
+export default SearchPage;
