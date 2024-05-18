@@ -1,5 +1,8 @@
 import React from 'react';
 import MainPage from './pages/MainPage';
+import Register from './login/RegisterPage';
+import Login from './login/Login';
+import MyPage from './pages/MyPage';
 import SearchPage from './repositories/RepositorySearchPage';
 import RepositoryListPage from './repositories/RepositoryListPage';
 import AboutUsPage from './pages/AboutUsPage'
@@ -8,10 +11,7 @@ import { RepositoryProvider } from './Context/RepositoryContext'; // 방금 만�
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RepositoryListProvider } from './Context/MaintainPage';
 import LoginSelectPage from './pages/LoginSelectPage';
-import Register from './login/RegisterPage';
 import DBtest from './tests/dbtest';
-import Login from './login/Login';
-import LoginUserDefault from './login_user_pages/LoginUserDefaultPage';
 
 function App(){
   return (
@@ -20,15 +20,15 @@ function App(){
         <BrowserRouter>
           <Routes>
             <Route path='/main' element={<MainPage />} />
+            <Route path='/register' element={<Register/>} />
+            <Route path='/login' element={<Login/>} />
+            <Route path='/loginSelect' element={<LoginSelectPage/>} />
+            <Route path='/myPage' element={<MyPage/>} />
             <Route path='/search' element={<SearchPage />} />
             <Route path='/repository' element={<RepositoryListPage />} />
-            <Route path='/aboutUs' element={<AboutUsPage />} />
             <Route path='/repositoryDetail' element={<RepositoryDetailPage/>} />
-            <Route path='/loginSelect' element={<LoginSelectPage/>} />
-            <Route path='/register' element={<Register/>} />
+            <Route path='/aboutUs' element={<AboutUsPage />} />
             <Route path='/dbtest' element={<DBtest/>} />
-            <Route path='/login' element={<Login/>} />
-            <Route path='/loginUserDefault' element={<LoginUserDefault/>} />
 
             <Route index element={<MainPage />} />
           </Routes>
