@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate,useLocation } from 'react-router-dom';
 import Select from "react-select";
 import CardList from "../components/CardList";
-import "./LoginUserDefaultPage.css";
+import "./MyPage.css";
 import axios from 'axios';
 import { useMaintainPage } from '../Context/MaintainPage'; // Context를 가져옵니다.
 import gifLoading from '../resources/Loading_icon.gif';

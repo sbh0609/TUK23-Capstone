@@ -1,10 +1,10 @@
 import React from 'react';
-import MainPage from './pages/MainPage';
+import Main from './pages/MainPage';
 import Login from './login/Login';
 import Register from './login/RegisterPage';
 import LoginSelectPage from './pages/LoginSelectPage';
 import MyPage from './pages/MyPage';
-import SearchPage from './repositories/RepositorySearchPage';
+import Search from './repositories/RepositorySearchPage';
 import RepositoryListPage from './repositories/RepositoryListPage';
 import RepositoryDetailPage from './repositories/RepositoryDetailPage'
 import AboutUsPage from './pages/AboutUsPage'
@@ -19,18 +19,18 @@ function App(){
       <RepositoryListProvider>
         <BrowserRouter>
           <Routes>
-            <Route path='/main' element={<MainPage />} />
+            <Route path='/main' element={<Main/>} />
             <Route path='/login' element={<Login/>} />
             <Route path='/register' element={<Register/>} />
             <Route path='/loginSelect' element={<LoginSelectPage/>} />
             <Route path='/myPage' element={<MyPage/>} />
-            <Route path='/search' element={<SearchPage />} />
+            <Route path='/search' element={<Search />} />
             <Route path='/repository' element={<RepositoryListPage />} />
             <Route path='/repositoryDetail' element={<RepositoryDetailPage/>} />
             <Route path='/aboutUs' element={<AboutUsPage />} />
             <Route path='/dbtest' element={<DBtest/>} />
 
-            <Route index element={<MainPage />} />
+            <Route index element={<Main/>} />
           </Routes>
         </BrowserRouter>
       </RepositoryListProvider>

@@ -3,7 +3,7 @@ import './MainPage.css';
 import { useMaintainPage } from '../Context/MaintainPage';
 import React, { useState, useEffect } from "react";
 
-function MainPage() {
+function Main() {
   const navigate = useNavigate();
   const { clearData } = useMaintainPage();
   const handleEnterButton = () => {
@@ -45,4 +45,4 @@ function MainPage() {
     );
 }
 
-export default MainPage;
+export default Main;

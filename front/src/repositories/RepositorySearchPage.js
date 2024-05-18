@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './RepositorySearchPage.css';
 import { useMaintainPage } from '../Context/MaintainPage';
 
-function SearchPage() {
+function Search() {
   const [username, setUsername] = useState("");
   // const [passwords, setPasswords] = useState(['']);
   const [organizations, setOrganiztions] = useState(['']);
@@ -80,4 +80,4 @@ function SearchPage() {
 }
 
 
-export default SearchPage;
+export default Search;
