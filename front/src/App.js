@@ -1,6 +1,6 @@
 import React from 'react';
 import MainPage from './pages/MainPage';
-import LoginPage from './pages/LoginPage';
+import SearchPage from './repositories/RepositorySearchPage';
 import RepositoryListPage from './pages/RepositoryListPage';
 import AboutUsPage from './pages/AboutUsPage'
 import RepositoryDetailPage from './pages/RepositoryDetailPage'
@@ -21,7 +21,7 @@ function App(){
         <BrowserRouter>
           <Routes>
             <Route path='/main' element={<MainPage />} />
-            <Route path='/login1' element={<LoginPage />} />
+            <Route path='/search' element={<SearchPage />} />
             <Route path='/repository' element={<RepositoryListPage />} />
             <Route path='/aboutUs' element={<AboutUsPage />} />
             <Route path='/repositoryDetail' element={<RepositoryDetailPage/>} />
