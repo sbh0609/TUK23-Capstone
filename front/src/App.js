@@ -1,9 +1,9 @@
 import React from 'react';
 import MainPage from './pages/MainPage';
 import SearchPage from './repositories/RepositorySearchPage';
-import RepositoryListPage from './pages/RepositoryListPage';
+import RepositoryListPage from './repositories/RepositoryListPage';
 import AboutUsPage from './pages/AboutUsPage'
-import RepositoryDetailPage from './pages/RepositoryDetailPage'
+import RepositoryDetailPage from './repositories/RepositoryDetailPage'
 import { RepositoryProvider } from './Context/RepositoryContext'; // 방금 만든 컨텍스트를 가져옵니다
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RepositoryListProvider } from './Context/MaintainPage';
