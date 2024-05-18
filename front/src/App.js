@@ -8,7 +8,6 @@ import { RepositoryProvider } from './Context/RepositoryContext'; // 방금 만�
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RepositoryListProvider } from './Context/MaintainPage';
 import LoginSelectPage from './pages/LoginSelectPage';
-import Temptemp from './pages/Temptemp';
 import Register from './login/RegisterPage';
 import DBtest from './tests/dbtest';
 import Login from './login/Login';
@@ -26,7 +25,6 @@ function App(){
             <Route path='/aboutUs' element={<AboutUsPage />} />
             <Route path='/repositoryDetail' element={<RepositoryDetailPage/>} />
             <Route path='/loginSelect' element={<LoginSelectPage/>} />
-            <Route path='/tempTemp' element={<Temptemp/>} />
             <Route path='/register' element={<Register/>} />
             <Route path='/dbtest' element={<DBtest/>} />
             <Route path='/login' element={<Login/>} />
