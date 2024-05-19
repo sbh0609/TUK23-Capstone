@@ -7,7 +7,7 @@ import axios from 'axios';
 import { useMaintainPage } from '../Context/MaintainPage'; // Context를 가져옵니다.
 import gifLoading from '../resources/Loading_icon.gif';
 
-function LoginUserDefault() {
+function MyPage() {
   const session_userID = sessionStorage.getItem("userID");
   const [userInput, setUserInput ] = useState("");
   const [userType, setUserType ] = useState("");
@@ -145,4 +145,4 @@ function LoginUserDefault() {
   );
 }
 
-export default LoginUserDefault;
+export default MyPage;

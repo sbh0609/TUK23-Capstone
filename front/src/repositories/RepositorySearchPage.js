@@ -24,7 +24,7 @@ function Search() {
   const navigate = useNavigate();
   const handleSubmit = () => {
     // 데이터 처리 페이지로 바로 이동
-    navigate("/repository", { state: { username, organizations: organizations.filter(org => org) } });
+    navigate("/list", { state: { username, organizations: organizations.filter(org => org) } });
   };
   useEffect(()=>{
     clearData();

@@ -14,7 +14,7 @@ const Card = ({ repo_name, url, fileList, username, repo_type }) => {
     let imagePath = c_img;
     const onClickCard = () => {
         setRepositoryDetail({ repo_name, fileList, username, repo_type });
-        navigate("/repositoryDetail");
+        navigate("/detail");
     };
     return (
         <CardContainer onClick={onClickCard} >

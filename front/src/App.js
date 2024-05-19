@@ -25,8 +25,8 @@ function App(){
             <Route path='/loginSelect' element={<LoginSelectPage/>} />
             <Route path='/myPage' element={<MyPage/>} />
             <Route path='/search' element={<Search />} />
-            <Route path='/repository' element={<RepositoryListPage />} />
-            <Route path='/repositoryDetail' element={<RepositoryDetailPage/>} />
+            <Route path='/list' element={<RepositoryListPage />} />
+            <Route path='/detail' element={<RepositoryDetailPage/>} />
             <Route path='/aboutUs' element={<AboutUsPage />} />
             <Route path='/dbtest' element={<DBtest/>} />
 
