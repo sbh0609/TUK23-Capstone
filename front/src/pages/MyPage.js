@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate,useLocation } from 'react-router-dom';
 import Select from "react-select";
-import CardList from "../components/CardList";
+import CardList from "../components/MyPageCardList";
 import "./MyPage.css";
 import axios from 'axios';
 import { useMaintainPage } from '../Context/MaintainPage'; // Context를 가져옵니다.
@@ -17,7 +17,11 @@ function MyPage() {
   // const [repositoryClassification, setData] = useState({ personal_list: [], team_list: [],globusername:''});
 
   const { repositoryListData, setRepositoryListData } = useMaintainPage(); // Context 사용
-  const { repositories, file_data, isLoading,team_list,personal_list,globusername } = repositoryListData; // Context 데이터 분해 할당
+  const { repositories,
+    repositorySelectedTime,
+    repositoryName,
+    repositoryContributorName,
+    isLoading } = repositoryListData; // Context 데이터 분해 할당
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -67,14 +71,17 @@ function MyPage() {
       } 
       else {
         console.log("userID :", session_userID);
-        const response1 = await axios.post('http://localhost:5000/api/own_repo', { session_userID })
-      
-        const response1Data = response1.data;
-        const fetchedResponseData = response1Data.username
-        setUsername(fetchedResponseData);
-
-
-        console.log("username:", username);
+        await axios.post('http://localhost:5000/api/myPage', { session_userID })
+        .then(response => {
+          setRepositoryListData({ 
+            repositories: response.data.get_data,
+            repositorySelectedTime: response.data.repo_selected_time,
+            repositoryName: response.data.repo_name,
+            repositoryContributorName: response.data.repo_contributor_name,
+            isLoading: false
+          });
+        })
+        
       }
     }
     fetchData();
@@ -132,12 +139,9 @@ function MyPage() {
           </div>
         ) : (
           <CardList 
-            repositories={username}   
-            /*repositories={repositories} 
-            file_data={file_data} 
-            username = {globusername}
-            personal_list = {personal_list}
-            team_list = {team_list}*/
+            repositorySelectedTime={repositorySelectedTime} 
+            repositoryName={repositoryName} 
+            repositoryContributorName = {repositoryContributorName}
           />
         )}
       </div>

@@ -95,8 +95,8 @@ def register():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/own_repo', methods=['POST'])
-def find_own_repo():
+@app.route('/api/myPage', methods=['POST'])
+def find_my_repo():
     data = request.get_json()
     #userID = data.get('session_userID')
     userID = "test1"
@@ -104,10 +104,17 @@ def find_own_repo():
         with connection.cursor() as cursor:
             sql = "SELECT * FROM analyzed_repo_data WHERE web_user_id = %s"
             cursor.execute(sql, (userID))
-            user = cursor.fetchone()
-            username = user['repo_contributor_name']
-            print(username)
-            return jsonify({"username": username}), 200
+            get_data = cursor.fetchall()
+            repo_selected_time = [row['repo_selected_time'] for row in get_data]
+            repo_name = [row['repo_name'] for row in get_data]
+            repo_contributor_name = [row['repo_contributor_name'] for row in get_data]
+            
+            print(get_data)
+            return jsonify({ "get_data": get_data,
+                             "repo_selected_time": repo_selected_time, 
+                             "repo_name": repo_name, 
+                             "repo_contributor_name":repo_contributor_name
+                            }), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
