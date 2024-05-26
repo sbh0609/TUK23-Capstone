@@ -14,14 +14,13 @@ function MyPage() {
   const [userLanguage, setUserLanguage ] = useState("");
   const [userEct, setUserEct ] = useState("");
   const [username, setUsername ] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   // const [repositoryClassification, setData] = useState({ personal_list: [], team_list: [],globusername:''});
+  const [repoNames, setRepoNames] = useState([]);
+  const [repoContributorNames, setRepoContributorNames] = useState([]);
+  const [repoMainLang, setRepoMainLang] = useState([]);
+  const [repoFrameworks, setRepoFrameworks] = useState([]);
 
-  const { repositoryListData, setRepositoryListData } = useMaintainPage(); // Context 사용
-  const { repositories,
-    repositorySelectedTime,
-    repositoryName,
-    repositoryContributorName,
-    isLoading } = repositoryListData; // Context 데이터 분해 할당
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -71,17 +70,22 @@ function MyPage() {
       } 
       else {
         console.log("userID :", session_userID);
-        await axios.post('http://localhost:5000/api/myPage', { session_userID })
-        .then(response => {
-          setRepositoryListData({ 
-            repositories: response.data.get_data,
-            repositorySelectedTime: response.data.repo_selected_time,
-            repositoryName: response.data.repo_name,
-            repositoryContributorName: response.data.repo_contributor_name,
-            isLoading: false
-          });
-        })
-        
+        const response = await axios.post('http://localhost:5000/api/myPage', { session_userID })
+        const get_data = response.data;
+
+        console.log(get_data);
+
+        const repo_names = get_data.map(item => item.repo_name);
+        setRepoNames(repo_names);
+        console.log(repoNames);
+        const repo_contributor_names = get_data.map(item => item.repo_contributor_name);
+        setRepoContributorNames(repo_contributor_names);
+        const repo_main_lang = get_data.map(item => item.main_lang);
+        setRepoMainLang(repo_main_lang);
+        const repo_frameworks = get_data.map(item => item.frameworks);
+        setRepoFrameworks(repo_frameworks);
+
+        setIsLoading(false);
       }
     }
     fetchData();
@@ -139,9 +143,10 @@ function MyPage() {
           </div>
         ) : (
           <CardList 
-            repositorySelectedTime={repositorySelectedTime} 
-            repositoryName={repositoryName} 
-            repositoryContributorName = {repositoryContributorName}
+            repositories={repoNames} 
+            file_data={repoContributorNames} 
+            username={repoMainLang} 
+            personal_list = {repoFrameworks}
           />
         )}
       </div>

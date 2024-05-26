@@ -1,6 +1,6 @@
 import React from 'react';
 import Card from "./Card";
-function CardList({ repositories, file_data, username,personal_list, team_list }) {
+function CardList({ repositories, file_data, username, personal_list, team_list }) {
   return (
     <div className="cardList" style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-start' }}>
       {repositories.map((repository, index) => {

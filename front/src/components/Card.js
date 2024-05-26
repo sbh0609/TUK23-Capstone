@@ -20,7 +20,7 @@ const Card = ({ repo_name, url, fileList, username, repo_type }) => {
         <CardContainer onClick={onClickCard} >
             <UserInfo>
                 <Name>{repo_name}</Name>
-
+                <p>{fileList}</p>
                 <Repo_type>{repo_type}</Repo_type>
             </UserInfo>
         </CardContainer>

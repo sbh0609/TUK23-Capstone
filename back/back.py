@@ -103,9 +103,18 @@ def find_my_repo():
     try:
         with connection.cursor() as cursor:
             sql = "SELECT * FROM analyzed_repo_data WHERE web_user_id = %s"
-            cursor.execute(sql, (userID))
-            get_data = cursor.fetchall()
-            repo_selected_time = [row['repo_selected_time'] for row in get_data]
+            cursor.execute(sql, (userID, ))
+            
+            rows = cursor.fetchall()
+            columns = [col[0] for col in cursor.description]  # 컬럼 이름을 가져옴
+            result = [dict(zip(columns, row)) for row in rows]  # 각 행을 딕셔너리로 변환
+
+            print(result)
+            return jsonify(result), 200
+            
+            
+            
+            """repo_selected_time = [row['repo_selected_time'] for row in get_data]
             repo_name = [row['repo_name'] for row in get_data]
             repo_contributor_name = [row['repo_contributor_name'] for row in get_data]
             
@@ -114,7 +123,7 @@ def find_my_repo():
                              "repo_selected_time": repo_selected_time, 
                              "repo_name": repo_name, 
                              "repo_contributor_name":repo_contributor_name
-                            }), 200
+                            }), 200"""
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
