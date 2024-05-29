@@ -1,10 +1,9 @@
 import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './LoginPage.css';
-import axios from 'axios';
+import './RepositorySearchPage.css';
 import { useMaintainPage } from '../Context/MaintainPage';
 
-function LoginPage() {
+function Search() {
   const [username, setUsername] = useState("");
   // const [passwords, setPasswords] = useState(['']);
   const [organizations, setOrganiztions] = useState(['']);
@@ -25,7 +24,7 @@ function LoginPage() {
   const navigate = useNavigate();
   const handleSubmit = () => {
     // 데이터 처리 페이지로 바로 이동
-    navigate("/repository", { state: { username, organizations: organizations.filter(org => org) } });
+    navigate("/list", { state: { username, organizations: organizations.filter(org => org) } });
   };
   useEffect(()=>{
     clearData();
@@ -81,4 +80,4 @@ function LoginPage() {
 }
 
 
-export default LoginPage;
+export default Search;
