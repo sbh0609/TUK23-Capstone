@@ -26,7 +26,7 @@ function Login() {
         navigate('/register');
     }
     const onClickGoRepositoryButtonHandler = (e) => {
-        navigate('/login1');
+        navigate('/search');
     }
     const onClickPhaseButtonHandler = (e) => {
         if(isVisible === false) 
@@ -50,7 +50,7 @@ function Login() {
 
             console.log('Login successful:', response.data);
             sessionStorage.setItem("userID", response.data.userID)
-            navigate("/login1");
+            navigate("/search");
             // 로그인 성공 시 리다이렉트 또는 다음 작업 수행
         } catch (error) {
             console.error('Login error:', error);
