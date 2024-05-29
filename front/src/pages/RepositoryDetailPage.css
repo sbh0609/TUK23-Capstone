@@ -114,18 +114,18 @@
   padding: 1rem 1rem 1rem 0; /* 좌측 패딩을 제거 */
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  
+  align-items: start; 
 }
-
-
+.repo-info, .info-boxx {
+  text-align: left; /* 텍스트 왼쪽 정렬 */
+  margin-left: 0px; /* 왼쪽 여백 추가 */
+  width: auto; /* 너비 자동 조절 */
+}
 
 .repo-info h2 {
   font-size: 50px; /* 폰트 크기 설정 */
   font-weight: bold; /* 폰트 굵기 설정 */
   margin-bottom: 20px; /* 아래 여백 설정 */
-  margin-left: 700px;
-  text-align: center;
 }
 .repo-info {
   display: flex;
@@ -133,13 +133,10 @@
   
 }
 
-
 .repo-type {
   font-size: 30px; 
   margin: 0 40px;
-  margin-left: 700px;
-  text-align: center; /* Team, Personal 왼쪽 여백 추가하여 위치를 조정합니다. */
- 
+  text-align: left; /* Team, Personal 왼쪽 여백 추가하여 위치를 조정합니다. */
 }
 
 .repo-name {
@@ -147,16 +144,10 @@
   font-weight: bold; /* 굵은 텍스트로 만듭니다 */
   position: relative; /* 상대 위치로 설정합니다 */
   z-index: 1; /* 다른 요소 위에 표시되도록 설정합니다 */
-  margin-top: 500px; /* 원하는 만큼의 여백을 위쪽에 추가합니다 */
-   /* 왼쪽 여백 추가하여 상자를 왼쪽으로 옮김 */
+  margin-top: 100px; /* 원하는 만큼의 여백을 위쪽에 추가합니다 */
+  text-align: left; /* 왼쪽 정렬 */
+  margin-left: 0px; /* 왼쪽 여백 추가하여 상자를 왼쪽으로 옮김 */
   color: black; /* 글씨 색상을 검정색으로 설정합니다 */
-}
-.info-boxset {
-  display: flex;
-  justify-content: center; 
-  width: 100%; /* 전체 너비 사용 */
-  margin-left: 300px; /* 가운데 정렬을 위한 자동 마진 */
-  font-size: 30px
 }
 .info-boxx {
   background-color: #333; /* 다크 배경 */
@@ -165,11 +156,10 @@
   padding: 20px 30px; /* 패딩 */
   margin: 20px 0; /* 상하 여백은 그대로 두고 좌우 여백만 0으로 설정하여 가운데 정렬 제거 */
   max-width: 200px; /* 최대 너비 설정 */
-  text-align: center; /* 왼쪽 정렬 */
+  text-align: left; /* 왼쪽 정렬 */
   margin-left: 20px; /* 왼쪽 여백 추가하여 상자를 왼쪽으로 옮김 */
   display: flex; /* 유연한 레이아웃을 위해 flex로 설정 */
   flex-direction: column; /* 세로 방향으로 요소를 정렬 */
-  justify-content: center;
 }
 
 .info-box h3 {
@@ -181,183 +171,62 @@
   margin: 0; /* 문단의 마진 제거 */
   font-size: 1.2rem; /* 문단의 폰트 사이즈 조정 */
 }
-.section-container {
-  text-align: center; /* 텍스트 가운데 정렬 */
-  width: 100%; /* 전체 너비 사용 */
-  margin: 20px 0; /* 상하 여백 설정 */
-  margin-left:300px;
-  font-size: 50px;
-}
-.team-chart-with-info,
-.all-chart-with-info {
+.chart-with-info {
+   
   display: flex;
   flex-direction: row; /* 가로로 나열 */
-  justify-content: center; 
-  align-items: flex-start; /* 왼쪽 정렬 */
-  gap: 20px; /* 세트 사이의 간격 */
-  margin-left: 600px; /* 부모 컨테이너를 중앙에 배치 */
+  flex-wrap: wrap; /* 내용이 많아지면 다음 줄로 넘어감 */
+  justify-content: flex-start; /* 왼쪽에서 시작 */
+  align-items: flex-start; /* 상단 정렬 */
+  gap: 50px; /* 세트 사이의 간격 */
 }
 
-.team-chart-and-info-container,
 .chart-and-info-container {
-  display: flex;
-  flex-direction: column; /* 세로로 나열 */
-  align-items: center; /* 왼쪽 정렬 */
-  margin-bottom: 20px; /* 적절한 너비 설정 */
-}
-
-.team-chart-container,
-.chart-container {
-  display: flex;
-  justify-content: center; /* 차트 컨테이너를 중앙 정렬 */
-  width: 300px; /* 전체 너비 사용 */
-  height: 300px; /* 높이 설정 */
-  
-}
-
-.team-info-box,
-.info-box {
-  background-color: #333; /* 다크 배경 */
-  color: #fff; /* 흰색 텍스트 */
-  border-radius: 25px; /* 라운드된 모서리 */
-  padding: 20px 30px; /* 패딩 */
-  margin: 20px 0; /* 상하 여백은 그대로 두고 좌우 여백만 0으로 설정하여 가운데 정렬 제거 */
-  max-width: 200px; /* 최대 너비 설정 */
-  text-align: center; /* 왼쪽 정렬 */
-  margin-left: 20px; /* 왼쪽 여백 추가하여 상자를 왼쪽으로 옮김 */
-  display: flex; /* 유연한 레이아웃을 위해 flex로 설정 */
-  flex-direction: column; /* 세로 방향으로 요소를 정렬 */
-  justify-content: center;
-  font-size: 30px
-}
-.info-box { font-size: 30px}
-.complex-line-chart-and-info-container
-{
-  display: flex;
-  flex-direction: column; /* 세로로 나열 */
-  align-items: center; /* 왼쪽 정렬 */
-  margin-bottom: 20px; /* 적절한 너비 설정 */
-  
-}
-.complex-line-chartBox
-{
-
-  width: 1500px;
-  height: 1000px;
-  margin-left: 600px;
-}
-.complex-line-info-box{
-  background-color: #333; /* 다크 배경 */
-  color: #fff; /* 흰색 텍스트 */
-  border-radius: 25px; /* 라운드된 모서리 */
-  padding: 20px 30px; /* 패딩 */
-  margin: 20px 0; /* 상하 여백은 그대로 두고 좌우 여백만 0으로 설정하여 가운데 정렬 제거 */
-  max-width: 500px; /* 최대 너비 설정 */
-  text-align: left; /* 왼쪽 정렬 */
-  display: flex; /* 유연한 레이아웃을 위해 flex로 설정 */
-  flex-wrap: wrap;
-  flex-direction: column; /* 세로 방향으로 요소를 정렬 */
-  justify-content: center;
-  margin-left: 300px;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* 자동으로 열 생성 */
-  gap: 10px; /* 요소 사이의 간격 설정 */
-  margin-left: 600px;
-  font-size: 30px;
-  }
-  .complex-line-info-box ul {
-    list-style-type: none; /* 목록 스타일 제거 */
-    padding: 0;
-    margin: 0;
-  }
-  
-  .complex-line-info-box li {
-    white-space: nowrap; /* 텍스트가 줄 바꿈되지 않도록 설정 */
-  }
-.complex-dough-chart-and-info-container{
-  display: flex;
-  flex-direction: column; /* 세로로 나열 */
-  align-items: center; /* 왼쪽 정렬 */
-  margin-bottom: 20px; /* 적절한 너비 설정 */
-  margin-left: 600px;
-}
-.complex-dough-container{
-
-  width: 400px;
-  height: 400px;
-}
-.complex-dough-info-box{
-  list-style-type: none; /* 목록 스타일 제거 */
-  padding: 0;
-  margin: 0;
-  display: flex; /* flexbox로 설정 */
-  flex-wrap: wrap; /* 줄 바꿈을 허용 */
-  gap: 10px; /* 요소 사이의 간격 설정 */
-background-color: #333; /* 다크 배경 */
-color: #fff; /* 흰색 텍스트 */
-border-radius: 25px; /* 라운드된 모서리 */
-padding: 20px 30px; /* 패딩 */
-margin: 20px 0; /* 상하 여백은 그대로 두고 좌우 여백만 0으로 설정하여 가운데 정렬 제거 */
-max-width: 700px; /* 최대 너비 설정 */
-text-align: center; /* 왼쪽 정렬 */
-margin-left: 0px; /* 왼쪽 여백 추가하여 상자를 왼쪽으로 옮김 */
-display: flex; /* 유연한 레이아웃을 위해 flex로 설정 */
-flex-direction: column; /* 세로 방향으로 요소를 정렬 */
-justify-content: center;
-font-size: 30px;
-}
-.bar-chart-and-info-container {
    
   display: flex;
   flex-direction: column; /* 세로로 나열 */
-  align-items: center; /* 왼쪽 정렬 */
-  margin-bottom: 20px; /* 적절한 너비 설정 */
-  margin-left: 600px;
-  margin-top: 100px;
-}
+  align-items: center; /* 세로축 중앙 정렬 */
+  width: 300px; /* 적절한 너비 설정 */
+  margin-left: 20px;  
   
-.bar-chart-container {
+}
+
+.chart-container {
+  width: 100%; /* 전체 너비 사용 */
+  height: 300px; /* 높이 설정 */
+  margin-left: 20px;
+}
+
+.info-box {
+  width: 300px; /* 전체 너비 사용 */
+  padding: 20px;
+  background-color: #333;
+  color: #fff;
+  border-radius: 25px;
   display: flex;
-  width: 1000px; /* 전체 너비 사용 */
-  justify-content: center; /* 차트 컨테이너를 중앙 정렬 */
-
-  
-}
-.bar-chart-info-box{
-  background-color: #333; /* 다크 배경 */
-  color: #fff; /* 흰색 텍스트 */
-  border-radius: 25px; /* 라운드된 모서리 */
-  padding: 20px 30px; /* 패딩 */
-  margin: 20px 0; /* 상하 여백은 그대로 두고 좌우 여백만 0으로 설정하여 가운데 정렬 제거 */
-  max-width: 500px; /* 최대 너비 설정 */
-  text-align: center; /* 왼쪽 정렬 */
-  font-size: 30px;
-  
-  display: flex; /* 유연한 레이아웃을 위해 flex로 설정 */
-  flex-direction: column; /* 세로 방향으로 요소를 정렬 */
-  justify-content: center;
-}
-.grammer-chart-and-info-container {
-  display: flex;
-  flex-direction: row; /* 가로로 나열 */
-  justify-content: center; 
-  align-items: flex-start; /* 왼쪽 정렬 */
-  gap: 20px; /* 세트 사이의 간격 */
-  margin-left: 600px; /* 부모 컨테이너를 중앙에 배치 */
-}
-
-.grammer-doughnut-chart-container {
-  width: 300px;
-  height: 300px;
-  position: relative;
-}
-
-.grammer-doughnut-chart-container p {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1.2em;
-  font-weight: bold;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  
+  margin-top: 10px; /* 차트와 정보 상자 사이의 간격 */
+  margin-left: 20px;
+} 
+
+.scroll-link-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100px; /* Adjust width as needed */
+  padding: 20px;
+  background-color: #333; /* Dark background for the box */
+  color: #fff; /* White text color */
+  margin-left: 100px;
+  border-radius: 25px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  text-decoration: none; /* Remove underline from link */
+  margin-top: 20px; /* Margin from the top element */
+  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.scroll-link-box:hover {
+  background-color: #555; /* Slightly lighter on hover */
 }
