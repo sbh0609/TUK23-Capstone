@@ -29,49 +29,49 @@ const RepositoryDetailPage = () => {
     totalPR: null,
     userPR: null,
     prPercentage: null
-});
-const [teambarData, setTotalQualityData] = useState({
-  TWhatWhy: null,
-  TNone: null,
-  TWhy: null,
-  TWhat: null 
-});
-const [barData, setUserlQualityData] = useState({
-  WhatWhy: null,
-  None: null,
-  Why: null,
-  What: null 
-});
-const [grammardata, setGrammarData] = useState({
-  totalGrammar: null,
-  userGrammar: null
-});
+  });
+  const [teambarData, setTotalQualityData] = useState({
+    TWhatWhy: null,
+    TNone: null,
+    TWhy: null,
+    TWhat: null 
+  });
+  const [barData, setUserlQualityData] = useState({
+    WhatWhy: null,
+    None: null,
+    Why: null,
+    What: null
+  });
+  const [grammardata, setGrammarData] = useState({
+    totalGrammar: null,
+    userGrammar: null
+  });
   const [commitsData, setcommitsData] = useState({
-  totalCommits: null,
-  userCommits: null,
-  CommitsPercentage: null
-});
+    totalCommits: null,
+    userCommits: null,
+    CommitsPercentage: null
+  });
   const [commentsData, setCommentsData] = useState({
-  totalines: null,
-  commentlines: null,
-  CommentsPercentage: null,
+    totalines: null,
+    commentlines: null,
+    CommentsPercentage: null,
   fliecounts: null
-});
+  });
   const [merged_prData, setMerged_PRData] = useState({
-  totalusers_PR: null,
-  Merged_PR: null,
-  Merged_prPercentage: null
-});
+    totalusers_PR: null,
+    Merged_PR: null,
+    Merged_prPercentage: null
+  });
   const [issuesData, setIssuesData] = useState({
-  totalIssues: null,
-  userIssues: null,
-  IssuesPercentage: null
-});
+    totalIssues: null,
+    userIssues: null,
+    IssuesPercentage: null
+  });
   const [duplicatesData, setDuplicatesData] = useState({
-  total_lines: null,
-  userDuplicates: null,
-  DuplicatesPercentage: null
-});
+    total_lines: null,
+    userDuplicates: null,
+    DuplicatesPercentage: null
+  });
   const complexity_data = {1: 2, 2: 2}
 
   const [loading, setLoading] = useState(true);
@@ -80,43 +80,43 @@ const [grammardata, setGrammarData] = useState({
   const [userLanguage, setUserLanguage ] = useState("");
   const [userEct, setUserEct ] = useState("");
   const navigate = useNavigate();
-    // 드롭다운의 옵션들 선언
-    const type_options = [
-      { value: "", label: "All" },
-      { value: "Sincere@april.biz", label: "Private" },
-      { value: "Nathan@yesenia.net", label: "Public" },
-    ]
-    const language_options = [
-      { value: "", label: "All" },
-      { value: "hildegard.org", label: "Private" },
-      { value: "jacynthe.com", label: "Public" },
-    ]
-    const ect_options = [
-      { value: "", label: "All" },
-      { value: "Kulas Light", label: "Private" },
-      { value: "Kattie Turnpike", label: "Public" },
-    ]
+  // 드롭다운의 옵션들 선언
+  const type_options = [
+    { value: "", label: "All" },
+    { value: "Sincere@april.biz", label: "Private" },
+    { value: "Nathan@yesenia.net", label: "Public" },
+  ]
+  const language_options = [
+    { value: "", label: "All" },
+    { value: "hildegard.org", label: "Private" },
+    { value: "jacynthe.com", label: "Public" },
+  ]
+  const ect_options = [
+    { value: "", label: "All" },
+    { value: "Kulas Light", label: "Private" },
+    { value: "Kattie Turnpike", label: "Public" },
+  ]
     const handleEnterButton = () => {
       navigate("/repository");
     }
   
-    // 드롭다운의 스타일
-    const optionStyles = {
-      control: (baseStyles, state) => ({
-        ...baseStyles,
-        backgroundColor: "#000000",
-        color: state.isFocused ? "#FFFFFF" : "#FFFFFF",
-      }),
-      option: (baseStyles, state) => ({
-        ...baseStyles,
-        backgroundColor: state.isFocused ? "#e2e2e2" : "",
-        color: state.isFocused ? "#333333" : "#FFFFFF",
-      }),
-      menu: (baseStyles, state) => ({
-        ...baseStyles,
-        backgroundColor: "#333333",
-      }),
-    }
+  // 드롭다운의 스타일
+  const optionStyles = {
+    control: (baseStyles, state) => ({
+      ...baseStyles,
+      backgroundColor: "#000000",
+      color: state.isFocused ? "#FFFFFF" : "#FFFFFF",
+    }),
+    option: (baseStyles, state) => ({
+      ...baseStyles,
+      backgroundColor: state.isFocused ? "#e2e2e2" : "",
+      color: state.isFocused ? "#333333" : "#FFFFFF",
+    }),
+    menu: (baseStyles, state) => ({
+      ...baseStyles,
+      backgroundColor: "#333333",
+    }),
+  }
   useEffect(()=>{
     axios.post('http://localhost:5000/api/analyze',{repo_name, username, fileList, repo_type, click_time, session_userID})
       .then(response=>{

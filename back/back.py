@@ -179,8 +179,6 @@ def analyze_repo():
         json_main_lang = json.dumps(program_lang)
         json_complexity_data = json.dumps(all_files_complexity)
         
-        # repo_selected_time1 = "2024-05-18 01:24:40"
-        
         try:
             with connection.cursor() as cursor:
                 sql_insert = """
@@ -264,7 +262,6 @@ def analyze_repo():
         json_complexity_data = json.dumps(all_files_complexity)
         json_total_quality = json.dumps(total_quality[0])
         json_user_quality = json.dumps(user_quality[1])
-        repo_selected_time1 = "2024-04-01 01:24:40"
         
         try:
             with connection.cursor() as cursor:
