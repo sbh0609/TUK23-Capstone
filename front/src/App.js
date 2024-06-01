@@ -3,6 +3,7 @@ import MainPage from './pages/MainPage';
 import Login from './login/Login';
 import Register from './login/RegisterPage';
 import LoginSelectPage from './pages/LoginSelectPage';
+import MyPage from './pages/MyPage';
 import Search from './repositories/RepositorySearchPage';
 import RepositoryListPage from './repositories/RepositoryListPage';
 import RepositoryDetailPage from './repositories/RepositoryDetailPage'
@@ -11,8 +12,6 @@ import { RepositoryProvider } from './Context/RepositoryContext'; // 방금 만�
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RepositoryListProvider } from './Context/MaintainPage';
 import DBtest from './tests/dbtest';
-
-import LoginUserDefault from './login_user_pages/LoginUserDefaultPage';
 
 function App(){
   return (
@@ -24,7 +23,7 @@ function App(){
             <Route path='/login' element={<Login/>} />
             <Route path='/register' element={<Register/>} />
             <Route path='/loginSelect' element={<LoginSelectPage/>} />
-            <Route path='/loginUserDefault' element={<LoginUserDefault/>} />
+            <Route path='/myPage' element={<MyPage/>} />
             <Route path='/search' element={<Search />} />
             <Route path='/list' element={<RepositoryListPage />} />
             <Route path='/detail' element={<RepositoryDetailPage/>} />
