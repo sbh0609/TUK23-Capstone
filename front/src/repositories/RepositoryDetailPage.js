@@ -97,7 +97,7 @@ const RepositoryDetailPage = () => {
     { value: "Kattie Turnpike", label: "Public" },
   ]
     const handleEnterButton = () => {
-      navigate("/repository");
+      navigate("/list");
     }
   
   // 드롭다운의 스타일

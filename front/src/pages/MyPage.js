@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate,useLocation } from 'react-router-dom';
 import Select from "react-select";
-import CardList from "../components/CardList";
-import "./LoginUserDefaultPage.css";
+import CardList from "../components/MyPageCardList";
+import "./MyPage.css";
 import axios from 'axios';
 import { useMaintainPage } from '../Context/MaintainPage'; // Context를 가져옵니다.
 import gifLoading from '../resources/Loading_icon.gif';
 
-function LoginUserDefault() {
+function MyPage() {
   const session_userID = sessionStorage.getItem("userID");
   const [userInput, setUserInput ] = useState("");
   const [userType, setUserType ] = useState("");
   const [userLanguage, setUserLanguage ] = useState("");
   const [userEct, setUserEct ] = useState("");
   const [username, setUsername ] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   // const [repositoryClassification, setData] = useState({ personal_list: [], team_list: [],globusername:''});
+  const [repoNames, setRepoNames] = useState([]);
+  const [repoContributorNames, setRepoContributorNames] = useState([]);
+  const [repoMainLang, setRepoMainLang] = useState([]);
+  const [repoFrameworks, setRepoFrameworks] = useState([]);
 
-  const { repositoryListData, setRepositoryListData } = useMaintainPage(); // Context 사용
-  const { repositories, file_data, isLoading,team_list,personal_list,globusername } = repositoryListData; // Context 데이터 분해 할당
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -63,18 +66,26 @@ function LoginUserDefault() {
     const fetchData = async () => {
       if (session_userID === null) {
         alert('로그인이 필요한 서비스입니다.');
-        navigate('/login'); // 예: 로그인 상태에 따라 다른 페이지로 이동
+        navigate('/login'); // 세션값이 비어있으면 로그인 상태가 아님이라고 판단하고 로그인 페이지로 이동
       } 
       else {
         console.log("userID :", session_userID);
-        const response1 = await axios.post('http://localhost:5000/api/own_repo', { session_userID })
-      
-        const response1Data = response1.data;
-        const fetchedResponseData = response1Data.username
-        setUsername(fetchedResponseData);
+        const response = await axios.post('http://localhost:5000/api/myPage', { session_userID })
+        const get_data = response.data;
 
+        console.log("get_data : " , get_data);
 
-        console.log("username:", username);
+        const repo_names = get_data.map(item => item.repo_name);
+        setRepoNames(repo_names);
+        console.log(repoNames);
+        const repo_contributor_names = get_data.map(item => item.repo_contributor_name);
+        setRepoContributorNames(repo_contributor_names);
+        const repo_main_lang = get_data.map(item => item.main_lang);
+        setRepoMainLang(repo_main_lang);
+        const repo_frameworks = get_data.map(item => item.frameworks);
+        setRepoFrameworks(repo_frameworks);
+
+        setIsLoading(false);
       }
     }
     fetchData();
@@ -132,12 +143,10 @@ function LoginUserDefault() {
           </div>
         ) : (
           <CardList 
-            repositories={username}   
-            /*repositories={repositories} 
-            file_data={file_data} 
-            username = {globusername}
-            personal_list = {personal_list}
-            team_list = {team_list}*/
+            repositories={repoNames} 
+            repositoryContributorName={repoContributorNames} 
+            repositoryMainLang={repoMainLang} 
+            personal_list = {repoFrameworks}
           />
         )}
       </div>
@@ -145,4 +154,4 @@ function LoginUserDefault() {
   );
 }
 
-export default LoginUserDefault;
+export default MyPage;
