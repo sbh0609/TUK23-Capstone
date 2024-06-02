@@ -34,17 +34,9 @@ headers = {
 }
 
 source_file_extensions = {
-    # "C": [".c", ".h"],
-    # "C++": [".cpp", ".cxx", ".cc", ".hpp", ".hxx", ".h"],
-    # "C#": [".cs"],
     "Python": [".py"],
     "JavaScript": [".js"],
-    # "Go": [".go"],
     "Java": [".java"],
-    # "PHP": [".php", ".phtml"],
-    # "Ruby": [".rb"],
-    # "Scala": [".scala"],
-    # "Swift": [".swift"],
     "TypeScript": [".ts"],
     "Kotlin": [".kt", ".kts"]
 }
@@ -235,10 +227,15 @@ def analyze_repo():
         comment_per=getframework.comment_percent(repo_file_data)
         framework=getframework.analyze_dependencies(repo_file_data)
         dup_code=getframework.detect_code_duplication(repo_file_data)
+        pr_data=getframework.get_pr_stats(user_name,repo_name,headers)
+        issue_data = getframework.get_issue_stats(user_name,repo_name,headers)
+        print(pr_data)
+        print(issue_data)
         pr_per=getframework.pr_percent(user_name,repo_name,headers)
         issue_per=getframework.issue_percent(user_name,repo_name,headers)
         commit_per = getframework.commit_percent(user_name,repo_name,headers)
         merged_pr_stats =getframework.get_merged_pr_stats(user_name, repo_name,headers)
+        print(complex_file_path)
         for file_path in complex_file_path:
             result = getframework.analyze_file(file_path)
         
@@ -248,9 +245,9 @@ def analyze_repo():
             all_files_complexity[file_path] = complexity_info
             all_files_function_length[file_path] = function_length_info
             all_files_parameter_count[file_path] = parameter_count_info
-        print("All Files Complexity:", all_files_complexity)
-        print("All Files Function Length:", all_files_function_length)
-        print("All Files Parameter Count:", all_files_parameter_count)
+        # print("All Files Complexity:", all_files_complexity)
+        # print("All Files Function Length:", all_files_function_length)
+        # print("All Files Parameter Count:", all_files_parameter_count)
         total_quality, user_quality = func.classify_commit_quality(repo_name, user_name, token)
         total_grammar, user_grammar = func.check_grammar(repo_name, user_name, token)
 
@@ -259,10 +256,10 @@ def analyze_repo():
             "comment_per": comment_per,
             "framework": framework,
             "duplicate_code": dup_code,
-            "pr_per": pr_per,
+            "pr_per": pr_data,
             "commit_per": commit_per,
             "merged_pr_stats": merged_pr_stats,
-            "issue_per": issue_per,
+            "issue_per": issue_data,
             "complexity": all_files_complexity,
             "total_quality": total_quality,
             "user_quality": user_quality,
@@ -324,15 +321,23 @@ def analyze_repo():
                                 comment_per[2], 
                                 dup_code[1], 
                                 dup_code[2],
-                                json_complexity_data,    
+                                json_complexity_data,
+                                # pr_data["total_prs"],
+                                # pr_data["total_user_prs"] ,
+                                # pr_data["user_pr_percentage"] ,
                                 pr_per[0],
                                 pr_per[1],
                                 pr_per[2],
                                 commit_per[0],
                                 commit_per[1],
                                 commit_per[2],
+                                # pr_data["merged_user_prs"],
+                                # pr_data["merged_user_pr_percentage"],
                                 merged_pr_stats[1],
                                 merged_pr_stats[2],
+                                # issue_data["total_issue"],
+                                # issue_data["total_user_issues"],
+                                # issue_data["user_issue_percentage"],
                                 issue_per[0],
                                 issue_per[1],
                                 issue_per[2],

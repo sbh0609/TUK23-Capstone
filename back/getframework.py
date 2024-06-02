@@ -234,18 +234,9 @@ def get_personal_repo_file(filtered_files, personal_repo):
                   
 def comment_percent(repo_file_data):
     comment_styles = {
-    # ".c": {"inline": "//", "block_start": "/*", "block_end": "*/"},
-    # ".cpp": {"inline": "//", "block_start": "/*", "block_end": "*/"},
-    # ".h": {"inline": "//", "block_start": "/*", "block_end": "*/"},
     ".java": {"inline": "//", "block_start": "/*", "block_end": "*/"},
     ".js": {"inline": "//", "block_start": "/*", "block_end": "*/"},
-    # ".cs": {"inline": "//", "block_start": "/*", "block_end": "*/"},
     ".py": {"inline": "#", "block_start": '"""', "block_end": '"""'},
-    # ".rb": {"inline": "#"},
-    # ".php": {"inline": "//", "block_start": "/*", "block_end": "*/"},
-    # ".go": {"inline": "//", "block_start": "/*", "block_end": "*/"},
-    # ".scala": {"inline": "//", "block_start": "/*", "block_end": "*/"},
-    # ".swift": {"inline": "//", "block_start": "/*", "block_end": "*/"},
     ".ts": {"inline": "//", "block_start": "/*", "block_end": "*/"},
     ".kt": {"inline": "//", "block_start": "/*", "block_end": "*/"}
     }
@@ -348,7 +339,7 @@ def analyze_file(file_path):
         command = f"java -Dfile.encoding=UTF-8 analyzeTool/-jar detekt-cli-1.23.6-all.jar --input {file_path} --config analyzeTool/detekt.yml"
 
     result = subprocess.run(command, shell=True, capture_output=True, text=True, encoding='utf-8', errors='replace')
-    
+
 
     if result.stderr:
         print("Errors:", result.stderr)
@@ -397,7 +388,7 @@ def extract_function_length_messages(command_output):
             (r'LongMethod - \d+/\d+ - \[.*?\] at .*?:(\d+):(\d+)', lambda line, value: (int(line), int(value)))  # Detekt
         ]
         for pattern, extractor in patterns:
-            for match in re.findall(pattern[0], command_output, re.MULTILINE):
+            for match in re.findall(pattern, command_output, re.MULTILINE):
                 line_number, length_value = extractor(*match)
                 if line_number in function_length_info:
                     function_length_info[line_number] = max(function_length_info[line_number], length_value)
@@ -427,7 +418,7 @@ def extract_parameter_count_messages(command_output):
             (r'FunctionMaxParameters - \d+/\d+ - \[.*?\] at .*?:(\d+):(\d+)', lambda line, value: (int(line), int(value)))  # Detekt
         ]
         for pattern, extractor in patterns:
-            for match in re.findall(pattern[0], command_output, re.MULTILINE):
+            for match in re.findall(pattern, command_output, re.MULTILINE):
                 line_number, param_count = extractor(*match)
                 if line_number in parameter_count_info:
                     parameter_count_info[line_number] = max(parameter_count_info[line_number], param_count)
@@ -448,7 +439,7 @@ def extract_parameter_count_messages(command_output):
 
     return parameter_count_info
 
-def get_issue_stats(repo_name, username, headers):
+def get_issue_stats(username, repo_name, headers):
     issue_url = f"https://api.github.com/repos/{repo_name}/issues?state=all"
     response = get_paged_response(issue_url, headers)
 
@@ -471,7 +462,7 @@ def get_issue_stats(repo_name, username, headers):
     closed_user_issues = sum(1 for issue in user_issues if issue['state'] == 'closed')
 
     closed_issue_percentage = (closed_issues / total_issues) * 100 if total_issues > 0 else 0
-    closed_user_issue_percentage = (closed_user_issues / total_user_issues) * 100 if total_user_issues > 0 else 0
+    closed_user_issue_percentage = (closed_user_issues / closed_issues) * 100 if closed_issues > 0 else 0
     user_issue_percentage = (total_user_issues / total_issues) * 100 if total_issues > 0 else 0
 
     return {
@@ -484,7 +475,7 @@ def get_issue_stats(repo_name, username, headers):
         "user_issue_percentage": user_issue_percentage
     }
 
-def get_pr_stats(repo_name, username, headers):
+def get_pr_stats(username, repo_name, headers):
     pr_url = f"https://api.github.com/repos/{repo_name}/pulls?state=all"
     response = get_paged_response(pr_url, headers)
 
@@ -502,12 +493,13 @@ def get_pr_stats(repo_name, username, headers):
     
     merged_prs = sum(1 for pr in response if pr['state'] == 'closed' and pr.get('merged_at'))
     merged_pr_percentage = (merged_prs / total_prs) * 100 if total_prs > 0 else 0
-    
     user_prs = [pr for pr in response if pr['user']['login'] == username]
     total_user_prs = len(user_prs)
     merged_user_prs = sum(1 for pr in user_prs if pr['state'] == 'closed' and pr.get('merged_at'))
-    merged_user_pr_percentage = (merged_user_prs / total_user_prs) * 100 if total_user_prs > 0 else 0
+    merged_user_pr_percentage = (merged_user_prs / merged_prs) * 100 if merged_prs > 0 else 0
     user_pr_percentage = (total_user_prs / total_prs) * 100 if total_prs > 0 else 0
+
+
 
     return {
         "total_prs": total_prs,
