@@ -22,3 +22,33 @@ services:
       - 5000:5000
     volumes:
       - ./back:/back
+    depends_on:
+      - db
+      - redis
+
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+
+  celery:
+    container_name: celery
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    command: celery -A celery_worker.celery worker --loglevel=info
+    volumes:
+      - ./back:/back
+    depends_on:
+      - redis
+      - backend
+  
+  db:
+    image: mysql:latest
+    container_name: db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./mysql:/docker-entrypoint-initdb.d
