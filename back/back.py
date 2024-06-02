@@ -1,31 +1,37 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS,cross_origin
-import os
 from dotenv import load_dotenv
+from celery import Celery
+import os
 import getframework
 import func
 import pymysql
 import json
+import time
 # 환경 변수 로드 및 토큰 설정
 
 load_dotenv()
 app = Flask(__name__)
-api=CORS(app)  # CORS 적용
-SECRETKEY = 'root'
-app.secret_key = SECRETKEY
+app.secret_key = 'root'
 CORS(app, supports_credentials=True, origins='http://localhost:3000')
-passwd=os.environ.get('db_pwd')
 
-connection = pymysql.connect(
-    host='localhost',  # 호스트 주소
-    port=3306,
-    user='root',  # 데이터베이스 사용자 이름
-    password=passwd,  # 데이터베이스 암호
-    database='tuk23_capstone',  # 사용할 데이터베이스 이름
-    charset='utf8mb4',  # 문자 인코딩 설정
-    cursorclass=pymysql.cursors.DictCursor  # 결과를 딕셔너리 형태로 반환
-)
+app.config['CELERY_BROKER_URL'] = 'redis://redis:6379/0'
+app.config['CELERY_RESULT_BACKEND'] = 'redis://redis:6379/0'
 
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
+
+def connect_to_database():
+    connection = pymysql.connect(
+        host='db',  # 호스트 주소
+        port=3306,
+        user='root',  # 데이터베이스 사용자 이름
+        password='1234',  # 데이터베이스 암호
+        database='tuk23_capstone',  # 사용할 데이터베이스 이름
+        charset='utf8mb4',  # 문자 인코딩 설정
+        cursorclass=pymysql.cursors.DictCursor  # 결과를 딕셔너리 형태로 반환
+    )
+    return connection
 
 token = os.environ.get('token')
 headers = {
@@ -51,6 +57,7 @@ def login():
     userID = data.get('userID')
     password = data.get('password')
     try:
+        connection = connect_to_database()
         with connection.cursor() as cursor:
             sql = "SELECT * FROM user WHERE web_user_id = %s AND pwd = %s"
             cursor.execute(sql, (userID, password))
@@ -71,6 +78,7 @@ def register():
     userID = data.get('userID')
     password = data.get('password')
     try:
+        connection = connect_to_database()
         with connection.cursor() as cursor:
             sql_check = "SELECT * FROM user WHERE web_user_id = %s"
             cursor.execute(sql_check, (userID), )
@@ -93,6 +101,7 @@ def find_own_repo():
     #userID = data.get('session_userID')
     userID = "test1"
     try:
+        connection = connect_to_database()
         with connection.cursor() as cursor:
             sql = "SELECT * FROM analyzed_repo_data WHERE web_user_id = %s"
             cursor.execute(sql, (userID))
@@ -132,7 +141,13 @@ def handle_input():
 
     return jsonify({"repositories": user_repo_list,"file_data": filtered_files,"personal_list":personal_list,"team_list":team_list})
 
-
+@celery.task
+def analyze_file_task(file_path):
+    result = getframework.analyze_file(file_path)
+    complexity_info=getframework.extract_complexity_messages(result)
+    function_length_info = getframework.extract_function_length_messages(result)
+    parameter_count_info = getframework.extract_parameter_count_messages(result)
+    return {"file_path": file_path, "complexity_info": complexity_info, "function_length_info": function_length_info, "parameter_count_info": parameter_count_info}
 
 @app.route('/api/analyze',methods=['POST'])
 @cross_origin()
@@ -156,15 +171,15 @@ def analyze_repo():
         comment_per=getframework.comment_percent(repo_file_data)
         framework=getframework.analyze_dependencies(repo_file_data)
         dup_code=getframework.detect_code_duplication(repo_file_data)
-        for file_path in complex_file_path:
-            result = getframework.analyze_file(file_path)
 
-            complexity_info = getframework.extract_complexity_messages(result)
-            function_length_info = getframework.extract_function_length_messages(result)
-            parameter_count_info = getframework.extract_parameter_count_messages(result)
-            all_files_complexity[file_path] = complexity_info
-            all_files_function_length[file_path] = function_length_info
-            all_files_parameter_count[file_path] = parameter_count_info
+        tasks = [analyze_file_task.apply_async(args=[file_path]) for file_path in complex_file_path]
+
+        for task in tasks:
+            result = task.get()
+            file_path = result['file_path']
+            all_files_complexity[file_path] = result['complexity_info']
+            all_files_function_length[file_path] = result['function_length_info']
+            all_files_parameter_count[file_path] = result['parameter_count_info']
 
         repo_analyze={
             "program_lang": program_lang,
@@ -179,6 +194,7 @@ def analyze_repo():
         json_complexity_data = json.dumps(all_files_complexity)
         
         try:
+            connection = connect_to_database()
             with connection.cursor() as cursor:
                 sql_insert = """
                     INSERT INTO analyzed_repo_data (
@@ -217,11 +233,10 @@ def analyze_repo():
                 connection.commit() 
         except Exception as e:
             return jsonify({'DataBase Insert Error': str(e)}), 500
-        return jsonify(repo_analyze)
-    
     
     elif(repo_type=='team'):
         program_lang= getframework.get_used_lang(repo_name,all_lang,headers)
+
         repo_file_data,complex_file_path=getframework.get_file_data(repo_file,repo_name,user_id,headers)
         
         comment_per=getframework.comment_percent(repo_file_data)
@@ -235,19 +250,16 @@ def analyze_repo():
         issue_per=getframework.issue_percent(user_name,repo_name,headers)
         commit_per = getframework.commit_percent(user_name,repo_name,headers)
         merged_pr_stats =getframework.get_merged_pr_stats(user_name, repo_name,headers)
-        print(complex_file_path)
-        for file_path in complex_file_path:
-            result = getframework.analyze_file(file_path)
         
-            complexity_info = getframework.extract_complexity_messages(result)
-            function_length_info = getframework.extract_function_length_messages(result)
-            parameter_count_info = getframework.extract_parameter_count_messages(result)
-            all_files_complexity[file_path] = complexity_info
-            all_files_function_length[file_path] = function_length_info
-            all_files_parameter_count[file_path] = parameter_count_info
-        # print("All Files Complexity:", all_files_complexity)
-        # print("All Files Function Length:", all_files_function_length)
-        # print("All Files Parameter Count:", all_files_parameter_count)
+        tasks = [analyze_file_task.apply_async(args=[file_path]) for file_path in complex_file_path]
+
+        for task in tasks:
+            result = task.get()
+            file_path = result['file_path']
+            all_files_complexity[file_path] = result['complexity_info']
+            all_files_function_length[file_path] = result['function_length_info']
+            all_files_parameter_count[file_path] = result['parameter_count_info']
+        
         total_quality, user_quality = func.classify_commit_quality(repo_name, user_name, token)
         total_grammar, user_grammar = func.check_grammar(repo_name, user_name, token)
 
@@ -274,6 +286,7 @@ def analyze_repo():
         json_user_quality = json.dumps(user_quality[1])
         
         try:
+            connection = connect_to_database()
             with connection.cursor() as cursor:
                 sql_insert = """
                     INSERT INTO analyzed_repo_data (
@@ -350,7 +363,7 @@ def analyze_repo():
         except Exception as e:
             return jsonify({'DataBase Insert Error': str(e)}), 500
         
-        return jsonify(repo_analyze)
+    return jsonify(repo_analyze)
     
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
