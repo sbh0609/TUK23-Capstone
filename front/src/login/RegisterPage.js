@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './RegisterPage.css';
 
-function Login() {
+function Register() {
     const [userID, setUserID] = useState("");
     const [password, setPassword] = useState("");
     const [loginCheck, setLoginCheck] = useState(false);
@@ -105,4 +105,4 @@ function Login() {
     )
 }
 
-export default Login;
+export default Register;
