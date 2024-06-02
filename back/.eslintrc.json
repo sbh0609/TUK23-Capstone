@@ -23,9 +23,10 @@
     ],
     "rules": {
       // 추가적인 사용자 정의 규칙을 여기에 구성
-      "max-lines-per-function": ["error", { "max": 10 }],
-      "max-depth": ["error", 1],
+      "max-lines-per-function": ["error", { "max": 1 }],
+      // "max-depth": ["error", 1],
       "complexity": ["error", 0 ],
+      "max-params": ["error", 0] ,
       "array-bracket-newline": "off", // 비활성화
       "array-bracket-spacing": "off",
       "array-element-newline": "off",

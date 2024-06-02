@@ -133,7 +133,7 @@ const RepositoryDetailPage = () => {
             const {comment_per} = response.data;
             console.log("Before update:", duplicate_code);
             const fetchedComplexityData = response.data.complexity_info || {}; // 서버 응답이 없거나 오류가 있을 경우 빈 객체를 사용
-             setComplexityData(fetchedComplexityData);
+            setComplexityData(fetchedComplexityData);
             setTotalQualityData({
               TWhatWhy: response.data.WhatWhy,
               TNone: response.data.None,
