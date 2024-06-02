@@ -15,8 +15,8 @@ app = Flask(__name__)
 app.secret_key = 'root'
 CORS(app, supports_credentials=True, origins='http://localhost:3000')
 
-app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
-app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
+app.config['CELERY_BROKER_URL'] = 'redis://redis:6379/0'
+app.config['CELERY_RESULT_BACKEND'] = 'redis://redis:6379/0'
 
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
@@ -26,7 +26,7 @@ def connect_to_database():
         host='db',  # 호스트 주소
         port=3306,
         user='root',  # 데이터베이스 사용자 이름
-        password='root',  # 데이터베이스 암호
+        password='1234',  # 데이터베이스 암호
         database='tuk23_capstone',  # 사용할 데이터베이스 이름
         charset='utf8mb4',  # 문자 인코딩 설정
         cursorclass=pymysql.cursors.DictCursor  # 결과를 딕셔너리 형태로 반환
@@ -164,8 +164,8 @@ def analyze_repo():
     repo_file = datas.get('fileList')
     repo_type = datas.get('repo_type')
     all_files_complexity = {}
-    # user_id = datas.get('session_userID')
-    user_id = 'ptm1225'
+    user_id = datas.get('session_userID')
+    # user_id = 'ptm1225'
     
     if(repo_type=='personal'):
         program_lang= getframework.get_used_lang(repo_name,all_lang,headers)
@@ -244,9 +244,9 @@ def analyze_repo():
     
     elif(repo_type=='team'):
         program_lang= getframework.get_used_lang(repo_name,all_lang,headers)
-        print(repo_file)
+        
         repo_file_data,complex_file_path=getframework.get_file_data(repo_file,repo_name,user_id,headers)
-        print('123')
+        
         comment_per=getframework.comment_percent(repo_file_data)
         framework=getframework.analyze_dependencies(repo_file_data)
         dup_code=getframework.detect_code_duplication(repo_file_data)
@@ -258,9 +258,9 @@ def analyze_repo():
         #     result = getframework.analyze_file(file_path)
         #     complexity_info=getframework.extract_complexity_messages(result)
         #     all_files_complexity[file_path] = complexity_info
-        print('before task')
+        
         tasks = [analyze_file_task.apply_async(args=[file_path]) for file_path in complex_file_path]
-        print('after task')
+        
         for task in tasks:
             result = task.get()
             file_path = result['file_path']

@@ -2,10 +2,6 @@ CREATE DATABASE IF NOT EXISTS tuk23_capstone;
 
 USE tuk23_capstone;
 
-CREATE USER 'user'@'%' IDENTIFIED BY '1234';
-GRANT ALL PRIVILEGES ON tuk23_capstone.* TO 'user'@'%';
-FLUSH PRIVILEGES;
-
 CREATE TABLE IF NOT EXISTS user (
     web_user_id VARCHAR(20) PRIMARY KEY,
     pwd VARCHAR(20)
