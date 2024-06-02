@@ -75,7 +75,7 @@ function Login() {
         </div>
       
         <div className="phase">
-            <p>Login</p>
+            <p>Sign in</p>
         </div>
         
         <div className="login-box">
@@ -113,6 +113,13 @@ function Login() {
                 </button>
             </form>
         </div>
+
+        <div className="register-box">
+            <p>계정이 없으신가요?</p>
+            <a href="/register">회원가입 하러가기</a>
+        </div>
+
+
         <div>
             <button 
             onClick={onClickGoRegisterButtonHandler}
@@ -133,12 +140,7 @@ function Login() {
                 <div className="phase-invisible">
                     <p>대병학을 찬양하고</p>
                     <p>엄준표를 숭배해야하기 때문입니다.</p>
-                    <button 
-                    onClick={onClickGoRepositoryButtonHandler}
-                    className="go-to-enter-repository"
-                    >
-                        로그인 없이 사용하기
-                    </button>
+                    <a href="/search">로그인 없이 이용하기</a>
                 </div>
             )}
 

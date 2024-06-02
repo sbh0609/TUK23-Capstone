@@ -30,7 +30,7 @@
   padding-bottom: 5px;
   overflow-y: auto;
 
-  background-color: #eaecf0;
+  background-color: #f6f8fa!important;
   border: 1px solid #ddd;
   border-radius: 8px;
 }
@@ -107,4 +107,39 @@
   font-size: 13px;
   font-family: 'Roboto';
   font-style: normal;
+}
+
+.register-box {
+  position: absolute;
+  top: 420px;
+  left: 50%;
+  transform: translate(-50%, 0%);
+
+  width: 300px;
+  max-height: 500px;
+  padding-top: 0px;
+  padding-bottom: 10px;
+  overflow-y: auto;
+
+  line-height: 1;
+  font-size: 14px; 
+
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+
+.phase-button {
+  color: black;
+  padding: 10px 20px;
+  margin-top: 300px;
+  margin-bottom: 10px;
+
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+
+  background-color: transparent;
 }
