@@ -6,7 +6,8 @@ export const RepositoryProvider = ({ children }) => {
     repo_name: '',
     fileList: [],
     username: '',
-    repo_type: ''
+    repo_type: '',
+    click_time: ''
   });
   return (
     <RepositoryContext.Provider value={{ repositoryDetail, setRepositoryDetail }}>

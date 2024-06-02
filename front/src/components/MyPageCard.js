@@ -6,33 +6,22 @@ import cpp_img from '../resources/c++ img.png';
 import java_img from '../resources/java img.png';
 import js_img from '../resources/js img.png';
 import python_img from '../resources/python img.png';
+
 import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
-
-
-const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  };
-
-
 const Card = ({ repo_name, url, fileList, username, repo_type }) => {
     const { setRepositoryDetail } = useRepository();
     const navigate = useNavigate();
+    let imagePath = c_img;
     const onClickCard = () => {
-        const clickTime = formatDate(new Date());  // 현재 시간을 ISO 포맷으로 가져옵니다.
-        setRepositoryDetail({ repo_name, fileList, username, repo_type,click_time: clickTime });
-        navigate("/detail");
+        setRepositoryDetail({ repo_name, fileList, username, repo_type });
+        navigate("/repositoryDetail");
     };
     return (
         <CardContainer onClick={onClickCard} >
             <UserInfo>
                 <Name>{repo_name}</Name>
+                <p>{fileList}</p>
+                <p>{username}</p>
                 <Repo_type>{repo_type}</Repo_type>
             </UserInfo>
         </CardContainer>
@@ -79,7 +68,7 @@ const Card = ({ repo_name, url, fileList, username, repo_type }) => {
     // const onClickCard = () => {
 
 
-    //     navigate("/detail", { 
+    //     navigate("/repositoryDetail", { 
     //         state: { 
     //           name: name,
     //           url: url,

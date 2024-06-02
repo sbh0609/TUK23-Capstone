@@ -163,9 +163,10 @@ def analyze_repo():
     repo_name = datas.get('repo_name')
     repo_file = datas.get('fileList')
     repo_type = datas.get('repo_type')
+    click_time = datas.get('click_time')
+    print(click_time)
     all_files_complexity = {}
     user_id = datas.get('session_userID')
-    # user_id = 'ptm1225'
     
     if(repo_type=='personal'):
         program_lang= getframework.get_used_lang(repo_name,all_lang,headers)
@@ -199,8 +200,6 @@ def analyze_repo():
         json_main_lang = json.dumps(program_lang)
         json_complexity_data = json.dumps(all_files_complexity)
         
-        repo_selected_time1 = "2024-05-18 01:24:40"
-        
         try:
             connection = connect_to_database()
             with connection.cursor() as cursor:
@@ -226,7 +225,7 @@ def analyze_repo():
                 cursor.execute(sql_insert, 
                                (    
                                 user_id,
-                                repo_selected_time1,
+                                click_time,
                                 repo_name, 
                                 user_name, 
                                 json_framework,
@@ -290,7 +289,6 @@ def analyze_repo():
         json_complexity_data = json.dumps(all_files_complexity)
         json_total_quality = json.dumps(total_quality[0])
         json_user_quality = json.dumps(user_quality[1])
-        repo_selected_time1 = "2024-04-01 01:24:40"
         
         try:
             connection = connect_to_database()
@@ -331,7 +329,7 @@ def analyze_repo():
                 cursor.execute(sql_insert, 
                                (    
                                 user_id,
-                                repo_selected_time1,
+                                click_time,
                                 repo_name, 
                                 user_name, 
                                 json_framework,
