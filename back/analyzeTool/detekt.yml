@@ -22,5 +22,11 @@ complexity:
   CyclomaticComplexMethod:
     active: true
     threshold: 0  # 최대 복잡도를 10으로 설정
+  LongMethod:
+    active: true
+    threshold: 1  # 함수/메소드 길이 제한
+  FunctionMaxParameters:
+    active: true
+    threshold: 0  # 모든 함수의 매개변수 수를 검사
 
 

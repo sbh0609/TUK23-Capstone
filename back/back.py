@@ -106,7 +106,7 @@ def find_own_repo():
             cursor.execute(sql, (userID))
             user = cursor.fetchone()
             username = user['repo_contributor_name']
-            print(username)
+
             return jsonify({"username": username}), 200
 
     except Exception as e:
@@ -134,10 +134,10 @@ def handle_input():
     getframework.choose_repo_commit(user_repo_list,headers)
     getframework.choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files)
     getframework.classify_personal_team(user_repo_list,headers,personal_repo,team_repo)
-    print(filtered_files)
+
     personal_list = [i[0]for i in personal_repo]
     team_list = [i[0]for i in team_repo]
-    print(team_list)
+
     return jsonify({"repositories": user_repo_list,"file_data": filtered_files,"personal_list":personal_list,"team_list":team_list})
 
 
@@ -151,8 +151,10 @@ def analyze_repo():
     repo_file = datas.get('fileList')
     repo_type = datas.get('repo_type')
     click_time = datas.get('click_time')
-    print(click_time)
+
     all_files_complexity = {}
+    all_files_function_length = {}
+    all_files_parameter_count = {}
     user_id = datas.get('session_userID')
     
     if(repo_type=='personal'):
@@ -164,8 +166,13 @@ def analyze_repo():
         dup_code=getframework.detect_code_duplication(repo_file_data)
         for file_path in complex_file_path:
             result = getframework.analyze_file(file_path)
-            complexity_info=getframework.extract_complexity_messages(result)
+
+            complexity_info = getframework.extract_complexity_messages(result)
+            function_length_info = getframework.extract_function_length_messages(result)
+            parameter_count_info = getframework.extract_parameter_count_messages(result)
             all_files_complexity[file_path] = complexity_info
+            all_files_function_length[file_path] = function_length_info
+            all_files_parameter_count[file_path] = parameter_count_info
 
         repo_analyze={
             "program_lang": program_lang,
@@ -223,7 +230,6 @@ def analyze_repo():
     
     elif(repo_type=='team'):
         program_lang= getframework.get_used_lang(repo_name,all_lang,headers)
-        print(repo_file)
         repo_file_data,complex_file_path=getframework.get_file_data(repo_file,repo_name,user_id,headers)
         
         comment_per=getframework.comment_percent(repo_file_data)
@@ -235,9 +241,16 @@ def analyze_repo():
         merged_pr_stats =getframework.get_merged_pr_stats(user_name, repo_name,headers)
         for file_path in complex_file_path:
             result = getframework.analyze_file(file_path)
-            complexity_info=getframework.extract_complexity_messages(result)
+        
+            complexity_info = getframework.extract_complexity_messages(result)
+            function_length_info = getframework.extract_function_length_messages(result)
+            parameter_count_info = getframework.extract_parameter_count_messages(result)
             all_files_complexity[file_path] = complexity_info
-        print(all_files_complexity)
+            all_files_function_length[file_path] = function_length_info
+            all_files_parameter_count[file_path] = parameter_count_info
+        print("All Files Complexity:", all_files_complexity)
+        print("All Files Function Length:", all_files_function_length)
+        print("All Files Parameter Count:", all_files_parameter_count)
         total_quality, user_quality = func.classify_commit_quality(repo_name, user_name, token)
         total_grammar, user_grammar = func.check_grammar(repo_name, user_name, token)
 

@@ -81,7 +81,6 @@ def get_git_tree(repo_name, tree_sha,headers, recursive=True):
     else:
         return None
 
-
 def choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files):
     release_num=0
     release_file_name = ["Makefile","requirements.txt","package.json","pop.xml","build.gradle"]
@@ -126,18 +125,15 @@ def classify_personal_team(user_repo_list,headers,personal_repo,team_repo):
             else:
                 team_repo.append(repo)
     
-    # return personal_repo,team_repo
 
 # pr_percent, issue_percent, commit_percent, get_merged_pr_stas,get_used_lang,get_file_data 는 사용자가 user_repo_list에서 선택한 repo_name이 인자로 필요
 def pr_percent(username,repo_name,headers):
-    pr_per=0
     pr_url = f"https://api.github.com/repos/{repo_name}/pulls?state=all"
     response=get_paged_response(pr_url,headers)
     total_pr = len(response)
-    if total_pr==0:
-        user_pr = sum(1 for pr in response if pr['user']['login']==username)
-        pr_per=0
-        
+    if total_pr == 0:
+        user_pr = 0
+        pr_per = 0
     else:
         user_pr = sum(1 for pr in response if pr['user']['login']==username)
         pr_per = user_pr/total_pr * 100
@@ -148,24 +144,36 @@ def issue_percent(username, repo_name,headers):
     issue_url = f"https://api.github.com/repos/{repo_name}/issues?state=all"
     response = get_paged_response(issue_url,headers)
     total_issues = len(response)
-    user_issues = sum(1 for issue in response if issue['user']['login'] == username)
-    issue_per = user_issues / total_issues * 100 if total_issues > 0 else 0
+    if total_issues ==0:
+        user_issues = 0
+        issue_per = 0
+    else:
+        user_issues = sum(1 for issue in response if issue['user']['login'] == username)
+        issue_per = user_issues / total_issues * 100 if total_issues > 0 else 0
     return total_issues, user_issues, issue_per;
 
 def commit_percent(username, repo_name,headers):
     commit_url = f"https://api.github.com/repos/{repo_name}/commits"
     response = get_paged_response(commit_url,headers)
     total_commits = len(response)
-    user_commits = sum(1 for commit in response if commit['author'] is not None and commit['author']['login'] == username)
-    user_commit_percentage = (user_commits / total_commits) * 100 if total_commits > 0 else 0
+    if total_commits==0:
+        user_commits=0
+        user_commit_percentage=0
+    else:
+        user_commits = sum(1 for commit in response if commit['author'] is not None and commit['author']['login'] == username)
+        user_commit_percentage = (user_commits / total_commits) * 100 if total_commits > 0 else 0
     return total_commits, user_commits, user_commit_percentage;
 
 def get_merged_pr_stats(username, repo_name,headers):
     pr_url = f"https://api.github.com/repos/{repo_name}/pulls?state=all&creator={username}"
     response = get_paged_response(pr_url,headers)
     total_user_prs = len(response)
-    merged_prs = sum(1 for pr in response if pr['state'] == 'closed' and pr.get('merged_at'))
-    merged_pr_percentage = (merged_prs / total_user_prs) * 100 if total_user_prs > 0 else 0
+    if total_user_prs==0:
+        merged_prs=0
+        merged_pr_percentage=0
+    else:
+        merged_prs = sum(1 for pr in response if pr['state'] == 'closed' and pr.get('merged_at'))
+        merged_pr_percentage = (merged_prs / total_user_prs) * 100 if total_user_prs > 0 else 0
     return total_user_prs, merged_prs, merged_pr_percentage;
 
 def get_used_lang(repo_name,all_lang,headers):
@@ -380,6 +388,136 @@ def extract_complexity_messages(command_output):
 
     return complexity_info
 
+def extract_function_length_messages(command_output):
+    function_length_info = {}
+    if isinstance(command_output, str):  # 문자열 처리
+        patterns = [
+            (r'.*?:(\d+):\d+: Method .+ length is (\d+) lines .*', lambda line, value: (int(line), int(value))),  # Checkstyle
+            (r'.*?:(\d+):.*?: R0915: Too many statements \((\d+)\)', lambda line, value: (int(line), int(value))),  # Pylint
+            (r'LongMethod - \d+/\d+ - \[.*?\] at .*?:(\d+):(\d+)', lambda line, value: (int(line), int(value)))  # Detekt
+        ]
+        for pattern, extractor in patterns:
+            for match in re.findall(pattern[0], command_output, re.MULTILINE):
+                line_number, length_value = extractor(*match)
+                if line_number in function_length_info:
+                    function_length_info[line_number] = max(function_length_info[line_number], length_value)
+                else:
+                    function_length_info[line_number] = length_value
+
+    elif isinstance(command_output, list):  # JSON 데이터 처리 (ESLint)
+        for item in command_output:
+            for message in item.get('messages', []):
+                if message['ruleId'] == "max-lines-per-function":
+                    length_value = int(re.search(r'\d+', message['message']).group())
+                    line_number = message.get('line', None)
+                    if line_number:
+                        if line_number in function_length_info:
+                            function_length_info[line_number] = max(function_length_info[line_number], length_value)
+                        else:
+                            function_length_info[line_number] = length_value
+
+    return function_length_info
+
+def extract_parameter_count_messages(command_output):
+    parameter_count_info = {}
+    if isinstance(command_output, str):  # 문자열 처리
+        patterns = [
+            (r'.*?:(\d+):\d+: More than 1 parameters \(found (\d+)\)\. \[ParameterNumber\]', lambda line, value: (int(line), int(value))),  # Checkstyle
+            (r'.*?:(\d+):.*?: R0913: Too many arguments \((\d+)\)', lambda line, value: (int(line), int(value))),  # Pylint
+            (r'FunctionMaxParameters - \d+/\d+ - \[.*?\] at .*?:(\d+):(\d+)', lambda line, value: (int(line), int(value)))  # Detekt
+        ]
+        for pattern, extractor in patterns:
+            for match in re.findall(pattern[0], command_output, re.MULTILINE):
+                line_number, param_count = extractor(*match)
+                if line_number in parameter_count_info:
+                    parameter_count_info[line_number] = max(parameter_count_info[line_number], param_count)
+                else:
+                    parameter_count_info[line_number] = param_count
+
+    elif isinstance(command_output, list):  # JSON 데이터 처리 (ESLint)
+        for item in command_output:
+            for message in item.get('messages', []):
+                if message['ruleId'] == "max-params":
+                    param_count = int(re.search(r'\d+', message['message']).group())
+                    line_number = message.get('line', None)
+                    if line_number:
+                        if line_number in parameter_count_info:
+                            parameter_count_info[line_number] = max(parameter_count_info[line_number], param_count)
+                        else:
+                            parameter_count_info[line_number] = param_count
+
+    return parameter_count_info
+
+def get_issue_stats(repo_name, username, headers):
+    issue_url = f"https://api.github.com/repos/{repo_name}/issues?state=all"
+    response = get_paged_response(issue_url, headers)
+
+    total_issues = len(response)
+    if total_issues == 0:
+        return {
+            "total_issues": 0,
+            "closed_issues": 0,
+            "closed_issue_percentage": 0,
+            "total_user_issues": 0,
+            "closed_user_issues": 0,
+            "closed_user_issue_percentage": 0,
+            "user_issue_percentage": 0
+        }
+
+    closed_issues = sum(1 for issue in response if issue['state'] == 'closed')
+    
+    user_issues = [issue for issue in response if issue['user']['login'] == username]
+    total_user_issues = len(user_issues)
+    closed_user_issues = sum(1 for issue in user_issues if issue['state'] == 'closed')
+
+    closed_issue_percentage = (closed_issues / total_issues) * 100 if total_issues > 0 else 0
+    closed_user_issue_percentage = (closed_user_issues / total_user_issues) * 100 if total_user_issues > 0 else 0
+    user_issue_percentage = (total_user_issues / total_issues) * 100 if total_issues > 0 else 0
+
+    return {
+        "total_issues": total_issues,
+        "closed_issues": closed_issues,
+        "closed_issue_percentage": closed_issue_percentage,
+        "total_user_issues": total_user_issues,
+        "closed_user_issues": closed_user_issues,
+        "closed_user_issue_percentage": closed_user_issue_percentage,
+        "user_issue_percentage": user_issue_percentage
+    }
+
+def get_pr_stats(repo_name, username, headers):
+    pr_url = f"https://api.github.com/repos/{repo_name}/pulls?state=all"
+    response = get_paged_response(pr_url, headers)
+
+    total_prs = len(response)
+    if total_prs == 0:
+        return {
+            "total_prs": 0,
+            "merged_prs": 0,
+            "merged_pr_percentage": 0,
+            "total_user_prs": 0,
+            "merged_user_prs": 0,
+            "merged_user_pr_percentage": 0,
+            "user_pr_percentage": 0
+        }
+    
+    merged_prs = sum(1 for pr in response if pr['state'] == 'closed' and pr.get('merged_at'))
+    merged_pr_percentage = (merged_prs / total_prs) * 100 if total_prs > 0 else 0
+    
+    user_prs = [pr for pr in response if pr['user']['login'] == username]
+    total_user_prs = len(user_prs)
+    merged_user_prs = sum(1 for pr in user_prs if pr['state'] == 'closed' and pr.get('merged_at'))
+    merged_user_pr_percentage = (merged_user_prs / total_user_prs) * 100 if total_user_prs > 0 else 0
+    user_pr_percentage = (total_user_prs / total_prs) * 100 if total_prs > 0 else 0
+
+    return {
+        "total_prs": total_prs,
+        "merged_prs": merged_prs,
+        "merged_pr_percentage": merged_pr_percentage,
+        "total_user_prs": total_user_prs,
+        "merged_user_prs": merged_user_prs,
+        "merged_user_pr_percentage": merged_user_pr_percentage,
+        "user_pr_percentage": user_pr_percentage
+    }
 
 
 
