@@ -25,8 +25,12 @@ complexity:
   LongMethod:
     active: true
     threshold: 1  # 함수/메소드 길이 제한
-  FunctionMaxParameters:
+  LongParameterList:
     active: true
-    threshold: 0  # 모든 함수의 매개변수 수를 검사
+    functionThreshold: 1
+    # constructorThreshold: 7
+    # ignoreDefaultParameters: false
+    # ignoreDataClasses: true
+    # ignoreAnnotatedParameter: []
 
 

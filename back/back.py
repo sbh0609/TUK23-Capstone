@@ -186,7 +186,9 @@ def analyze_repo():
             "comment_per": comment_per,
             "framework": framework,
             "duplicate_code": dup_code,
-            "complexity": all_files_complexity
+            "complexity": all_files_complexity,
+            "funcion_length" : all_files_function_length,
+            "parameter_count" : all_files_parameter_count,   
         }
         
         json_framework = json.dumps(framework)
@@ -244,8 +246,6 @@ def analyze_repo():
         dup_code=getframework.detect_code_duplication(repo_file_data)
         pr_data=getframework.get_pr_stats(user_name,repo_name,headers)
         issue_data = getframework.get_issue_stats(user_name,repo_name,headers)
-        print(pr_data)
-        print(issue_data)
         pr_per=getframework.pr_percent(user_name,repo_name,headers)
         issue_per=getframework.issue_percent(user_name,repo_name,headers)
         commit_per = getframework.commit_percent(user_name,repo_name,headers)
@@ -273,6 +273,8 @@ def analyze_repo():
             "merged_pr_stats": merged_pr_stats,
             "issue_per": issue_data,
             "complexity": all_files_complexity,
+            "funcion_length" : all_files_function_length,
+            "parameter_count" : all_files_parameter_count,
             "total_quality": total_quality,
             "user_quality": user_quality,
             "total_grammar": total_grammar,

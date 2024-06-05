@@ -5,7 +5,7 @@
 **/*.pyc
 # testing
 /coverage
-
+/back/back1.py
 # production
 /build
 
