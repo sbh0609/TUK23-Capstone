@@ -181,12 +181,22 @@ def analyze_repo():
             all_files_function_length[file_path] = result['function_length_info']
             all_files_parameter_count[file_path] = result['parameter_count_info']
 
+        total_commits, user_commits = func.get_repository_commits(repo_name, user_name, token)
+        total_quality, user_quality = func.classify_commit_quality(total_commits, user_commits)
+        total_grammar, user_grammar = func.check_grammar(total_commits, user_commits)
+        keyword_counts = func.count_keywords(user_commits)
+
         repo_analyze={
             "program_lang": program_lang,
             "comment_per": comment_per,
             "framework": framework,
             "duplicate_code": dup_code,
-            "complexity": all_files_complexity
+            "complexity": all_files_complexity,
+            "total_quality": total_quality,
+            "user_quality": user_quality,
+            "total_grammar": total_grammar,
+            "user_grammar": user_grammar,
+            "keyword_counts": keyword_counts
         }
         
         json_framework = json.dumps(framework)
@@ -260,9 +270,11 @@ def analyze_repo():
             all_files_function_length[file_path] = result['function_length_info']
             all_files_parameter_count[file_path] = result['parameter_count_info']
         
-        total_quality, user_quality = func.classify_commit_quality(repo_name, user_name, token)
-        total_grammar, user_grammar = func.check_grammar(repo_name, user_name, token)
-
+        total_commits, user_commits = func.get_repository_commits(repo_name, user_name, token)
+        total_quality, user_quality = func.classify_commit_quality(total_commits, user_commits)
+        total_grammar, user_grammar = func.check_grammar(total_commits, user_commits)
+        keyword_counts = func.count_keywords(user_commits)
+        
         repo_analyze={
             "program_lang": program_lang,
             "comment_per": comment_per,
@@ -276,7 +288,8 @@ def analyze_repo():
             "total_quality": total_quality,
             "user_quality": user_quality,
             "total_grammar": total_grammar,
-            "user_grammar": user_grammar
+            "user_grammar": user_grammar,
+            "keyword_counts": keyword_counts
         }
         
         json_framework = json.dumps(framework)
