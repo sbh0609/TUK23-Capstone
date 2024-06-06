@@ -54,7 +54,7 @@
       <property name="countEmpty" value="false"/> <!-- 빈 줄을 카운트하지 않음 -->
     </module>
     <module name="ParameterNumber">
-      <property name="max" value="0"/>  <!-- 매개변수 수 제한을 1로 설정-->
+      <property name="max" value="1"/>  <!-- 매개변수 수 제한을 1로 설정-->
     </module>
     <module name="CyclomaticComplexity">
       <property name="max" value="0"/> <!-- 최대 복잡도를 10으로 설정 -->

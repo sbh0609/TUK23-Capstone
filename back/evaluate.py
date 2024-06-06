@@ -1,3 +1,104 @@
+def give_grade(point):
+    if 4.5 <= point <= 5.0:
+        return "A+"
+    elif 4.0 <= point < 4.5:
+        return "A"
+    elif 3.5 <= point < 4.0:
+        return "B+"
+    elif 3.0 <= point < 3.5:
+        return "B"
+    elif 2.5 <= point < 3.0:
+        return "C+"
+    elif 2.0 <= point < 2.5:
+        return "C"
+    elif 1.5 <= point < 2.0:
+        return "D"
+    elif 1.0 <= point < 1.5:
+        return "D-"
+    else:
+        print(point)
+        return "F"
+    
+def calculate_total_collaboration_score(data):
+    # 필요한 점수 추출
+    total_pr_merge_score = data['pr_scores']['total_pr_merge_score']
+    total_issue_close_score = data['issue_scores']['total_issue_close_score']
+    total_commit_message_quality_score = data['commit_message_quality_scores']['total_commit_message_quality_score']
+    total_commit_message_grammar_score = data['commit_message_grammar_scores']['total_commit_message_grammar_score']
+
+    # 평균 점수 계산
+    total_score = (
+        total_pr_merge_score +
+        total_issue_close_score +
+        total_commit_message_quality_score +
+        total_commit_message_grammar_score
+    )
+    average_score = total_score / 4.0
+
+    # 등급 계산
+    grade = give_grade(average_score)
+    
+    return grade
+
+def calculate_user_collaboration_score(data):
+    # 필요한 점수 추출
+    user_pr_score = data['pr_scores']['user_pr_score']
+    user_mergerd_pr_score=data['pr_scores']['merged_pr_score']
+    user_issue_score=data['issue_scores']['user_issue_score']
+    user_closed_issue_score=data['issue_scores']['closed_issue_score']
+    total_commit_message_quality_score = data['commit_message_quality_scores']['user_commit_message_quality_score']
+    total_commit_message_grammar_score = data['commit_message_grammar_scores']['user_commit_message_grammar_score']
+
+    # 평균 점수 계산
+    total_score = (
+        user_pr_score +
+        user_mergerd_pr_score +
+        user_issue_score +
+        user_closed_issue_score +
+        total_commit_message_quality_score +
+        total_commit_message_grammar_score
+    )
+    average_score = total_score / 6.0
+
+    # 등급 계산
+    grade = give_grade(average_score)
+    
+    return grade
+
+def team_code_quality(data):
+    comment_score=data['comment_score']
+    duplication_score=data['duplication_score']
+    complexity_repo_score=data['complexity_repo_score']
+    function_length_repo_score=data['function_length_repo_score']
+    parameter_count_repo_score=data['parameter_count_repo_score']
+    
+    total_score = (
+        comment_score +
+        duplication_score +
+        complexity_repo_score +
+        function_length_repo_score +
+        parameter_count_repo_score
+    )
+    average_score = total_score / 5.0
+    
+    grade = give_grade(average_score)
+    
+    return grade
+
+def convert_scores_to_grades(evaluate):
+    evaluate_with_grades = {}
+    for key, value in evaluate.items():
+        if isinstance(value, (int, float)):  # 단일 점수일 경우
+            evaluate_with_grades[key] = give_grade(value)
+        elif isinstance(value, dict):  # 딕셔너리 내의 점수일 경우
+            nested_scores = {}
+            for nested_key, nested_value in value.items():
+                nested_scores[nested_key] = give_grade(nested_value)
+            evaluate_with_grades[key] = nested_scores
+        else:
+            evaluate_with_grades[key] = value  # 다른 데이터 타입은 그대로 유지
+    return evaluate_with_grades
+
 def evaluate_comment_percentage(comment_percentage):
     if 10 <= comment_percentage < 30:
         return 5  # 매우 우수
@@ -249,123 +350,123 @@ def evaluate_commit_message_grammar(total_grammar, user_grammar):
     }
     
     
-def main(data):
-    # 주석 비율 평가
-    total_lines, comment_lines, comment_percentage = data['comment_per']
-    comment_score = evaluate_comment_percentage(comment_percentage)
+# def main(data):
+#     # 주석 비율 평가
+#     total_lines, comment_lines, comment_percentage = data['comment_per']
+#     comment_score = evaluate_comment_percentage(comment_percentage)
 
-    # 코드 중복성 평가
-    total_lines, duplicate_lines, duplication_percentage = data['duplicate_code']
-    duplication_score = evaluate_code_duplication(duplication_percentage)
+#     # 코드 중복성 평가
+#     total_lines, duplicate_lines, duplication_percentage = data['duplicate_code']
+#     duplication_score = evaluate_code_duplication(duplication_percentage)
 
-    # 복잡도 평가
-    complexity_file_scores, complexity_repo_score = evaluate_complexity(data['complexity'])
+#     # 복잡도 평가
+#     complexity_file_scores, complexity_repo_score = evaluate_complexity(data['complexity'])
 
-    # 함수 길이 평가
-    function_length_file_scores, function_length_repo_score = evaluate_function_length(data['funcion_length'])
+#     # 함수 길이 평가
+#     function_length_file_scores, function_length_repo_score = evaluate_function_length(data['funcion_length'])
 
-    # 함수 매개변수 평가
-    parameter_count_file_scores, parameter_count_repo_score = evaluate_parameter_count(data['parameter_count'])
+#     # 함수 매개변수 평가
+#     parameter_count_file_scores, parameter_count_repo_score = evaluate_parameter_count(data['parameter_count'])
 
-    # 커밋 비율 평가
-    commit_score = evaluate_commit_percentage(data['commit_per'])
+#     # 커밋 비율 평가
+#     commit_score = evaluate_commit_percentage(data['commit_per'])
 
-    # PR 비율 평가
-    pr_scores = evaluate_pr_percentage(data['pr_per'])
+#     # PR 비율 평가
+#     pr_scores = evaluate_pr_percentage(data['pr_per'])
 
-    # Issue 비율 평가
-    issue_scores = evaluate_issue_percentage(data['issue_per'])
+#     # Issue 비율 평가
+#     issue_scores = evaluate_issue_percentage(data['issue_per'])
 
-    # 커밋 메시지 평가
-    commit_message_quality_scores = evaluate_commit_message_quality(data['total_quality'], data['user_quality'])
-    commit_message_grammar_scores = evaluate_commit_message_grammar(data['total_grammar'], data['user_grammar'])
+#     # 커밋 메시지 평가
+#     commit_message_quality_scores = evaluate_commit_message_quality(data['total_quality'], data['user_quality'])
+#     commit_message_grammar_scores = evaluate_commit_message_grammar(data['total_grammar'], data['user_grammar'])
 
-    results = {
-        "comment_score": comment_score,
-        "duplication_score": duplication_score,
-        "complexity_file_scores": complexity_file_scores,
-        "complexity_repo_score": complexity_repo_score,
-        "function_length_file_scores": function_length_file_scores,
-        "function_length_repo_score": function_length_repo_score,
-        "parameter_count_file_scores": parameter_count_file_scores,
-        "parameter_count_repo_score": parameter_count_repo_score,
-        "commit_score": commit_score,
-        "pr_scores": pr_scores,
-        "issue_scores": issue_scores,
-        "commit_message_quality_scores": commit_message_quality_scores,
-        "commit_message_grammar_scores": commit_message_grammar_scores
-    }
+#     results = {
+#         "comment_score": comment_score,
+#         "duplication_score": duplication_score,
+#         "complexity_file_scores": complexity_file_scores,
+#         "complexity_repo_score": complexity_repo_score,
+#         "function_length_file_scores": function_length_file_scores,
+#         "function_length_repo_score": function_length_repo_score,
+#         "parameter_count_file_scores": parameter_count_file_scores,
+#         "parameter_count_repo_score": parameter_count_repo_score,
+#         "commit_score": commit_score,
+#         "pr_scores": pr_scores,
+#         "issue_scores": issue_scores,
+#         "commit_message_quality_scores": commit_message_quality_scores,
+#         "commit_message_grammar_scores": commit_message_grammar_scores
+#     }
 
-    return results
-data = {
-    'program_lang': ['Python'],
-    'comment_per': (646, 149, 1.1073320494658967),
-    'framework': [],
-    'duplicate_code': (646, 40, 6.191950464396285),
-    'pr_per': {
-        'total_prs': 4,
-        'merged_prs': 3,
-        'merged_pr_percentage': 75.0,
-        'total_user_prs': 1,
-        'merged_user_prs': 1,
-        'merged_user_pr_percentage': 33.33333333333333,
-        'user_pr_percentage': 25.0
-    },
-    'commit_per': (62, 60, 96.7741935483871),
-    'merged_pr_stats': (4, 3, 75.0),
-    'issue_per': {
-        'total_issues': 4,
-        'closed_issues': 4,
-        'closed_issue_percentage': 100.0,
-        'total_user_issues': 1,
-        'closed_user_issues': 1,
-        'closed_user_issue_percentage': 25.0,
-        'user_issue_percentage': 25.0
-    },
-    'complexity': {
-        'file_data\\sbh06091\\Brithub/twitter_bot\\__init__.py': {},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\console\\filter_api.py': {6: 5},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\console\\requirements.txt': {},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\generate.py': {15: 4, 45: 2, 53: 7, 73: 8, 98: 15, 154: 19, 210: 2},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\main.py': {6: 3},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\pfp.py': {6: 3, 16: 4, 27: 6, 53: 2},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\requirements.txt': {},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\tweet.py': {},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\tweet_dumper.py': {36: 16, 115: 2},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\utils.py': {61: 7}
-    },
-    'funcion_length': {
-        'file_data\\sbh06091\\Brithub/twitter_bot\\__init__.py': {},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\console\\filter_api.py': {6: 21, 49: 4, 55: 5, 63: 5},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\console\\requirements.txt': {},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\generate.py': {15: 22, 45: 3, 53: 14, 73: 16, 98: 33, 154: 40},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\main.py': {6: 3},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\pfp.py': {6: 5, 16: 6, 27: 19},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\requirements.txt': {},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\tweet.py': {6: 7, 18: 3, 23: 3, 27: 2},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\tweet_dumper.py': {26: 7, 36: 49},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\utils.py': {11: 6, 24: 3, 34: 6, 45: 5, 53: 5, 61: 22, 91: 6, 111: 21}
-    },
-    'parameter_count': {
-        'file_data\\sbh06091\\Brithub/twitter_bot\\__init__.py': {},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\console\\filter_api.py': {6: 1, 49: 2, 55: 3, 63: 3},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\console\\requirements.txt': {},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\generate.py': {15: 2, 45: 3, 53: 2, 73: 3, 98: 1, 154: 1},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\main.py': {6: 2, 12: 2, 16: 2},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\pfp.py': {6: 3, 16: 3, 27: 2},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\requirements.txt': {},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\tweet.py': {18: 1, 23: 2, 27: 1},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\tweet_dumper.py': {26: 2, 36: 1},
-        'file_data\\sbh06091\\Brithub/twitter_bot\\utils.py': {11: 3, 24: 1, 34: 2, 45: 3, 53: 2, 61: 1, 91: 1, 111: 1}
-    },
-    'total_quality': [28, 1, 3, 27],
-    'user_quality': [26, 1, 3, 27],
-    'total_grammar': 52.63157894736842,
-    'user_grammar': 54.23728813559322
-}
-# 평가 실행
-results = main(data)
+#     return results
+# data = {
+#     'program_lang': ['Python'],
+#     'comment_per': (646, 149, 1.1073320494658967),
+#     'framework': [],
+#     'duplicate_code': (646, 40, 6.191950464396285),
+#     'pr_per': {
+#         'total_prs': 4,
+#         'merged_prs': 3,
+#         'merged_pr_percentage': 75.0,
+#         'total_user_prs': 1,
+#         'merged_user_prs': 1,
+#         'merged_user_pr_percentage': 33.33333333333333,
+#         'user_pr_percentage': 25.0
+#     },
+#     'commit_per': (62, 60, 96.7741935483871),
+#     'merged_pr_stats': (4, 3, 75.0),
+#     'issue_per': {
+#         'total_issues': 4,
+#         'closed_issues': 4,
+#         'closed_issue_percentage': 100.0,
+#         'total_user_issues': 1,
+#         'closed_user_issues': 1,
+#         'closed_user_issue_percentage': 25.0,
+#         'user_issue_percentage': 25.0
+#     },
+#     'complexity': {
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\__init__.py': {},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\console\\filter_api.py': {6: 5},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\console\\requirements.txt': {},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\generate.py': {15: 4, 45: 2, 53: 7, 73: 8, 98: 15, 154: 19, 210: 2},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\main.py': {6: 3},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\pfp.py': {6: 3, 16: 4, 27: 6, 53: 2},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\requirements.txt': {},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\tweet.py': {},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\tweet_dumper.py': {36: 16, 115: 2},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\utils.py': {61: 7}
+#     },
+#     'funcion_length': {
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\__init__.py': {},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\console\\filter_api.py': {6: 21, 49: 4, 55: 5, 63: 5},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\console\\requirements.txt': {},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\generate.py': {15: 22, 45: 3, 53: 14, 73: 16, 98: 33, 154: 40},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\main.py': {6: 3},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\pfp.py': {6: 5, 16: 6, 27: 19},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\requirements.txt': {},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\tweet.py': {6: 7, 18: 3, 23: 3, 27: 2},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\tweet_dumper.py': {26: 7, 36: 49},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\utils.py': {11: 6, 24: 3, 34: 6, 45: 5, 53: 5, 61: 22, 91: 6, 111: 21}
+#     },
+#     'parameter_count': {
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\__init__.py': {},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\console\\filter_api.py': {6: 1, 49: 2, 55: 3, 63: 3},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\console\\requirements.txt': {},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\generate.py': {15: 2, 45: 3, 53: 2, 73: 3, 98: 1, 154: 1},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\main.py': {6: 2, 12: 2, 16: 2},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\pfp.py': {6: 3, 16: 3, 27: 2},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\requirements.txt': {},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\tweet.py': {18: 1, 23: 2, 27: 1},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\tweet_dumper.py': {26: 2, 36: 1},
+#         'file_data\\sbh06091\\Brithub/twitter_bot\\utils.py': {11: 3, 24: 1, 34: 2, 45: 3, 53: 2, 61: 1, 91: 1, 111: 1}
+#     },
+#     'total_quality': [28, 1, 3, 27],
+#     'user_quality': [26, 1, 3, 27],
+#     'total_grammar': 52.63157894736842,
+#     'user_grammar': 54.23728813559322
+# }
+# # 평가 실행
+# results = main(data)
 
-# 결과 출력
-for key, value in results.items():
-    print(f"{key}: {value}")
+# # 결과 출력
+# for key, value in results.items():
+#     print(f"{key}: {value}")
