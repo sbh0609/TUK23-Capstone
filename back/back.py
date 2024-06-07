@@ -3,11 +3,11 @@ from flask_cors import CORS,cross_origin
 from dotenv import load_dotenv
 from celery import Celery
 import os
-import commitquality as commitquality
+import func as func
 import pymysql
 import json
 import time
-from back.githubapidata import (
+from getframework import (
     not_org_repo,org_repo,choose_repo_commit,choose_repo_extension,classify_personal_team,
     analyze_file,extract_complexity_messages,extract_function_length_messages,extract_parameter_count_messages,
     get_used_lang,get_file_data,comment_percent,analyze_dependencies,detect_code_duplication,
@@ -292,10 +292,10 @@ def analyze_repo():
             all_files_function_length[file_path] = result['function_length_info']
             all_files_parameter_count[file_path] = result['parameter_count_info']
 
-        total_commits, user_commits = commitquality.get_repository_commits(repo_name, user_name, token)
-        total_quality, user_quality = commitquality.classify_commit_quality(total_commits, user_commits)
-        total_grammar, user_grammar = commitquality.check_grammar(total_commits, user_commits)
-        keyword_counts = commitquality.count_keywords(user_commits)
+        total_commits, user_commits = func.get_repository_commits(repo_name, user_name, token)
+        total_quality, user_quality = func.classify_commit_quality(total_commits, user_commits)
+        total_grammar, user_grammar = func.check_grammar(total_commits, user_commits)
+        keyword_counts = func.count_keywords(user_commits)
         
         repo_analyze = {
             "repo_selected_time":click_time,
@@ -434,10 +434,10 @@ def analyze_repo():
             all_files_function_length[file_path] = result['function_length_info']
             all_files_parameter_count[file_path] = result['parameter_count_info']
         
-        total_commits, user_commits = commitquality.get_repository_commits(repo_name, user_name, token)
-        total_quality, user_quality = commitquality.classify_commit_quality(total_commits, user_commits)
-        total_grammar, user_grammar = commitquality.check_grammar(total_commits, user_commits)
-        keyword_counts = commitquality.count_keywords(user_commits)
+        total_commits, user_commits = func.get_repository_commits(repo_name, user_name, token)
+        total_quality, user_quality = func.classify_commit_quality(total_commits, user_commits)
+        total_grammar, user_grammar = func.check_grammar(total_commits, user_commits)
+        keyword_counts = func.count_keywords(user_commits)
 
         repo_analyze = {
             "repo_selected_time":click_time,
