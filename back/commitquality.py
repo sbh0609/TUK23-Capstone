@@ -129,16 +129,12 @@ def evaluate_messages(commit_messages):
 
     return grammar_score_ratio * 100
 
-def check_grammar(repo_name, user, token):
-    total_commits, user_commits = get_repository_commits(repo_name, user, token)
+def check_grammar(total_commits, user_commits):
     total_grammar = evaluate_messages(user_commits)
     user_grammar = evaluate_messages(total_commits)
     return total_grammar, user_grammar
 
-
-def classify_commit_quality(repo_name, user, token):
-    total_commits, user_commits = get_repository_commits(repo_name, user, token)
-
+def classify_commit_quality(total_commits, user_commits):
     model = load_model('2_model.h5')
     data = pd.read_csv("TrainingData.csv", encoding='Windows-1252')
     
@@ -169,6 +165,18 @@ def classify_commit_quality(repo_name, user, token):
         user_result[label] += 1
     
     return total_result, user_result
+
+def count_keywords(messages):
+    keywords = ['Fix', 'Add', 'Update', 'Remove/Delete']
+    counts = {keyword: 0 for keyword in keywords}
+    for message in messages:
+        for keyword in keywords:
+            if keyword == 'Remove/Delete':
+                if 'remove' in message.lower() or 'delete' in message.lower():
+                    counts[keyword] += 1
+            elif keyword.lower() in message.lower():
+                counts[keyword] += 1
+    return counts
 
 if __name__ == '__main__':
     load_dotenv()

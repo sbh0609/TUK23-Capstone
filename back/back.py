@@ -292,8 +292,10 @@ def analyze_repo():
             all_files_function_length[file_path] = result['function_length_info']
             all_files_parameter_count[file_path] = result['parameter_count_info']
 
-        total_quality, user_quality = commitquality.classify_commit_quality(repo_name, user_name, token)
-        total_grammar, user_grammar = commitquality.check_grammar(repo_name, user_name, token)
+        total_commits, user_commits = commitquality.get_repository_commits(repo_name, user_name, token)
+        total_quality, user_quality = commitquality.classify_commit_quality(total_commits, user_commits)
+        total_grammar, user_grammar = commitquality.check_grammar(total_commits, user_commits)
+        keyword_counts = commitquality.count_keywords(user_commits)
         
         repo_analyze = {
             "repo_selected_time":click_time,
@@ -307,7 +309,8 @@ def analyze_repo():
             "total_quality": total_quality,
             "user_quality": user_quality,
             "total_grammar": total_grammar,
-            "user_grammar": user_grammar
+            "user_grammar": user_grammar,
+            "keyword_counts": keyword_counts
         }
         
         # 평가 점수 계산
@@ -431,8 +434,10 @@ def analyze_repo():
             all_files_function_length[file_path] = result['function_length_info']
             all_files_parameter_count[file_path] = result['parameter_count_info']
         
-        total_quality, user_quality = commitquality.classify_commit_quality(repo_name, user_name, token)
-        total_grammar, user_grammar = commitquality.check_grammar(repo_name, user_name, token)
+        total_commits, user_commits = commitquality.get_repository_commits(repo_name, user_name, token)
+        total_quality, user_quality = commitquality.classify_commit_quality(total_commits, user_commits)
+        total_grammar, user_grammar = commitquality.check_grammar(total_commits, user_commits)
+        keyword_counts = commitquality.count_keywords(user_commits)
 
         repo_analyze = {
             "repo_selected_time":click_time,
@@ -449,7 +454,8 @@ def analyze_repo():
             "total_quality": total_quality,
             "user_quality": user_quality,
             "total_grammar": total_grammar,
-            "user_grammar": user_grammar
+            "user_grammar": user_grammar,
+            "keyword_counts": keyword_counts
         }
                 # 평가 점수 계산
         comment_score = evaluate_comment_percentage(comment_per[2])
