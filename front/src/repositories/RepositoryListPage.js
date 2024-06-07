@@ -9,17 +9,6 @@ import gifLoading from '../resources/Loading_icon.gif';
 
 function RepositoryListPage() {
 
-  const [userInput, setUserInput ] = useState("");
-  const [userType, setUserType ] = useState("");
-  const [userLanguage, setUserLanguage ] = useState("");
-  const [userEct, setUserEct ] = useState("");
-  // const [repositoryClassification, setData] = useState({ personal_list: [], team_list: [],globusername:''});
-
-  const { repositoryListData, setRepositoryListData } = useMaintainPage(); // Context 사용
-  const { repositories, file_data, isLoading,team_list,personal_list,globusername } = repositoryListData; // Context 데이터 분해 할당
-  const location = useLocation();
-  const navigate = useNavigate();
-
    // 드롭다운의 옵션들 선언
    const type_options = [
     { value: "", label: "All" },
@@ -57,42 +46,54 @@ function RepositoryListPage() {
       backgroundColor: "#333333",
     }),
   }
+  const [userInput, setUserInput ] = useState("");
+  const [userType, setUserType ] = useState("");
+  const [userLanguage, setUserLanguage ] = useState("");
+  const [userEct, setUserEct ] = useState("");
+  // const [repositoryClassification, setData] = useState({ personal_list: [], team_list: [],globusername:''});
 
+  const { repositoryListData, setRepositoryListData } = useMaintainPage(); // Context 사용
+  const { repositories, file_data, isLoading,team_list,personal_list,globusername } = repositoryListData; // Context 데이터 분해 할당
+  const location = useLocation();
+  const navigate = useNavigate();
+    // 세션 스토리지에서 데이터 불러오기
+  const storedListData = JSON.parse(sessionStorage.getItem('repositoryListData'));
+    // 페이지 로드 시 세션 스토리지에서 데이터 불러오기
+  useEffect(() => {
+    if (storedListData) {
+      setRepositoryListData(storedListData);
+    }
+  }, [storedListData, setRepositoryListData]);
   
   useEffect(() => {
-
     if (repositories.length > 0) {
       setRepositoryListData({ ...repositoryListData, isLoading: false });
-
       return;
     }
-    if (location.state) {
-      const { username, organizations } = location.state;
-      // 백엔드에 요청 보내기
-      axios.post('http://localhost:5000/api/input', { username, organizations })
-        .then(response => {
-          setRepositoryListData({ 
-            repositories: response.data.repositories, 
-            file_data: response.data.file_data, 
-            isLoading: false, 
-            personal_list: response.data.personal_list,
-            team_list : response.data.team_list,
-            globusername : username
+    if (location.state || !storedListData) {
+      const { username, organizations } = location.state || {};
+      if (username && organizations) {
+        // 백엔드에 요청 보내기
+        axios.post('http://localhost:5000/api/input', { username, organizations })
+          .then(response => {
+            const newData = {
+              repositories: response.data.repositories,
+              file_data: response.data.file_data,
+              isLoading: false,
+              personal_list: response.data.personal_list,
+              team_list: response.data.team_list,
+              globusername: username
+            };
+            setRepositoryListData(newData);
+            sessionStorage.setItem('repositoryListData', JSON.stringify(newData));
+          })
+          .catch(error => {
+            console.error('Error fetching repositories', error);
+            setRepositoryListData({ ...repositoryListData, isLoading: false });
           });
-          // setData({
-          //   personal_list: response.data.personal_list,
-          //   team_list : response.data.team_list,
-          //   globusername : username
-
-          // })
-
-        })
-        .catch(error => {
-          console.error('Error fetching repositories', error);
-          setRepositoryListData({ ...repositoryListData, isLoading: false });
-        });
+      }
     }
-  }, []);
+  }, [location.state, repositories.length, setRepositoryListData, storedListData]);
 
   // 검색창에 값 입력시 입력한 값을 검색창에 출력
   const handleUserInputChange = (e) => {

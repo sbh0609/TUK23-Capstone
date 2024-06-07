@@ -178,15 +178,24 @@ def get_merged_pr_stats(username, repo_name,headers):
         merged_pr_percentage = (merged_prs / total_user_prs) * 100 if total_user_prs > 0 else 0
     return total_user_prs, merged_prs, merged_pr_percentage;
 
-def get_used_lang(repo_name,all_lang,headers):
-    main_lang = []
+def get_used_lang(repo_name, all_lang, headers):
+    lang_data = {}
     lang_url = f'https://api.github.com/repos/{repo_name}/languages'
-    response = requests.get(lang_url,headers=headers).json()
-    repo_lang = list(response.keys())
-    for lang in repo_lang:
-        if lang in all_lang:
-            main_lang.append(lang)
-    return main_lang
+    response = requests.get(lang_url, headers=headers).json()
+    
+    if response:
+        total_lines = sum(response.values())
+        main_lang_percentage = 0
+
+        for lang, lines in response.items():
+            if lang in all_lang:
+                percentage = (lines / total_lines) * 100
+                lang_data[lang] = percentage
+                main_lang_percentage += percentage
+
+        lang_data['other'] = 100 - main_lang_percentage
+
+    return lang_data
 
 def get_file_data(file_path_list,repo_name,user_id,headers):
     # load_dotenv() 

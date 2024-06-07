@@ -3,7 +3,7 @@ from flask_cors import CORS,cross_origin
 from dotenv import load_dotenv
 from celery import Celery
 import os
-import back.commitquality as commitquality
+import commitquality as commitquality
 import pymysql
 import json
 import time
@@ -171,11 +171,110 @@ def analyze_repo():
     repo_type = datas.get('repo_type')
     click_time = datas.get('click_time')
     user_id = datas.get('session_userID')
-    
+
     all_files_complexity = {}
     all_files_function_length = {}
     all_files_parameter_count = {}
     
+    try:
+        repo_analyze = {}  # 변수 초기화
+        grade_evaluate = {}  # 변수 초기화
+        connection = connect_to_database()
+        with connection.cursor() as cursor:
+            # 데이터베이스에서 기존 데이터를 조회
+            sql_select_analyzed = """
+                SELECT * FROM analyzed_repo_data 
+                WHERE repo_name = %s AND repo_contributor_name = %s AND web_user_id = %s 
+                ORDER BY repo_selected_time DESC 
+                LIMIT 1
+            """
+            cursor.execute(sql_select_analyzed, (repo_name, user_name, user_id))
+            existing_analyzed_data = cursor.fetchone()
+
+            sql_select_evaluate = """
+                SELECT * FROM evaluate_repo_data 
+                WHERE repo_name = %s AND repo_contributor_name = %s AND web_user_id = %s 
+                ORDER BY repo_selected_time DESC 
+                LIMIT 1
+            """
+            cursor.execute(sql_select_evaluate, (repo_name, user_name, user_id))
+            existing_evaluate_data = cursor.fetchone()
+
+            if existing_analyzed_data and existing_evaluate_data:
+                if repo_type=='personal':
+                    
+                    # 데이터가 존재하면
+                    repo_analyze = {
+                        "repo_selected_time":existing_analyzed_data['repo_selected_time'],
+                        "program_lang": json.loads(existing_analyzed_data['program_lang']),
+                        "comment_per": json.loads(existing_analyzed_data['comment_per']),
+                        "framework": json.loads(existing_analyzed_data['framework']),
+                        "duplicate_code": json.loads(existing_analyzed_data['duplicate_code']),
+                        "complexity": json.loads(existing_analyzed_data['complexity']),
+                        "function_length": json.loads(existing_analyzed_data['function_length']),
+                        "parameter_count": json.loads(existing_analyzed_data['parameter_count']),
+                        "total_quality": json.loads(existing_analyzed_data['total_quality']),
+                        "user_quality": json.loads(existing_analyzed_data['user_quality']),
+                        "total_grammar": existing_analyzed_data['total_grammar'],
+                        "user_grammar": existing_analyzed_data['user_grammar']
+                    }
+
+                    grade_evaluate = {
+                        "comment_score": existing_evaluate_data['comment_score'],
+                        "duplication_score": existing_evaluate_data['duplication_score'],
+                        "complexity_file_scores": json.loads(existing_evaluate_data['complexity_file_scores']),
+                        "complexity_repo_score": existing_evaluate_data['complexity_repo_score'],
+                        "function_length_file_scores": json.loads(existing_evaluate_data['function_length_file_scores']),
+                        "function_length_repo_score": existing_evaluate_data['function_length_repo_score'],
+                        "parameter_count_file_scores": json.loads(existing_evaluate_data['parameter_count_file_scores']),
+                        "parameter_count_repo_score": existing_evaluate_data['parameter_count_repo_score'],
+                        "commit_message_quality_scores": json.loads(existing_evaluate_data['commit_message_quality_scores']),
+                        "commit_message_grammar_scores": json.loads(existing_evaluate_data['commit_message_grammar_scores']),
+                        "code_quality": existing_evaluate_data.get('code_quality')
+                    }
+                elif(repo_type=='team'):
+                    repo_analyze = {
+                        "repo_selected_time":existing_analyzed_data['repo_selected_time'],
+                        "program_lang": json.loads(existing_analyzed_data['program_lang']),
+                        "comment_per": json.loads(existing_analyzed_data['comment_per']),
+                        "framework": json.loads(existing_analyzed_data['framework']),
+                        "duplicate_code": json.loads(existing_analyzed_data['duplicate_code']),
+                        "complexity": json.loads(existing_analyzed_data['complexity']),
+                        "pr_data": json.loads(existing_analyzed_data['pr_data']),
+                        "commit_per": json.loads(existing_analyzed_data['commit_per']),
+                        "issue_data": json.loads(existing_analyzed_data['issue_data']),
+                        "function_length": json.loads(existing_analyzed_data['function_length']),
+                        "parameter_count": json.loads(existing_analyzed_data['parameter_count']),
+                        "total_quality": json.loads(existing_analyzed_data['total_quality']),
+                        "user_quality": json.loads(existing_analyzed_data['user_quality']),
+                        "total_grammar": existing_analyzed_data['total_grammar'],
+                        "user_grammar": existing_analyzed_data['user_grammar']
+                    }
+                    grade_evaluate = {
+                        "comment_score": existing_evaluate_data['comment_score'],
+                        "duplication_score": existing_evaluate_data['duplication_score'],
+                        "complexity_file_scores": json.loads(existing_evaluate_data['complexity_file_scores']),
+                        "complexity_repo_score": existing_evaluate_data['complexity_repo_score'],
+                        "function_length_file_scores": json.loads(existing_evaluate_data['function_length_file_scores']),
+                        "function_length_repo_score": existing_evaluate_data['function_length_repo_score'],
+                        "parameter_count_file_scores": json.loads(existing_evaluate_data['parameter_count_file_scores']),
+                        "parameter_count_repo_score": existing_evaluate_data['parameter_count_repo_score'],
+                        "commit_score": existing_evaluate_data['commit_score'],
+                        "pr_scores": existing_evaluate_data['pr_scores'],
+                        "issue_scores": existing_evaluate_data['issue_scores'],
+                        "commit_message_quality_scores": json.loads(existing_evaluate_data['commit_message_quality_scores']),
+                        "commit_message_grammar_scores": json.loads(existing_evaluate_data['commit_message_grammar_scores']),
+                        "total_collaboration_score": existing_evaluate_data['total_collaboration_score'],
+                        "user_collaboration_score": existing_evaluate_data['user_collaboration_score'],
+                        "code_quality": existing_evaluate_data.get('code_quality')
+                    }
+                return jsonify({
+                    "repo_analyze": repo_analyze,
+                    "evaluate": grade_evaluate
+                })
+                
+    except Exception as e:
+        return jsonify({'DataBase Select Error': str(e)}), 500
     
     if(repo_type=='personal'):
         program_lang= get_used_lang(repo_name,all_lang,headers)
@@ -195,7 +294,9 @@ def analyze_repo():
 
         total_quality, user_quality = commitquality.classify_commit_quality(repo_name, user_name, token)
         total_grammar, user_grammar = commitquality.check_grammar(repo_name, user_name, token)
+        
         repo_analyze = {
+            "repo_selected_time":click_time,
             "program_lang": program_lang,
             "comment_per": comment_per,
             "framework": framework,
@@ -208,8 +309,7 @@ def analyze_repo():
             "total_grammar": total_grammar,
             "user_grammar": user_grammar
         }
-        # 평가 점수 계산
-        # 평가 점수 계산
+        
         # 평가 점수 계산
         comment_score = evaluate_comment_percentage(comment_per[2])
         duplication_score = evaluate_code_duplication(dup_code[2])
@@ -232,6 +332,8 @@ def analyze_repo():
             "commit_message_grammar_scores": commit_message_grammar_scores
         }
         grade_evaluate=convert_scores_to_grades(evaluate)
+        code_quality=team_code_quality(evaluate)
+        grade_evaluate['code_quality'] = code_quality
         try:
             connection = connect_to_database()
             with connection.cursor() as cursor:
@@ -333,6 +435,7 @@ def analyze_repo():
         total_grammar, user_grammar = commitquality.check_grammar(repo_name, user_name, token)
 
         repo_analyze = {
+            "repo_selected_time":click_time,
             "program_lang": program_lang,
             "comment_per": comment_per,
             "framework": framework,
@@ -480,11 +583,10 @@ def analyze_repo():
         except Exception as e:
             return jsonify({'DataBase Insert Error': str(e)}), 500
         
-        
     return jsonify({
-            "repo_analyze": repo_analyze,
-            "evaluate": evaluate
-        })
+        "repo_analyze": repo_analyze,
+        "evaluate": grade_evaluate
+    })
     
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
