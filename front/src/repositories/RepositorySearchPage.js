@@ -24,12 +24,18 @@ function Search() {
 
   const handleSubmit = () => {
     // 데이터 처리 페이지로 바로 이동
-   
     const filteredOrganizations = organizations.filter(org => org);
     const searchData = { username, organizations: filteredOrganizations };
-    // sessionStorage.setItem('searchData', JSON.stringify(searchData));
     navigate("/list", { state: searchData });
   };
+  // const handleSubmit = () => {
+  //   // 데이터 처리 페이지로 바로 이동
+   
+  //   const filteredOrganizations = organizations.filter(org => org);
+  //   const searchData = { username, organizations: filteredOrganizations };
+  //   // sessionStorage.setItem('searchData', JSON.stringify(searchData));
+  //   navigate("/list", { state: searchData });
+  // };
   useEffect(()=>{
     clearData();
   },[]);

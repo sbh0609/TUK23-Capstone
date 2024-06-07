@@ -22,41 +22,24 @@ const RepositoryDetailPage = () => {
   const session_userID = sessionStorage.getItem("userID");
   const storedDetail = JSON.parse(sessionStorage.getItem('repositoryDetail'));
   const { repositoryDetail, setRepositoryDetail } = useRepository();
-  const [isDetailSet, setIsDetailSet] = useState(false);
-
-  console.log("Stored detail from session storage:", storedDetail);
-
-  // 페이지 로드 시 storedDetail이 있으면 repositoryDetail을 설정
-  useEffect(() => {
-    if (storedDetail && !isDetailSet) {
-      console.log("Setting repository detail from stored detail");
-      setRepositoryDetail(storedDetail);
-      setIsDetailSet(true);
-    }
-  }, [storedDetail, isDetailSet, setRepositoryDetail]);
-
   const { repo_name, fileList, username, repo_type, click_time } = repositoryDetail;
-
-  console.log("Repository details:", repositoryDetail);
 
   const [repoAnalyze, setRepoAnalyze] = useState(null);
   const [evaluate, setEvaluate] = useState(null);
 
   useEffect(() => {
-    if (isDetailSet && repo_name && username && fileList.length > 0 && repo_type && click_time && session_userID) {
-      axios.post('http://localhost:5000/api/analyze', { repo_name, username, fileList, repo_type, click_time, session_userID })
-        .then(response => {
-          console.log(response);
-          setRepoAnalyze(response.data.repo_analyze);
-          setEvaluate(response.data.evaluate);
-        })
-        .catch(error => {
-          console.error('Error', error);
-          window.alert('Error: ' + error);
-        });
-    }
-  }, [isDetailSet, repo_name, username, fileList, repo_type, click_time, session_userID]);
-  
+    axios.post('http://localhost:5000/api/analyze', { repo_name, username, fileList, repo_type, click_time, session_userID })
+      .then(response => {
+        console.log(response);
+        setRepoAnalyze(response.data.repo_analyze);
+        setEvaluate(response.data.evaluate);
+      })
+      .catch(error => {
+        console.error('Error', error);
+        window.alert('Error: ' + error);
+      });
+  }, [repo_name, username, fileList, repo_type, click_time, session_userID]);
+  // if (isDetailSet && repo_name && username && fileList.length > 0 && repo_type && click_time && session_userID) 
   if (!repoAnalyze || !evaluate) { // 로딩화면 표시하는 곳!
     return <div>Loading...</div>;
   }
