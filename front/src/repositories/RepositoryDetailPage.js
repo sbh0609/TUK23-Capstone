@@ -62,36 +62,44 @@ const RepositoryDetailPage = () => {
   }
   // program_lang 객체를 배열로 변환
   const languages = Object.entries(repoAnalyze.program_lang).map(([lang, percentage]) => ({ lang, percentage }));
-  console.log(languages)
+  const frameworks = repoAnalyze.framework;
+  console.log(languages);
+
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>Repository Detail</Typography>
-      <Typography variant="h6">Last Evaluate: {repoAnalyze.repo_selected_time}</Typography>
-      <Grid container spacing={3}>
-        <Paper elevation={3} style={{ padding: '20px' }}>
-          <Typography variant="h6">Repository: {repo_name}</Typography>
-          <Typography variant="h6">Username: {username}</Typography>
-        </Paper>
+      <Typography variant="h3" gutterBottom>저장소 평가 결과</Typography>
+      <Grid container spacing={3} justifyContent="center" alignItems="center" style={{ marginBottom: '30px' }}>
+        <Grid item xs={12} md={6}>
+          <Paper elevation={3} style={{ padding: '25px', textAlign: 'center', backgroundColor: '#f5f5f5' }}>
+            <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '10px' }}>Repository: {repo_name}</Typography>
+            <Typography variant="h6" style={{ marginBottom: '10px' }}>Username: {username}</Typography>
+            <Typography variant="h6">Last Evaluate: {repoAnalyze.repo_selected_time}</Typography>
+          </Paper>
+        </Grid>
       </Grid>
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
-          <Paper elevation={3} style={{ padding: '20px' }}>
+          <Paper elevation={3} style={{ padding: '30px' }}>
             <Typography variant="h6">Program Language</Typography>
             <LanguageSection languages={languages} />
-            <Typography variant="h6">FrameWork</Typography>
-            <FrameworkSection frameworks={repoAnalyze.framework} />
+            {frameworks && frameworks.length > 0 && (
+              <>
+                <Typography variant="h6">FrameWork</Typography>
+                <FrameworkSection frameworks={frameworks} />
+              </>
+            )}
           </Paper>
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Paper elevation={3} style={{ padding: '20px' }}>
-            <Typography variant="h6">Communication</Typography>
+          <Paper elevation={3} style={{ padding: '30px' }}>
+            <Typography variant="h6">Communication Ability</Typography>
             <CollaborationScore evaluate={evaluate} username={username} />
           </Paper>
         </Grid>
         <Grid item xs={12} md={4}>
-          <Paper elevation={3} style={{ padding: '20px' }}>
+          <Paper elevation={3} style={{ padding: '30px' }}>
             <Typography variant="h6">Code Quallity</Typography>
             <CodeHealthScore evaluate={evaluate} />
           </Paper>
@@ -117,7 +125,7 @@ const FrameworkSection = ({ frameworks }) => (
   </div>
 );
 
-const CollaborationScore = ({ evaluate,username }) => (
+const CollaborationScore = ({ evaluate, username }) => (
   <div>
     <Typography variant="h6">Repo Communication: {evaluate.total_collaboration_score}</Typography>
     <Typography variant="h6">{username} Communication: {evaluate.user_collaboration_score}</Typography>
