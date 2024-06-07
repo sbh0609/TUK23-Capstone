@@ -6,6 +6,9 @@ import "./RepositoryListPage.css";
 import axios from 'axios';
 import { useMaintainPage } from '../Context/MaintainPage'; // Context를 가져옵니다.
 import gifLoading from '../resources/Loading_icon.gif';
+import homeIcon from '../resources/home-icon.png';
+import profileIcon from '../resources/profile-icon.png';
+import informationIcon from '../resources/information-icon.png';
 
 function RepositoryListPage() {
 
@@ -111,9 +114,23 @@ function RepositoryListPage() {
   return (
     <div>
       <div className="top-bar">
-        <button onClick={handleEnterButton} className="home-button">Home</button>
-        <button onClick={handleEnterButton} className="log-out-button">Log out</button>
-        <button className="about-us-button">About us</button>
+        <button onClick={handleEnterButton} className="top-bar-button home-button">
+          <img src={homeIcon} alt="홈 아이콘" class="top-bar-icon home-button-icon"/>
+        </button>
+
+        <button onClick={handleEnterButton} className="top-bar-button top-login-button">로그인</button>
+
+        <button className="top-bar-button top-information-button">
+          <img src={informationIcon} alt="홈 아이콘" class="top-bar-icon top-information-button-icon"/>
+        </button>
+      </div>
+
+      <div className="side-bar">
+        <button className="side-bar-button profile-button">
+          <img src={profileIcon} alt="프로필 아이콘" class="side-bar-icon profile-button-icon"/> 프로필
+        </button>
+        <button className="side-bar-button login-button">로그인</button>
+        <button className="side-bar-button information-button">정보</button>
       </div>
 
       <div className="search-bar-background">
@@ -134,7 +151,6 @@ function RepositoryListPage() {
       </div>
 
       <div className="repository-list-field" >
-
         {isLoading ? (
           <div className="loading">
             <img src={gifLoading} alt="GIF" className="gifLoading" />
