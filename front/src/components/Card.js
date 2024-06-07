@@ -24,9 +24,16 @@ const formatDate = (date) => {
 const Card = ({ repo_name, url, fileList, username, repo_type }) => {
     const { setRepositoryDetail } = useRepository();
     const navigate = useNavigate();
+    // const onClickCard = () => {
+    //     const clickTime = formatDate(new Date());  // 현재 시간을 ISO 포맷으로 가져옵니다.
+    //     setRepositoryDetail({ repo_name, fileList, username, repo_type,click_time: clickTime });
+    //     navigate("/detail");
+    // };
     const onClickCard = () => {
-        const clickTime = formatDate(new Date());  // 현재 시간을 ISO 포맷으로 가져옵니다.
-        setRepositoryDetail({ repo_name, fileList, username, repo_type,click_time: clickTime });
+        const clickTime = formatDate(new Date());
+        const detail = { repo_name, fileList, username, repo_type, click_time: clickTime };
+        setRepositoryDetail(detail);
+        sessionStorage.setItem('repositoryDetail', JSON.stringify(detail));
         navigate("/detail");
     };
     return (

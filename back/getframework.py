@@ -178,15 +178,24 @@ def get_merged_pr_stats(username, repo_name,headers):
         merged_pr_percentage = (merged_prs / total_user_prs) * 100 if total_user_prs > 0 else 0
     return total_user_prs, merged_prs, merged_pr_percentage;
 
-def get_used_lang(repo_name,all_lang,headers):
-    main_lang = []
+def get_used_lang(repo_name, all_lang, headers):
+    lang_data = {}
     lang_url = f'https://api.github.com/repos/{repo_name}/languages'
-    response = requests.get(lang_url,headers=headers).json()
-    repo_lang = list(response.keys())
-    for lang in repo_lang:
-        if lang in all_lang:
-            main_lang.append(lang)
-    return main_lang
+    response = requests.get(lang_url, headers=headers).json()
+    
+    if response:
+        total_lines = sum(response.values())
+        main_lang_percentage = 0
+
+        for lang, lines in response.items():
+            if lang in all_lang:
+                percentage = (lines / total_lines) * 100
+                lang_data[lang] = percentage
+                main_lang_percentage += percentage
+
+        lang_data['other'] = 100 - main_lang_percentage
+
+    return lang_data
 
 def get_file_data(file_path_list,repo_name,user_id,headers):
     # load_dotenv() 
@@ -338,10 +347,8 @@ def analyze_file(file_path):
     elif file_path.endswith(".js") or file_path.endswith(".ts"):
         command = f"npx eslint {file_path} --config .eslintrc.json --format=json"
     elif file_path.endswith(".kt") or file_path.endswith(".kts"):
-        command = f"java -Dfile.encoding=UTF-8 analyzeTool/-jar detekt-cli-1.23.6-all.jar --input {file_path} --config analyzeTool/detekt.yml"
-
+        command = f"java -Dfile.encoding=UTF-8 -jar analyzeTool/detekt-cli-1.23.6-all.jar --input {file_path} --config analyzeTool/detekt.yml"
     result = subprocess.run(command, shell=True, capture_output=True, text=True, encoding='utf-8', errors='replace')
-
 
     if result.stderr:
         print("Errors:", result.stderr)
@@ -355,9 +362,9 @@ def extract_complexity_messages(command_output):
     complexity_info = {}
     if isinstance(command_output, str):  # 문자열 처리
         patterns = [
-            (r'.*?:(\d+):\d+: Cyclomatic Complexity is (\d+)', lambda line, value: (int(line), int(value))),  # Checkstyle
-            (r'.*?:(\d+):.*?: R\d+: .*? is too complex. The McCabe rating is (\d+)', lambda line, value: (int(line), int(value))),  # Pylint
-            (r'CyclomaticComplexMethod - \d+/\d+ - \[.*?\] at .*?:(\d+):(\d+)', lambda line, value: (int(line), int(value)))  # Detekt
+            (r'.*?:(\d+): Cyclomatic Complexity is (\d+)', lambda line, value: (int(line), int(value))),  # Checkstyle
+            (r'.*?:(\d+):.*? is too complex. The McCabe rating is (\d+)', lambda line, value: (int(line), int(value))),  # Pylint
+            (r'CyclomaticComplexMethod - (\d+)/\d+ - \[.*?\] at .*?:(\d+):\d+', lambda value, line: (int(line), int(value)))  # Detekt
         ]
         for pattern, extractor in patterns:
             for match in re.findall(pattern, command_output, re.MULTILINE):
@@ -386,8 +393,8 @@ def extract_function_length_messages(command_output):
     if isinstance(command_output, str):  # 문자열 처리
         patterns = [
             (r'.*?:(\d+):\d+: Method .+ length is (\d+) lines .*', lambda line, value: (int(line), int(value))),  # Checkstyle
-            (r'.*?:(\d+):.*?: R0915: Too many statements \((\d+)\)', lambda line, value: (int(line), int(value))),  # Pylint
-            (r'LongMethod - \d+/\d+ - \[.*?\] at .*?:(\d+):(\d+)', lambda line, value: (int(line), int(value)))  # Detekt
+            (r'.*?:(\d+):\d+: R0915: Too many statements \((\d+)/\d+\)', lambda line, value: (int(line), int(value))),  # Pylint Too many statements
+            (r'.*?:(\d+):\d+: The function .* is too long \((\d+)\)\. The maximum length is \d+\. \[LongMethod\]', lambda line, value: (int(line), int(value)))  # Detekt LongMethod
         ]
         for pattern, extractor in patterns:
             for match in re.findall(pattern, command_output, re.MULTILINE):
@@ -408,7 +415,6 @@ def extract_function_length_messages(command_output):
                             function_length_info[line_number] = max(function_length_info[line_number], length_value)
                         else:
                             function_length_info[line_number] = length_value
-
     return function_length_info
 
 def extract_parameter_count_messages(command_output):
@@ -416,8 +422,8 @@ def extract_parameter_count_messages(command_output):
     if isinstance(command_output, str):  # 문자열 처리
         patterns = [
             (r'.*?:(\d+):\d+: More than 1 parameters \(found (\d+)\)\. \[ParameterNumber\]', lambda line, value: (int(line), int(value))),  # Checkstyle
-            (r'.*?:(\d+):.*?: R0913: Too many arguments \((\d+)\)', lambda line, value: (int(line), int(value))),  # Pylint
-            (r'FunctionMaxParameters - \d+/\d+ - \[.*?\] at .*?:(\d+):(\d+)', lambda line, value: (int(line), int(value)))  # Detekt
+            (r'.*?:(\d+):\d+: R0913: Too many arguments \((\d+)/\d+\) \(too-many-arguments\)', lambda line, value: (int(line), int(value))),  # Pylint
+            (r'.*?:(\d+):\d+: The function .*?\((.*?)\) has too many parameters\. .* \[LongParameterList\]', lambda line, params: (int(line), len(params.split(','))))  # Detekt
         ]
         for pattern, extractor in patterns:
             for match in re.findall(pattern, command_output, re.MULTILINE):
@@ -438,7 +444,6 @@ def extract_parameter_count_messages(command_output):
                             parameter_count_info[line_number] = max(parameter_count_info[line_number], param_count)
                         else:
                             parameter_count_info[line_number] = param_count
-
     return parameter_count_info
 
 def get_issue_stats(username, repo_name, headers):

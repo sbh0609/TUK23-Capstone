@@ -5,7 +5,6 @@ import { useMaintainPage } from '../Context/MaintainPage';
 
 function Search() {
   const [username, setUsername] = useState("");
-  // const [passwords, setPasswords] = useState(['']);
   const [organizations, setOrganiztions] = useState(['']);
   const { clearData } = useMaintainPage();
 
@@ -22,9 +21,14 @@ function Search() {
     setOrganiztions([...organizations, '']);
   }
   const navigate = useNavigate();
+
   const handleSubmit = () => {
     // 데이터 처리 페이지로 바로 이동
-    navigate("/list", { state: { username, organizations: organizations.filter(org => org) } });
+   
+    const filteredOrganizations = organizations.filter(org => org);
+    const searchData = { username, organizations: filteredOrganizations };
+    // sessionStorage.setItem('searchData', JSON.stringify(searchData));
+    navigate("/list", { state: searchData });
   };
   useEffect(()=>{
     clearData();
