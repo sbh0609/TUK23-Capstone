@@ -296,7 +296,7 @@ def analyze_repo():
         total_quality, user_quality = func.classify_commit_quality(total_commits, user_commits)
         total_grammar, user_grammar = func.check_grammar(total_commits, user_commits)
         keyword_counts = func.count_keywords(user_commits)
-        
+
         repo_analyze = {
             "repo_selected_time":click_time,
             "program_lang": program_lang,
