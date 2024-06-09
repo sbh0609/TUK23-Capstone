@@ -7,7 +7,7 @@ function MainPage() {
   const navigate = useNavigate();
   const { clearData } = useMaintainPage();
   const handleEnterButton = () => {
-    navigate("/login");
+    navigate("/search");
     /*if (sessionStorage.getItem('userID') == null) {
       navigate("/login");
     }

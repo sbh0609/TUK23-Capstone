@@ -18,6 +18,7 @@
 
   background-color: white!important;
   border-bottom: none;
+  z-index: 1000;
 }
 
 .top-bar:after {
@@ -45,27 +46,34 @@
   border: none;
 }
 
-.top-login-button {
+.top-bar-right{
   position: relative;
   margin-left: auto;
-  right:0px;
+  display: flex;
+  align-items: center;
+}
+
+.top-login-button {
+  position: relative;
+  margin-right: 20px;
 
   width: 100px;
-  height: 30px;
+  height: 35px;
 
-  font-family: 'Roboto';
+  font-weight: bolder;
+  font-family: 'Nanum Gothic', sans-serif;
   font-style: normal;
-  font-size: 15px;
+  font-size: 18px;
   color: black!important;
 
   background-color: white!important;
   cursor: pointer;
-  border-right: 2px solid #000;
+  border: 2px solid #000;
+  border-radius: 5px;
 }
 
 .top-information-button {
   position: relative;
-  margin-left: auto;
   margin-right: 15px;
 
   background-color: white!important;
@@ -83,7 +91,149 @@
   left: 0px;
   width: 235px;
 
-  border-right: 2px solid #000;
+  border-right: none;
+}
+
+.side-bar-first-section {
+  position: relative;
+
+  height: 500px;
+
+  background-color: white!important;
+  border-bottom: none;
+}
+
+.side-bar-first-section:after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 50%; /* 왼쪽 기준으로 가운데 정렬 시작 */
+  transform: translateX(-50%);
+
+  width: 90%;
+  height: 1px; /* 경계선의 두께 */
+
+  background: linear-gradient(to bottom, rgba(200, 200, 200, 1), rgba(255, 255, 255, 1));
+}
+
+.side-list-button {
+  display: flex;
+  align-items: center;
+  
+  height: 50px;
+  width: 100%;
+
+  font-size: 18px;
+  text-align: left;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-weight: bolder;
+
+  background-color: white;
+  border:none;
+  cursor: pointer;
+}
+
+.login-phase {
+  margin-left: 18px;
+  margin-right: 18px;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-style: normal;
+  font-size: 16px;
+  color: rgba(100, 100, 100, 1);
+}
+
+.side-login-button {
+  position: relative;
+
+  margin-top: 0px;
+  margin-left: 17px;
+
+  width: 200px;
+  height: 50px;
+
+  font-weight: bolder;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-style: normal;
+  font-size: 18px;
+  color: black!important;
+
+  background-color: white!important;
+  cursor: pointer;
+  border: 2px solid #000;
+  border-radius: 5px;
+}
+
+.list-button-icon2 {
+  margin-top: 5px;
+  margin-left: auto;
+  margin-right: 20px;
+  height: 15px;
+  width: 15px;
+}
+
+.side-bar-second-section {
+  background-color: white!important;
+  border-bottom: none;
+}
+
+.side-bar-second-section:after {
+  content: "";
+  position: absolute;
+  left: 50%; /* 왼쪽 기준으로 가운데 정렬 시작 */
+  transform: translateX(-50%);
+
+  width: 90%;
+  height: 1px; /* 경계선의 두께 */
+
+  background: linear-gradient(to bottom, rgba(200, 200, 200, 1), rgba(255, 255, 255, 1));
+}
+
+.side-profile-button {
+  display: flex;
+  align-items: center;
+  
+  height: 50px;
+  width: 100%;
+
+  font-size: 18px;
+  text-align: left;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-weight: bolder;
+
+  background-color: white;
+  border:none;
+  cursor: pointer;
+}
+
+.profile-button-icon{
+  padding-left: 10px;
+  padding-right: 12px;
+
+  height: 30px;
+  width: 30px;
+}
+
+.side-bar-third-section {
+  background-color: white!important;
+  border-bottom: none;
+}
+
+.information-hyperlink {
+  position: relative;
+  display: flex; 
+  align-items: center; 
+  margin-top: 10px;
+  margin-left: 10px;
+  padding-bottom: 20px;
+
+
+  width: fit-content;
+
+  font-family: 'Nanum Gothic', sans-serif;
+  font-size: 15px; 
+  font-weight: 600;
+  text-decoration: none; 
+  color: rgba(100, 100, 100, 1);
 }
 
 .side-bar-button {
@@ -106,35 +256,70 @@
   padding-left: 10px;
   padding-right: 12px;
 
-  height: 30px;
-  width: 30px;
+  height: 25px;
+  width: 25px;
 }
 
 .search-bar-background {
-  position: relative;
+  position: fixed;
+
   top: 70px!important;
   left: 235px;
-  width: 70%;
+  width: calc(100vw - 235px);
   height: 100px;
-  display: flex;
-  align-items: center; 
 
   background-color: white!important;
+  z-index: 100;
+}
+
+.search-bar-components{
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  margin-left: auto;
+  margin-right: 700px;
+
+
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24); /* 그림자 추가 */
+}
+
+.search-bar-dropdown {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  font-family: 'Roboto';
+  font-style: normal;
+  font-size: 15px;
+  font-weight: bold;
+  
+  border-left: 1px solid rgba(200, 200, 200, 1);
+  z-index: 90;
+}
+
+.search-bar-dropdown > div:not(:last-child) {
+  border-right: 1px solid rgba(200, 200, 200, 1); /* 드롭다운 사이에 경계선 추가 */
+}
+
+.search-bar-dropdown-type {
+  display: flex;
+  align-items: center;
 }
 
 .search-bar {
-  position: relative;
+  height: 40px!important;
   width: 400px;
-  height: 30px;
-  left: 20px;
 
+  margin-left:0px!important;
+  
   font-size: 14px;
   font-family: 'Roboto';
   font-style: normal;
 
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-sizing: border-box;
+  background-color: #ffffff;
+  border: none!important;
 }
 
 .repository-list-field {
@@ -149,50 +334,33 @@
   width: calc(100vw - 235px);
 }
 
-.select {
-    position: static;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-
-    font-family: 'Roboto';
-    font-style: normal;
-    font-size: 15px;
-    font-weight: bold;
-  }
-
-  .select-type {
-    inline-size: 30%;
-  }
-
-  .loading {
-    position: relative;
-    display: flex;
+.loading {
+  position: relative;
+  display: flex;
     
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
-    margin-top: 200px;
-    height: 100px;
-  }
+  margin-top: 200px;
+  height: 100px;
+}
 
-  .gifLoading {
-    position: relative;
+.gifLoading {
+  position: relative;
 
-    height: 150px;
-  }
+  height: 150px;
+}
 
-  .loading-title {
-    position: relative;
+.loading-title {
+  position: relative;
     
-    font-size: 40px;
-    padding: 30px;
-  }
+  font-size: 40px;
+  padding: 30px;
+}
 
-  .loading-explain{
-    position: relative;
+.loading-explain{
+  position: relative;
     
-    font-size: 16px;
-  }
+  font-size: 16px;
+}

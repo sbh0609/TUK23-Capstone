@@ -9,13 +9,18 @@ import gifLoading from '../resources/Loading_icon.gif';
 import homeIcon from '../resources/home-icon.png';
 import profileIcon from '../resources/profile-icon.png';
 import informationIcon from '../resources/information-icon.png';
+import bookmarkIcon from '../resources/bookmark-icon.png';
+import arrowScrollUpIcon from '../resources/arrow-scroll-up-icon.png';
+import arrowScrollDownIcon from '../resources/arrow-scroll-down-icon.png';
 
 function RepositoryListPage() {
+  const session_userID = sessionStorage.getItem("userID");
 
   const [userInput, setUserInput ] = useState("");
   const [userType, setUserType ] = useState("");
   const [userLanguage, setUserLanguage ] = useState("");
   const [userEct, setUserEct ] = useState("");
+  const [isListButtonActive, setIsListButtonActive] = useState(false); 
   // const [repositoryClassification, setData] = useState({ personal_list: [], team_list: [],globusername:''});
 
   const { repositoryListData, setRepositoryListData } = useMaintainPage(); // Context 사용
@@ -39,29 +44,44 @@ function RepositoryListPage() {
     { value: "Kulas Light", label: "Private" },
     { value: "Kattie Turnpike", label: "Public" },
   ]
-  const handleEnterButton = () => {
+  const handleHomeButton = () => {
     navigate("/main");
+  }
+  const handleLoginButton = () => {
+    navigate("/login");
+  }
+  const handleProfileButton = () => {
+    navigate("/myPage");
   }
 
   // 드롭다운의 스타일
   const optionStyles = {
     control: (baseStyles, state) => ({
       ...baseStyles,
-      backgroundColor: "#000000",
-      color: state.isFocused ? "#FFFFFF" : "#FFFFFF",
+      backgroundColor: "#ffffff",
+      color: "#000000",
+      border: "none", // 테두리 제거
+      boxShadow: state.isFocused ? "0 0 0 1px #000000" : "none", // 포커스 시 테두리 제거
+      '&:hover': {
+        borderColor: "#000000",
+      },
+      width: '150px', // 드롭다운의 너비 설정
+      minHeight: '40px', // 드롭다운의 최소 높이 설정
     }),
     option: (baseStyles, state) => ({
       ...baseStyles,
-      backgroundColor: state.isFocused ? "#e2e2e2" : "",
-      color: state.isFocused ? "#333333" : "#FFFFFF",
+      backgroundColor: state.isFocused ? "#e2e2e2" : "#ffffff",
+      color: "#000000",
+      '&:hover': {
+        backgroundColor: "#e2e2e2",
+      },
     }),
-    menu: (baseStyles, state) => ({
+    menu: (baseStyles) => ({
       ...baseStyles,
-      backgroundColor: "#333333",
+      backgroundColor: "#ffffff",
     }),
-  }
+  };
 
-  
   useEffect(() => {
 
     if (repositories.length > 0) {
@@ -111,42 +131,70 @@ function RepositoryListPage() {
   const handleUserEctChange = (selectedOption) => {
     setUserEct(selectedOption.value);
   }
+  const handleListButton = () => {
+    setIsListButtonActive(!isListButtonActive);
+  }
+
   return (
     <div>
       <div className="top-bar">
-        <button onClick={handleEnterButton} className="top-bar-button home-button">
+        <button onClick={handleHomeButton} className="top-bar-button home-button">
           <img src={homeIcon} alt="홈 아이콘" class="top-bar-icon home-button-icon"/>
         </button>
 
-        <button onClick={handleEnterButton} className="top-bar-button top-login-button">로그인</button>
+        <div className="top-bar-right">
+          <button onClick={handleLoginButton} className="top-bar-button top-login-button">로그인</button>
 
-        <button className="top-bar-button top-information-button">
-          <img src={informationIcon} alt="홈 아이콘" class="top-bar-icon top-information-button-icon"/>
-        </button>
+          <button className="top-bar-button top-information-button">
+            <img src={informationIcon} alt="홈 아이콘" class="top-bar-icon top-information-button-icon"/>
+          </button>
+        </div>
       </div>
 
       <div className="side-bar">
-        <button className="side-bar-button profile-button">
-          <img src={profileIcon} alt="프로필 아이콘" class="side-bar-icon profile-button-icon"/> 프로필
-        </button>
-        <button className="side-bar-button login-button">로그인</button>
-        <button className="side-bar-button information-button">정보</button>
+        <div className="side-bar-first-section">
+          {session_userID ? (
+            <button onClick={handleListButton} className="side-list-button">
+              <img src={bookmarkIcon} alt="프로필 아이콘" class="side-bar-icon list-button-icon"/> 기존 분석 리스트
+              <img src={isListButtonActive ? arrowScrollUpIcon : arrowScrollDownIcon} alt="프로필 아이콘" className="list-button-icon2" />
+            </button>
+          ) : (
+            <div>
+              <p className="login-phase">검색한 레포지토리들을 저장하고, 열람하려면 로그인하세요.</p>
+              <button onClick={handleLoginButton} className="side-login-button">로그인</button>
+            </div>
+          )}
+        </div>
+
+        <div className="side-bar-second-section">
+          <button onClick={handleProfileButton} className="side-bar-button side-profile-button">
+            <img src={profileIcon} alt="프로필 아이콘" class="side-bar-icon profile-button-icon"/> 프로필
+          </button>
+        </div>
+
+        <div className="side-bar-third-section">
+          <a href="/information" className="information-hyperlink">
+            정보
+          </a>
+        </div>
       </div>
 
       <div className="search-bar-background">
-        <label>
-          <input
-            className="search-bar"
-            type="text"
-            value={userInput}
-            onChange={handleUserInputChange}
-            placeholder=" Search"
-          />
-        </label>
-        <div className="select">
-          <Select options={type_options} styles={optionStyles} placeholder="Type" onChange={handleUserTypeChange} className="select-type"/>
-          <Select options={language_options} styles={optionStyles} placeholder="Language" onChange={handleUserLanguageChange}/>
-          <Select options={ect_options} styles={optionStyles} placeholder="Ect" onChange={handleUserEctChange}/>
+        <div className="search-bar-components">
+          <label>
+              <input
+                className="search-bar"
+                type="text"
+                value={userInput}
+                onChange={handleUserInputChange}
+                placeholder=" Search"
+              />
+            </label>
+          <div className="search-bar-dropdown">
+            <Select options={type_options} styles={optionStyles} placeholder="Type" onChange={handleUserTypeChange}/>
+            <Select options={language_options} styles={optionStyles} placeholder="Language" onChange={handleUserLanguageChange}/>
+            <Select options={ect_options} styles={optionStyles} placeholder="Ect" onChange={handleUserEctChange}/>
+          </div>
         </div>
       </div>
 
