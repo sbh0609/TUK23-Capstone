@@ -130,8 +130,8 @@ def evaluate_messages(commit_messages):
     return grammar_score_ratio * 100
 
 def check_grammar(total_commits, user_commits):
-    total_grammar = evaluate_messages(user_commits)
-    user_grammar = evaluate_messages(total_commits)
+    total_grammar = round(evaluate_messages(user_commits),2)
+    user_grammar = round(evaluate_messages(total_commits),2)
     return total_grammar, user_grammar
 
 def classify_commit_quality(total_commits, user_commits):

@@ -164,19 +164,8 @@ def commit_percent(username, repo_name,headers):
     else:
         user_commits = sum(1 for commit in response if commit['author'] is not None and commit['author']['login'] == username)
         user_commit_percentage = (user_commits / total_commits) * 100 if total_commits > 0 else 0
+    user_commit_percentage=round(user_commit_percentage,2)
     return total_commits, user_commits, user_commit_percentage;
-
-def get_merged_pr_stats(username, repo_name,headers):
-    pr_url = f"https://api.github.com/repos/{repo_name}/pulls?state=all&creator={username}"
-    response = get_paged_response(pr_url,headers)
-    total_user_prs = len(response)
-    if total_user_prs==0:
-        merged_prs=0
-        merged_pr_percentage=0
-    else:
-        merged_prs = sum(1 for pr in response if pr['state'] == 'closed' and pr.get('merged_at'))
-        merged_pr_percentage = (merged_prs / total_user_prs) * 100 if total_user_prs > 0 else 0
-    return total_user_prs, merged_prs, merged_pr_percentage;
 
 def get_used_lang(repo_name, all_lang, headers):
     lang_data = {}
@@ -189,7 +178,7 @@ def get_used_lang(repo_name, all_lang, headers):
 
         for lang, lines in response.items():
             if lang in all_lang:
-                percentage = (lines / total_lines) * 100
+                percentage = round((lines / total_lines) * 100,2)
                 lang_data[lang] = percentage
                 main_lang_percentage += percentage
 
@@ -283,7 +272,8 @@ def comment_percent(repo_file_data):
             file_count += 1
             result[file_name] = comment_ratio
             comment_lines1 += comment_lines
-    return total_lines1,comment_lines1, total_comment_ratio;
+    real_comment_ratio=round(comment_lines1/total_lines1*100,2)
+    return total_lines1,comment_lines1, real_comment_ratio;
 
 
 def analyze_dependencies(repo_file_data):
@@ -335,7 +325,8 @@ def detect_code_duplication(repo_file_data):
                     line_hashes[line_hash] = 1
 
     duplicate_ratio = (duplicates / total_lines) * 100 if total_lines > 0 else 0
-    return total_lines, duplicates, duplicate_ratio;
+    real_duplicate_ratio=round(duplicates/total_lines*100,2)
+    return total_lines, duplicates,real_duplicate_ratio;
 
 
 def analyze_file(file_path):
@@ -475,11 +466,11 @@ def get_issue_stats(username, repo_name, headers):
     return {
         "total_issues": total_issues,
         "closed_issues": closed_issues,
-        "closed_issue_percentage": closed_issue_percentage,
+        "closed_issue_percentage": round(closed_issue_percentage,2),
         "total_user_issues": total_user_issues,
         "closed_user_issues": closed_user_issues,
-        "closed_user_issue_percentage": closed_user_issue_percentage,
-        "user_issue_percentage": user_issue_percentage
+        "closed_user_issue_percentage": round(closed_user_issue_percentage,2),
+        "user_issue_percentage": round(user_issue_percentage,2)
     }
 
 def get_pr_stats(username, repo_name, headers):
@@ -511,11 +502,11 @@ def get_pr_stats(username, repo_name, headers):
     return {
         "total_prs": total_prs,
         "merged_prs": merged_prs,
-        "merged_pr_percentage": merged_pr_percentage,
+        "merged_pr_percentage": round(merged_pr_percentage,2),
         "total_user_prs": total_user_prs,
         "merged_user_prs": merged_user_prs,
-        "merged_user_pr_percentage": merged_user_pr_percentage,
-        "user_pr_percentage": user_pr_percentage
+        "merged_user_pr_percentage": round(merged_user_pr_percentage,2),
+        "user_pr_percentage": round(user_pr_percentage,2)
     }
 
 

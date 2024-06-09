@@ -16,6 +16,7 @@ import { useRepository } from '../Context/RepositoryContext'; // Context를 가�
 import axios from 'axios';
 import Loading from "../components/DetailLoading";
 import { Container, Grid, Paper, Typography, Modal, Box } from '@mui/material';
+import { Pie } from 'react-chartjs-2';
 
 
 const RepositoryDetailPage = () => {
@@ -59,6 +60,14 @@ const RepositoryDetailPage = () => {
     user_collaboration_score,
     code_quality
   } = evaluate;
+  const { comment_per, duplicate_code } = repoAnalyze;
+  const totalLines = comment_per[0];
+  const commentLines = comment_per[1];
+  const commentRatio = comment_per[2];
+
+  const totalDuplicateLines = duplicate_code[0];
+  const duplicatedLines = duplicate_code[1];
+  const duplicationRatio = duplicate_code[2];
 
   const handleOpen = (cardData) => {
     setSelectedCard(cardData);
@@ -68,6 +77,44 @@ const RepositoryDetailPage = () => {
   const handleClose = () => {
     setOpen(false);
     setSelectedCard(null);
+  };
+
+  const pieData = {
+    labels: languages.map(language => language.lang),
+    datasets: [{
+      data: languages.map(language => language.percentage),
+      backgroundColor: languages.map(language => {
+        switch (language.lang) {
+          case 'Java':
+            return 'red';
+          case 'Python':
+            return 'blue';
+          case 'Kotlin':
+            return 'purple';
+          case 'JavaScript':
+            return 'yellow';
+          case 'TypeScript':
+            return 'green';
+          default:
+            return 'grey';
+        }
+      }),
+    }]
+  };
+  const commentPieData = {
+    labels: ['Comment Lines', 'Code Lines'],
+    datasets: [{
+      data: [commentLines, totalLines - commentLines],
+      backgroundColor: ['#36A2EB', '#FFCE56'],
+    }]
+  };
+
+  const duplicationPieData = {
+    labels: ['Duplicated Lines', 'Non-Duplicated Lines'],
+    datasets: [{
+      data: [duplicatedLines, totalDuplicateLines - duplicatedLines],
+      backgroundColor: ['#FF6384', '#36A2EB'],
+    }]
   };
 
   return (
@@ -80,55 +127,82 @@ const RepositoryDetailPage = () => {
           <p>Last Evaluate: {repoAnalyze.repo_selected_time}</p>
         </div>
       </div>
-
-      {repo_type === 'team' ? (
-        <div className="grid">
-          <div className="card" onClick={() => handleOpen({ title: 'Program Language', data: languages })}>
-            <h6>Program Language</h6>
-            {languages.map((language, index) => (
-              <p key={index}>{language.lang}: {language.percentage.toFixed(2)}%</p>
-            ))}
-          </div>
-          <div className="card" onClick={() => handleOpen({ title: 'Communication Ability', totalScore: total_collaboration_score, userScore: user_collaboration_score })}>
-            <h6>Communication Ability</h6>
-            <p>Repo Communication: {total_collaboration_score}</p>
-            <p>{username} Communication: {user_collaboration_score}</p>
-          </div>
-          <div className="card" onClick={() => handleOpen({ title: 'Code Quality', score: code_quality })}>
-            <h6>Code Quality</h6>
-            <h4>{code_quality}</h4>
-          </div>
-        </div>
-      ) : (
-        <div className="grid">
-          <div className="card" onClick={() => handleOpen({ title: 'Comment Score', score: comment_score })}>
-            <h6>Comment Score</h6>
-            <h4>{comment_score}</h4>
-          </div>
-          <div className="card" onClick={() => handleOpen({ title: 'Duplication Score', score: duplication_score })}>
-            <h6>Duplication Score</h6>
-            <h4>{duplication_score}</h4>
-          </div>
-          <div className="card" onClick={() => handleOpen({ title: 'Complexity Score', score: complexity_repo_score })}>
-            <h6>Complexity Score</h6>
-            <h4>{complexity_repo_score}</h4>
-          </div>
-          <div className="card" onClick={() => handleOpen({ title: 'Function Length Score', score: function_length_repo_score })}>
-            <h6>Function Length Score</h6>
-            <h4>{function_length_repo_score}</h4>
-          </div>
-          <div className="card" onClick={() => handleOpen({ title: 'Parameter Count Score', score: parameter_count_repo_score })}>
-            <h6>Parameter Count Score</h6>
-            <h4>{parameter_count_repo_score}</h4>
-          </div>
-          <div className="card" onClick={() => handleOpen({ title: 'Commit Quality', qualityScore: commit_message_quality_scores.total_commit_message_quality_score, grammarScore: commit_message_grammar_scores.total_commit_message_grammar_score })}>
-            <h6>Commit Quality</h6>
-            <p>Quality Score: {commit_message_quality_scores.total_commit_message_quality_score}</p>
-            <p>Grammar Score: {commit_message_grammar_scores.total_commit_message_grammar_score}</p>
-          </div>
-        </div>
-      )}
-
+  
+      <div className="grid">
+        {repo_type === "team" ? (
+          <>
+            <div
+              className="card"
+              onClick={() =>
+                handleOpen({
+                  title: "Communication Ability",
+                  totalScore: total_collaboration_score,
+                  userScore: user_collaboration_score,
+                })
+              }
+            >
+              <h6>Communication Ability</h6>
+              <p>Repo Communication: {total_collaboration_score}</p>
+              <p>{username} Communication: {user_collaboration_score}</p>
+            </div>
+            <div className="card" onClick={() => handleOpen({ title: "Code Quality", score: code_quality })}>
+              <h6>Code Quality</h6>
+              <h4>{code_quality}</h4>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="card">
+              <h6>Program Language</h6>
+              <div className="chart">
+                <Pie data={pieData} />
+              </div>
+            </div>
+            <div className="card">
+              <h6>Comment Score</h6>
+              <div className="card-content">
+                <div className="score">
+                  <h4>Grade: {comment_score}</h4>
+                </div>
+                <div className="chart">
+                  <Pie data={commentPieData} />
+                </div>
+                <h4>{(commentRatio * 100).toFixed(1)}% comments</h4>
+              </div>
+            </div>
+            <div className="card">
+              <h6>Duplication Score</h6>
+              <div className="card-content">
+                <div className="score">
+                  <h4>Grade: {duplication_score}</h4>
+                </div>
+                <div className="chart">
+                  <Pie data={duplicationPieData} />
+                </div>
+                <h4>{(duplicationRatio * 100).toFixed(1)}% duplication</h4>
+              </div>
+            </div>
+            <div className="card" onClick={() => handleOpen({ title: "Complexity Score", score: complexity_repo_score })}>
+              <h6>Complexity Score</h6>
+              <h4>{complexity_repo_score}</h4>
+            </div>
+            <div className="card" onClick={() => handleOpen({ title: "Function Length Score", score: function_length_repo_score })}>
+              <h6>Function Length Score</h6>
+              <h4>{function_length_repo_score}</h4>
+            </div>
+            <div className="card" onClick={() => handleOpen({ title: "Parameter Count Score", score: parameter_count_repo_score })}>
+              <h6>Parameter Count Score</h6>
+              <h4>{parameter_count_repo_score}</h4>
+            </div>
+            <div className="card" onClick={() => handleOpen({ title: "Commit Quality", qualityScore: commit_message_quality_scores.total_commit_message_quality_score, grammarScore: commit_message_grammar_scores.total_commit_message_grammar_score })}>
+              <h6>Commit Quality</h6>
+              <p>Quality Score: {commit_message_quality_scores.total_commit_message_quality_score}</p>
+              <p>Grammar Score: {commit_message_grammar_scores.total_commit_message_grammar_score}</p>
+            </div>
+          </>
+        )}
+      </div>
+  
       {open && (
         <div className="modal" onClick={handleClose}>
           <div className="modal_body" onClick={(e) => e.stopPropagation()}>
@@ -140,9 +214,6 @@ const RepositoryDetailPage = () => {
                 {selectedCard.grammarScore && <p>Grammar Score: {selectedCard.grammarScore}</p>}
                 {selectedCard.totalScore && <p>Repo Communication: {selectedCard.totalScore}</p>}
                 {selectedCard.userScore && <p>{username} Communication: {selectedCard.userScore}</p>}
-                {selectedCard.data && selectedCard.data.map((language, index) => (
-                  <p key={index}>{language.lang}: {language.percentage.toFixed(2)}%</p>
-                ))}
               </>
             )}
           </div>
@@ -150,6 +221,5 @@ const RepositoryDetailPage = () => {
       )}
     </div>
   );
-};
-
-export default RepositoryDetailPage;
+}
+  export default RepositoryDetailPage;

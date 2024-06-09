@@ -232,7 +232,6 @@
 }
 
 /* 소병학 추가 */
-/* 기본 스타일 적용 */
 body {
   font-size: 18px; /* 기본 폰트 크기를 설정합니다. */
   line-height: 1.6; /* 텍스트 가독성을 위해 줄 높이를 설정합니다. */
@@ -240,12 +239,15 @@ body {
 
 .container {
   padding: 20px;
+  max-width: 1500px; /* 컨테이너의 최대 너비를 늘립니다 */
+  margin: 0 auto; /* 가운데 정렬을 유지합니다 */
 }
 
 .grid {
   display: flex;
-  gap: 10px;
+  gap: 20px; /* 카드 사이의 간격을 늘립니다 */
   flex-wrap: wrap;
+  justify-content: space-between; /* 카드들이 전체 너비를 차지하도록 합니다 */
 }
 
 .card {
@@ -255,7 +257,24 @@ body {
   border-radius: 5px;
   box-shadow: 0 2px 3px rgba(34, 36, 38, 0.15);
   cursor: pointer;
-  flex: 1 1 30%;
+  flex: 1 1 calc(33.333% - 40px); /* 3개의 카드가 한 행에 배치되도록 너비를 설정합니다 */
+  box-sizing: border-box; /* 패딩과 보더를 포함한 너비 계산 */
+  font-size: 1.2rem;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column; /* 세로 방향으로 정렬 */
+  align-items: center;
+}
+
+.score {
+  margin-bottom: 5px; /* 점수와 차트 사이에 간격 추가 */
+}
+
+.chart {
+  width: 100%; /* 차트의 너비를 카드의 너비에 맞게 설정 */
+  height: auto; /* 차트의 높이를 자동으로 설정 */
 }
 
 .repo-details {
@@ -263,10 +282,13 @@ body {
 }
 
 .repo-info {
-  padding: 20px;
+  padding: 40px;
   background-color: #e9ecef;
-  border-radius: 5px;
+  border-radius: 8px;
   text-align: center;
+  font-size: 1.2rem;
+  width: 100%; /* 카드의 너비를 최대화 */
+  box-sizing: border-box; /* 패딩을 포함한 너비 계산 */
 }
 
 .modal {
@@ -284,9 +306,11 @@ body {
 .modal_body {
   position: relative;
   width: 400px;
+  max-width: 80%;
   padding: 40px;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 3px rgba(34, 36, 38, 0.15);
   text-align: center;
+  overflow: auto;
 }
