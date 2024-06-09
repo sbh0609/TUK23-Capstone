@@ -15,18 +15,17 @@ import Card from "../components/Card";
 import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
 import axios from 'axios';
 import Loading from "../components/DetailLoading";
-import { Container, Grid, Paper, Typography } from '@mui/material';
+import { Container, Grid, Paper, Typography, Modal, Box } from '@mui/material';
 
 
 const RepositoryDetailPage = () => {
   const session_userID = sessionStorage.getItem("userID");
-  const storedDetail = JSON.parse(sessionStorage.getItem('repositoryDetail'));
   const { repositoryDetail, setRepositoryDetail } = useRepository();
   const { repo_name, fileList, username, repo_type, click_time } = repositoryDetail;
-
   const [repoAnalyze, setRepoAnalyze] = useState(null);
   const [evaluate, setEvaluate] = useState(null);
-
+  const [open, setOpen] = useState(false); // 모달 창 열기 상태
+  const [selectedCard, setSelectedCard] = useState(null); // 선택된 카드 데이터
   useEffect(() => {
     axios.post('http://localhost:5000/api/analyze', { repo_name, username, fileList, repo_type, click_time, session_userID })
       .then(response => {
@@ -48,77 +47,109 @@ const RepositoryDetailPage = () => {
   const frameworks = repoAnalyze.framework;
   console.log(languages);
 
-  return (
-    <Container>
-      <Typography variant="h3" gutterBottom>저장소 평가 결과</Typography>
-      <Grid container spacing={3} justifyContent="center" alignItems="center" style={{ marginBottom: '30px' }}>
-        <Grid item xs={12} md={6}>
-          <Paper elevation={3} style={{ padding: '25px', textAlign: 'center', backgroundColor: '#f5f5f5' }}>
-            <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '10px' }}>Repository: {repo_name}</Typography>
-            <Typography variant="h6" style={{ marginBottom: '10px' }}>Username: {username}</Typography>
-            <Typography variant="h6">Last Evaluate: {repoAnalyze.repo_selected_time}</Typography>
-          </Paper>
-        </Grid>
-      </Grid>
+  const {
+    comment_score,
+    duplication_score,
+    complexity_repo_score,
+    function_length_repo_score,
+    parameter_count_repo_score,
+    commit_message_quality_scores,
+    commit_message_grammar_scores,
+    total_collaboration_score,
+    user_collaboration_score,
+    code_quality
+  } = evaluate;
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
-          <Paper elevation={3} style={{ padding: '30px' }}>
-            <Typography variant="h6">Program Language</Typography>
-            <LanguageSection languages={languages} />
-            {frameworks && frameworks.length > 0 && (
+  const handleOpen = (cardData) => {
+    setSelectedCard(cardData);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedCard(null);
+  };
+
+  return (
+    <div className="container">
+      <h3>저장소 평가 결과</h3>
+      <div className="repo-details">
+        <div className="repo-info">
+          <h5>Repository: {repo_name}</h5>
+          <p>Username: {username}</p>
+          <p>Last Evaluate: {repoAnalyze.repo_selected_time}</p>
+        </div>
+      </div>
+
+      {repo_type === 'team' ? (
+        <div className="grid">
+          <div className="card" onClick={() => handleOpen({ title: 'Program Language', data: languages })}>
+            <h6>Program Language</h6>
+            {languages.map((language, index) => (
+              <p key={index}>{language.lang}: {language.percentage.toFixed(2)}%</p>
+            ))}
+          </div>
+          <div className="card" onClick={() => handleOpen({ title: 'Communication Ability', totalScore: total_collaboration_score, userScore: user_collaboration_score })}>
+            <h6>Communication Ability</h6>
+            <p>Repo Communication: {total_collaboration_score}</p>
+            <p>{username} Communication: {user_collaboration_score}</p>
+          </div>
+          <div className="card" onClick={() => handleOpen({ title: 'Code Quality', score: code_quality })}>
+            <h6>Code Quality</h6>
+            <h4>{code_quality}</h4>
+          </div>
+        </div>
+      ) : (
+        <div className="grid">
+          <div className="card" onClick={() => handleOpen({ title: 'Comment Score', score: comment_score })}>
+            <h6>Comment Score</h6>
+            <h4>{comment_score}</h4>
+          </div>
+          <div className="card" onClick={() => handleOpen({ title: 'Duplication Score', score: duplication_score })}>
+            <h6>Duplication Score</h6>
+            <h4>{duplication_score}</h4>
+          </div>
+          <div className="card" onClick={() => handleOpen({ title: 'Complexity Score', score: complexity_repo_score })}>
+            <h6>Complexity Score</h6>
+            <h4>{complexity_repo_score}</h4>
+          </div>
+          <div className="card" onClick={() => handleOpen({ title: 'Function Length Score', score: function_length_repo_score })}>
+            <h6>Function Length Score</h6>
+            <h4>{function_length_repo_score}</h4>
+          </div>
+          <div className="card" onClick={() => handleOpen({ title: 'Parameter Count Score', score: parameter_count_repo_score })}>
+            <h6>Parameter Count Score</h6>
+            <h4>{parameter_count_repo_score}</h4>
+          </div>
+          <div className="card" onClick={() => handleOpen({ title: 'Commit Quality', qualityScore: commit_message_quality_scores.total_commit_message_quality_score, grammarScore: commit_message_grammar_scores.total_commit_message_grammar_score })}>
+            <h6>Commit Quality</h6>
+            <p>Quality Score: {commit_message_quality_scores.total_commit_message_quality_score}</p>
+            <p>Grammar Score: {commit_message_grammar_scores.total_commit_message_grammar_score}</p>
+          </div>
+        </div>
+      )}
+
+      {open && (
+        <div className="modal" onClick={handleClose}>
+          <div className="modal_body" onClick={(e) => e.stopPropagation()}>
+            {selectedCard && (
               <>
-                <Typography variant="h6">FrameWork</Typography>
-                <FrameworkSection frameworks={frameworks} />
+                <h2>{selectedCard.title}</h2>
+                {selectedCard.score && <p>{selectedCard.score}</p>}
+                {selectedCard.qualityScore && <p>Quality Score: {selectedCard.qualityScore}</p>}
+                {selectedCard.grammarScore && <p>Grammar Score: {selectedCard.grammarScore}</p>}
+                {selectedCard.totalScore && <p>Repo Communication: {selectedCard.totalScore}</p>}
+                {selectedCard.userScore && <p>{username} Communication: {selectedCard.userScore}</p>}
+                {selectedCard.data && selectedCard.data.map((language, index) => (
+                  <p key={index}>{language.lang}: {language.percentage.toFixed(2)}%</p>
+                ))}
               </>
             )}
-          </Paper>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Paper elevation={3} style={{ padding: '30px' }}>
-            <Typography variant="h6">Communication Ability</Typography>
-            <CollaborationScore evaluate={evaluate} username={username} />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Paper elevation={3} style={{ padding: '30px' }}>
-            <Typography variant="h6">Code Quallity</Typography>
-            <CodeHealthScore evaluate={evaluate} />
-          </Paper>
-        </Grid>
-      </Grid>
-    </Container>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
-
-const LanguageSection = ({ languages }) => (
-  <div>
-    {languages.map((language, index) => (
-      <Typography key={index} variant="body1">{language.lang}: {language.percentage.toFixed(2)}%</Typography>
-    ))}
-  </div>
-);
-
-const FrameworkSection = ({ frameworks }) => (
-  <div>
-    {frameworks.map((framework, index) => (
-      <Typography key={index} variant="body1">{framework}</Typography>
-    ))}
-  </div>
-);
-
-const CollaborationScore = ({ evaluate, username }) => (
-  <div>
-    <Typography variant="h6">Repo Communication: {evaluate.total_collaboration_score}</Typography>
-    <Typography variant="h6">{username} Communication: {evaluate.user_collaboration_score}</Typography>
-  </div>
-);
-
-const CodeHealthScore = ({ evaluate }) => (
-  <div>
-    <Typography variant="h6">Code Quality: {evaluate.code_quality}</Typography>
-  </div>
-);
 
 export default RepositoryDetailPage;
