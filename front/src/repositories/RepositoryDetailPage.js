@@ -1,22 +1,9 @@
 import React, { Fragment, useState, useEffect } from "react";
-import { Link } from 'react-router-dom';
-import { Link as ScrollLink, Element } from 'react-scroll';  // Link 컴포넌트 임포트
-import imageData from '../resources/image.png';
-import { Doughnut } from 'react-chartjs-2';
-import { Bar } from 'react-chartjs-2';
-import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
-import { useNavigate } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
-import Select from "react-select";
-import CardList from "../components/CardList";
 import "./RepositoryDetailPage.css";
-import Card from "../components/Card";
 import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
 import axios from 'axios';
-import Loading from "../components/DetailLoading";
-import { Container, Grid, Paper, Typography, Modal, Box } from '@mui/material';
-import { Pie } from 'react-chartjs-2';
+import { Pie,Bar } from 'react-chartjs-2';
 
 
 const RepositoryDetailPage = () => {
@@ -25,8 +12,9 @@ const RepositoryDetailPage = () => {
   const { repo_name, fileList, username, repo_type, click_time } = repositoryDetail;
   const [repoAnalyze, setRepoAnalyze] = useState(null);
   const [evaluate, setEvaluate] = useState(null);
-  const [open, setOpen] = useState(false); // 모달 창 열기 상태
-  const [selectedCard, setSelectedCard] = useState(null); // 선택된 카드 데이터
+  const [open, setOpen] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(null);
+
   useEffect(() => {
     axios.post('http://localhost:5000/api/analyze', { repo_name, username, fileList, repo_type, click_time, session_userID })
       .then(response => {
@@ -39,11 +27,11 @@ const RepositoryDetailPage = () => {
         window.alert('Error: ' + error);
       });
   }, [repo_name, username, fileList, repo_type, click_time, session_userID]);
-  // if (isDetailSet && repo_name && username && fileList.length > 0 && repo_type && click_time && session_userID) 
-  if (!repoAnalyze || !evaluate) { // 로딩화면 표시하는 곳!
+
+  if (!repoAnalyze || !evaluate) {
     return <div>Loading...</div>;
   }
-  // program_lang 객체를 배열로 변환
+
   const languages = Object.entries(repoAnalyze.program_lang).map(([lang, percentage]) => ({ lang, percentage }));
   const frameworks = repoAnalyze.framework;
   console.log(languages);
@@ -101,6 +89,7 @@ const RepositoryDetailPage = () => {
       }),
     }]
   };
+
   const commentPieData = {
     labels: ['Comment Lines', 'Code Lines'],
     datasets: [{
@@ -115,6 +104,147 @@ const RepositoryDetailPage = () => {
       data: [duplicatedLines, totalDuplicateLines - duplicatedLines],
       backgroundColor: ['#FF6384', '#36A2EB'],
     }]
+  };
+
+  // 데이터를 바탕으로 각 기준별로 분류
+  const categorizeData = (data, thresholds) => {
+    const categories = { normal: 0, bad: 0, veryBad: 0, worst: 0 };
+    Object.values(data).forEach(file => {
+      Object.values(file).forEach(value => {
+        if (value <= thresholds.normal) {
+          categories.normal += 1;
+        } else if (value <= thresholds.bad) {
+          categories.bad += 1;
+        } else if (value <= thresholds.veryBad) {
+          categories.veryBad += 1;
+        } else {
+          categories.worst += 1;
+        }
+      });
+    });
+    return categories;
+  };
+
+  const complexityCategories = categorizeData(repoAnalyze.complexity, { normal: 4, bad: 7, veryBad: 30 });
+  const functionLengthCategories = categorizeData(repoAnalyze.function_length, { normal: 20, bad: 40, veryBad: 100 });
+  const parameterCountCategories = categorizeData(repoAnalyze.parameter_count, { normal: 2, bad: 5, veryBad: 10 });
+
+  const totalComplexities = Object.values(complexityCategories).reduce((acc, val) => acc + val, 0);
+  const totalFunctionLengths = Object.values(functionLengthCategories).reduce((acc, val) => acc + val, 0);
+  const totalParameterCounts = Object.values(parameterCountCategories).reduce((acc, val) => acc + val, 0);
+
+  const complexityBarData = {
+    labels: ['Normal', 'Bad', 'Very Bad', 'Worst'],
+    datasets: [{
+      label: 'Complexity Distribution',
+      data: [
+        complexityCategories.normal,
+        complexityCategories.bad,
+        complexityCategories.veryBad,
+        complexityCategories.worst
+      ],
+      backgroundColor: ['#4CAF50', '#FFC107', '#FF9800', '#F44336'],
+    }]
+  };
+
+  const functionLengthBarData = {
+    labels: ['Normal', 'Bad', 'Very Bad', 'Worst'],
+    datasets: [{
+      label: 'Function Length Distribution',
+      data: [
+        functionLengthCategories.normal,
+        functionLengthCategories.bad,
+        functionLengthCategories.veryBad,
+        functionLengthCategories.worst
+      ],
+      backgroundColor: ['#4CAF50', '#FFC107', '#FF9800', '#F44336'],
+    }]
+  };
+
+  const parameterCountBarData = {
+    labels: ['Normal', 'Bad', 'Very Bad', 'Worst'],
+    datasets: [{
+      label: 'Parameter Count Distribution',
+      data: [
+        parameterCountCategories.normal,
+        parameterCountCategories.bad,
+        parameterCountCategories.veryBad,
+        parameterCountCategories.worst
+      ],
+      backgroundColor: ['#4CAF50', '#FFC107', '#FF9800', '#F44336'],
+    }]
+  };
+
+  const complexityOptions = {
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const count = context.raw;
+            const ratio = ((count / totalComplexities) * 100).toFixed(2);
+            return `${context.label}: ${count} (${ratio}%)`;
+          }
+        }
+      }
+    },
+    interaction: {
+      mode: 'index',
+      intersect: false
+    },
+    maintainAspectRatio: false
+  };
+
+  const functionLengthOptions = {
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const count = context.raw;
+            const ratio = ((count / totalFunctionLengths) * 100).toFixed(2);
+            return `${context.label}: ${count} (${ratio}%)`;
+          }
+        }
+      }
+    },
+    interaction: {
+      mode: 'index',
+      intersect: false
+    },
+    maintainAspectRatio: false
+  };
+
+  const parameterCountOptions = {
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const count = context.raw;
+            const ratio = ((count / totalParameterCounts) * 100).toFixed(2);
+            return `${context.label}: ${count} (${ratio}%)`;
+          }
+        }
+      }
+    },
+    interaction: {
+      mode: 'index',
+      intersect: false
+    },
+    maintainAspectRatio: false
   };
 
   return (
@@ -141,63 +271,84 @@ const RepositoryDetailPage = () => {
                 })
               }
             >
-              <h6>Communication Ability</h6>
-              <p>Repo Communication: {total_collaboration_score}</p>
-              <p>{username} Communication: {user_collaboration_score}</p>
+              <h5>Communication Ability</h5>
+              <h6>Repo Communication: {total_collaboration_score}</h6>
+              <h6>{username} Communication: {user_collaboration_score}</h6>
             </div>
             <div className="card" onClick={() => handleOpen({ title: "Code Quality", score: code_quality })}>
-              <h6>Code Quality</h6>
-              <h4>{code_quality}</h4>
+              <h5>Code Quality</h5>
+              <h6>{code_quality}</h6>
             </div>
           </>
         ) : (
           <>
             <div className="card">
-              <h6>Program Language</h6>
+              <h5>Program Language</h5>
               <div className="chart">
                 <Pie data={pieData} />
               </div>
             </div>
             <div className="card">
-              <h6>Comment Score</h6>
+              <h5>Comment Score</h5>
               <div className="card-content">
                 <div className="score">
-                  <h4>Grade: {comment_score}</h4>
+                  <h6>Grade: {comment_score}</h6>
                 </div>
                 <div className="chart">
                   <Pie data={commentPieData} />
                 </div>
-                <h4>{(commentRatio * 100).toFixed(1)}% comments</h4>
+                <h6>{(commentRatio * 100).toFixed(1)}% comments</h6>
               </div>
             </div>
             <div className="card">
-              <h6>Duplication Score</h6>
+              <h5>Duplication Score</h5>
               <div className="card-content">
                 <div className="score">
-                  <h4>Grade: {duplication_score}</h4>
+                  <h6>Grade: {duplication_score}</h6>
                 </div>
                 <div className="chart">
                   <Pie data={duplicationPieData} />
                 </div>
-                <h4>{(duplicationRatio * 100).toFixed(1)}% duplication</h4>
+                <h6>{(duplicationRatio * 100).toFixed(1)}% duplication</h6>
               </div>
             </div>
-            <div className="card" onClick={() => handleOpen({ title: "Complexity Score", score: complexity_repo_score })}>
-              <h6>Complexity Score</h6>
-              <h4>{complexity_repo_score}</h4>
+            <div className="card">
+              <h5>Complexity Score</h5>
+              <div className="card-content">
+                <div className="score">
+                  <h6>Grade: {complexity_repo_score}</h6>
+                </div>
+                <div className="chart" style={{ height: '250px' }}>
+                  <Bar data={complexityBarData} options={complexityOptions} />
+                </div>
+              </div>
             </div>
-            <div className="card" onClick={() => handleOpen({ title: "Function Length Score", score: function_length_repo_score })}>
-              <h6>Function Length Score</h6>
-              <h4>{function_length_repo_score}</h4>
+            <div className="card">
+              <h5>Function Length Score</h5>
+              <div className="card-content">
+                <div className="score">
+                  <h6>Grade: {function_length_repo_score}</h6>
+                </div>
+                <div className="chart" style={{ height: '250px' }}>
+                  <Bar data={functionLengthBarData} options={functionLengthOptions} />
+                </div>
+              </div>
             </div>
-            <div className="card" onClick={() => handleOpen({ title: "Parameter Count Score", score: parameter_count_repo_score })}>
-              <h6>Parameter Count Score</h6>
-              <h4>{parameter_count_repo_score}</h4>
+            <div className="card">
+              <h5>Parameter Count Score</h5>
+              <div className="card-content">
+                <div className="score">
+                  <h6>Grade: {parameter_count_repo_score}</h6>
+                </div>
+                <div className="chart" style={{ height: '250px' }}>
+                  <Bar data={parameterCountBarData} options={parameterCountOptions} />
+                </div>
+              </div>
             </div>
             <div className="card" onClick={() => handleOpen({ title: "Commit Quality", qualityScore: commit_message_quality_scores.total_commit_message_quality_score, grammarScore: commit_message_grammar_scores.total_commit_message_grammar_score })}>
-              <h6>Commit Quality</h6>
-              <p>Quality Score: {commit_message_quality_scores.total_commit_message_quality_score}</p>
-              <p>Grammar Score: {commit_message_grammar_scores.total_commit_message_grammar_score}</p>
+              <h5>Commit Quality</h5>
+              <h6>Quality Score: {commit_message_quality_scores.total_commit_message_quality_score}</h6>
+              <h6>Grammar Score: {commit_message_grammar_scores.total_commit_message_grammar_score}</h6>
             </div>
           </>
         )}
@@ -206,6 +357,7 @@ const RepositoryDetailPage = () => {
       {open && (
         <div className="modal" onClick={handleClose}>
           <div className="modal_body" onClick={(e) => e.stopPropagation()}>
+            <button className="modal_close" onClick={handleClose}>&times;</button>
             {selectedCard && (
               <>
                 <h2>{selectedCard.title}</h2>
@@ -222,4 +374,5 @@ const RepositoryDetailPage = () => {
     </div>
   );
 }
-  export default RepositoryDetailPage;
+
+export default RepositoryDetailPage;
