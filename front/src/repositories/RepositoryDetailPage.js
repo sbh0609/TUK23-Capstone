@@ -3,7 +3,7 @@ import 'chart.js/auto';
 import "./RepositoryDetailPage.css";
 import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
 import axios from 'axios';
-import { Pie,Bar } from 'react-chartjs-2';
+import { Pie,Bar,Line,Doughnut } from 'react-chartjs-2';
 
 
 const RepositoryDetailPage = () => {
@@ -14,6 +14,7 @@ const RepositoryDetailPage = () => {
   const [evaluate, setEvaluate] = useState(null);
   const [open, setOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
+  const [modalData, setModalData] = useState(null);
 
   useEffect(() => {
     axios.post('http://localhost:5000/api/analyze', { repo_name, username, fileList, repo_type, click_time, session_userID })
@@ -48,7 +49,7 @@ const RepositoryDetailPage = () => {
     user_collaboration_score,
     code_quality
   } = evaluate;
-  const { comment_per, duplicate_code } = repoAnalyze;
+  const { comment_per, duplicate_code, total_quality, total_grammar } = repoAnalyze;
   const totalLines = comment_per[0];
   const commentLines = comment_per[1];
   const commentRatio = comment_per[2];
@@ -57,14 +58,16 @@ const RepositoryDetailPage = () => {
   const duplicatedLines = duplicate_code[1];
   const duplicationRatio = duplicate_code[2];
 
-  const handleOpen = (cardData) => {
+  const handleOpen = (cardData, modalData) => {
     setSelectedCard(cardData);
+    setModalData(modalData);
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
     setSelectedCard(null);
+    setModalData(null);
   };
 
   const pieData = {
@@ -106,11 +109,12 @@ const RepositoryDetailPage = () => {
     }]
   };
 
-  // 데이터를 바탕으로 각 기준별로 분류
   const categorizeData = (data, thresholds) => {
     const categories = { normal: 0, bad: 0, veryBad: 0, worst: 0 };
-    Object.values(data).forEach(file => {
-      Object.values(file).forEach(value => {
+    const detailedData = {};
+
+    Object.entries(data).forEach(([file, lines]) => {
+      Object.entries(lines).forEach(([line, value]) => {
         if (value <= thresholds.normal) {
           categories.normal += 1;
         } else if (value <= thresholds.bad) {
@@ -120,14 +124,20 @@ const RepositoryDetailPage = () => {
         } else {
           categories.worst += 1;
         }
+
+        if (!detailedData[file]) {
+          detailedData[file] = [];
+        }
+        detailedData[file].push({ line: parseInt(line), value });
       });
     });
-    return categories;
+
+    return { categories, detailedData };
   };
 
-  const complexityCategories = categorizeData(repoAnalyze.complexity, { normal: 4, bad: 7, veryBad: 30 });
-  const functionLengthCategories = categorizeData(repoAnalyze.function_length, { normal: 20, bad: 40, veryBad: 100 });
-  const parameterCountCategories = categorizeData(repoAnalyze.parameter_count, { normal: 2, bad: 5, veryBad: 10 });
+  const { categories: complexityCategories, detailedData: complexityDetails } = categorizeData(repoAnalyze.complexity, { normal: 4, bad: 7, veryBad: 30 });
+  const { categories: functionLengthCategories, detailedData: functionLengthDetails } = categorizeData(repoAnalyze.function_length, { normal: 20, bad: 40, veryBad: 100 });
+  const { categories: parameterCountCategories, detailedData: parameterCountDetails } = categorizeData(repoAnalyze.parameter_count, { normal: 2, bad: 5, veryBad: 10 });
 
   const totalComplexities = Object.values(complexityCategories).reduce((acc, val) => acc + val, 0);
   const totalFunctionLengths = Object.values(functionLengthCategories).reduce((acc, val) => acc + val, 0);
@@ -176,9 +186,13 @@ const RepositoryDetailPage = () => {
   };
 
   const complexityOptions = {
+    indexAxis: 'y',
     scales: {
-      y: {
-        beginAtZero: true
+      x: {
+        beginAtZero: true,
+        ticks: {
+          callback: (value) => Number.isInteger(value) ? value : null
+        }
       }
     },
     plugins: {
@@ -186,23 +200,23 @@ const RepositoryDetailPage = () => {
         callbacks: {
           label: (context) => {
             const count = context.raw;
-            const ratio = ((count / totalComplexities) * 100).toFixed(2);
+            const ratio = ((count / totalComplexities) * 100).toFixed(0);
             return `${context.label}: ${count} (${ratio}%)`;
           }
         }
       }
-    },
-    interaction: {
-      mode: 'index',
-      intersect: false
     },
     maintainAspectRatio: false
   };
 
   const functionLengthOptions = {
+    indexAxis: 'y',
     scales: {
-      y: {
-        beginAtZero: true
+      x: {
+        beginAtZero: true,
+        ticks: {
+          callback: (value) => Number.isInteger(value) ? value : null
+        }
       }
     },
     plugins: {
@@ -210,23 +224,23 @@ const RepositoryDetailPage = () => {
         callbacks: {
           label: (context) => {
             const count = context.raw;
-            const ratio = ((count / totalFunctionLengths) * 100).toFixed(2);
+            const ratio = ((count / totalFunctionLengths) * 100).toFixed(0);
             return `${context.label}: ${count} (${ratio}%)`;
           }
         }
       }
-    },
-    interaction: {
-      mode: 'index',
-      intersect: false
     },
     maintainAspectRatio: false
   };
 
   const parameterCountOptions = {
+    indexAxis: 'y',
     scales: {
-      y: {
-        beginAtZero: true
+      x: {
+        beginAtZero: true,
+        ticks: {
+          callback: (value) => Number.isInteger(value) ? value : null
+        }
       }
     },
     plugins: {
@@ -234,15 +248,113 @@ const RepositoryDetailPage = () => {
         callbacks: {
           label: (context) => {
             const count = context.raw;
-            const ratio = ((count / totalParameterCounts) * 100).toFixed(2);
+            const ratio = ((count / totalParameterCounts) * 100).toFixed(0);
             return `${context.label}: ${count} (${ratio}%)`;
           }
         }
       }
     },
-    interaction: {
-      mode: 'index',
-      intersect: false
+    maintainAspectRatio: false
+  };
+
+  const getLineChartData = (data, label) => {
+    const counts = {};
+
+    Object.values(data).forEach(values => {
+      values.forEach(({ value }) => {
+        counts[value] = (counts[value] || 0) + 1;
+      });
+    });
+
+    const sortedValues = Object.keys(counts).sort((a, b) => a - b);
+    const dataPoints = sortedValues.map(value => ({
+      x: parseInt(value),
+      y: counts[value]
+    }));
+
+    return {
+      datasets: [{
+        label: label,
+        data: dataPoints,
+        fill: false,
+        borderColor: 'rgba(255,0,0,1)',
+        tension: 0
+      }]
+    };
+  };
+
+  const lineChartOptions = {
+    scales: {
+      x: {
+        type: 'linear',
+        position: 'bottom',
+        beginAtZero: true,
+        ticks: {
+          precision: 0
+        }
+      },
+      y: {
+        beginAtZero: true,
+        ticks: {
+          precision: 0,
+          callback: (value) => Number.isInteger(value) ? value : null
+        }
+      }
+    },
+    maintainAspectRatio: false
+  };
+
+  // commit quality와 grammar data를 repo_analyze로부터 추출
+  const totalQualityData = {
+    labels: ['Why and What', 'Nor', 'Why', 'What'],
+    datasets: [{
+      label: 'Commit Message Quality',
+      data: total_quality,
+      backgroundColor: ['#4CAF50', '#FFC107', '#FF9800', '#F44336'],
+    }]
+  };
+
+  const totalQualityOptions = {
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          precision: 0
+        }
+      }
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const count = context.raw;
+            const ratio = ((count / total_quality.reduce((a, b) => a + b, 0)) * 100).toFixed(0);
+            return `${context.label}: ${count} (${ratio}%)`;
+          }
+        }
+      }
+    },
+    maintainAspectRatio: false
+  };
+
+  const grammarPieData = {
+    labels: ['Correct', 'Incorrect'],
+    datasets: [{
+      data: [total_grammar, 100 - total_grammar], // total_grammar 데이터
+      backgroundColor: ['#36A2EB', '#FFCE56']
+    }]
+  };
+
+  const grammarOptions = {
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const count = context.raw;
+            return `${context.label}: ${count}%`;
+          }
+        }
+      }
     },
     maintainAspectRatio: false
   };
@@ -257,7 +369,7 @@ const RepositoryDetailPage = () => {
           <p>Last Evaluate: {repoAnalyze.repo_selected_time}</p>
         </div>
       </div>
-  
+
       <div className="grid">
         {repo_type === "team" ? (
           <>
@@ -312,7 +424,10 @@ const RepositoryDetailPage = () => {
                 <h6>{(duplicationRatio * 100).toFixed(1)}% duplication</h6>
               </div>
             </div>
-            <div className="card">
+            <div className="card" onClick={() => handleOpen(
+              { title: "Complexity Score", score: complexity_repo_score },
+              { details: complexityDetails, thresholds: { normal: 4, bad: 7, veryBad: 30, worst: 31 }, categories: complexityCategories }
+            )}>
               <h5>Complexity Score</h5>
               <div className="card-content">
                 <div className="score">
@@ -323,7 +438,10 @@ const RepositoryDetailPage = () => {
                 </div>
               </div>
             </div>
-            <div className="card">
+            <div className="card" onClick={() => handleOpen(
+              { title: "Function Length Score", score: function_length_repo_score },
+              { details: functionLengthDetails, thresholds: { normal: 20, bad: 40, veryBad: 100, worst: 101 }, categories: functionLengthCategories }
+            )}>
               <h5>Function Length Score</h5>
               <div className="card-content">
                 <div className="score">
@@ -334,7 +452,10 @@ const RepositoryDetailPage = () => {
                 </div>
               </div>
             </div>
-            <div className="card">
+            <div className="card" onClick={() => handleOpen(
+              { title: "Parameter Count Score", score: parameter_count_repo_score },
+              { details: parameterCountDetails, thresholds: { normal: 2, bad: 5, veryBad: 10, worst: 11 }, categories: parameterCountCategories }
+            )}>
               <h5>Parameter Count Score</h5>
               <div className="card-content">
                 <div className="score">
@@ -345,27 +466,53 @@ const RepositoryDetailPage = () => {
                 </div>
               </div>
             </div>
-            <div className="card" onClick={() => handleOpen({ title: "Commit Quality", qualityScore: commit_message_quality_scores.total_commit_message_quality_score, grammarScore: commit_message_grammar_scores.total_commit_message_grammar_score })}>
+            <div className="card">
               <h5>Commit Quality</h5>
-              <h6>Quality Score: {commit_message_quality_scores.total_commit_message_quality_score}</h6>
-              <h6>Grammar Score: {commit_message_grammar_scores.total_commit_message_grammar_score}</h6>
+              <div className="commit-scores">
+                <div className="commit-score">
+                  <h6>Quality Score: {commit_message_quality_scores.total_commit_message_quality_score}</h6>
+                  <div className="chart" style={{ height: '250px' }}>
+                    <Bar data={totalQualityData} options={totalQualityOptions} />
+                  </div>
+                </div>
+                <div className="commit-score">
+                  <h6>Grammar Score: {commit_message_grammar_scores.total_commit_message_grammar_score}</h6>
+                  <div className="chart" style={{ height: '250px' }}>
+                    <Doughnut data={grammarPieData} options={grammarOptions} />
+                  </div>
+                </div>
+              </div>
             </div>
           </>
         )}
       </div>
-  
+
       {open && (
         <div className="modal" onClick={handleClose}>
-          <div className="modal_body" onClick={(e) => e.stopPropagation()}>
+          <div className="modal_body" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '80vw' }}>
             <button className="modal_close" onClick={handleClose}>&times;</button>
             {selectedCard && (
               <>
                 <h2>{selectedCard.title}</h2>
-                {selectedCard.score && <p>{selectedCard.score}</p>}
+                {selectedCard.score && <p>Grade: {selectedCard.score}</p>}
                 {selectedCard.qualityScore && <p>Quality Score: {selectedCard.qualityScore}</p>}
                 {selectedCard.grammarScore && <p>Grammar Score: {selectedCard.grammarScore}</p>}
                 {selectedCard.totalScore && <p>Repo Communication: {selectedCard.totalScore}</p>}
                 {selectedCard.userScore && <p>{username} Communication: {selectedCard.userScore}</p>}
+              </>
+            )}
+            {modalData && modalData.details && (
+              <>
+                <div className="modalchart" style={{ width: '100%', height: '600px' }}>
+                  <Line data={getLineChartData(modalData.details, `Num of ${selectedCard.title}`)} options={lineChartOptions} />
+                </div>
+                <div className="criteria">
+                  <h3>Evaluation Criteria</h3>
+                  <p>Normal: {modalData.thresholds.normal} 이하</p>
+                  <p>Bad: {modalData.thresholds.normal + 1} ~ {modalData.thresholds.bad}</p>
+                  <p>Very Bad: {modalData.thresholds.bad + 1} ~ {modalData.thresholds.veryBad}</p>
+                  <p>Worst: {modalData.thresholds.veryBad + 1} 이상</p>
+                </div>
               </>
             )}
           </div>
