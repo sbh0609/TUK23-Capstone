@@ -8,7 +8,7 @@ import { Pie,Bar,Line,Doughnut } from 'react-chartjs-2';
 
 const RepositoryDetailPage = () => {
   const session_userID = sessionStorage.getItem("userID");
-  const { repositoryDetail, setRepositoryDetail } = useRepository();
+  const { repositoryDetail } = useRepository();
   const { repo_name, fileList, username, repo_type, click_time } = repositoryDetail;
   const [repoAnalyze, setRepoAnalyze] = useState(null);
   const [evaluate, setEvaluate] = useState(null);
@@ -40,25 +40,33 @@ const RepositoryDetailPage = () => {
   const {
     comment_score,
     duplication_score,
+    complexity_file_scores,
     complexity_repo_score,
+    function_length_file_scores,
     function_length_repo_score,
+    parameter_count_file_scores,
     parameter_count_repo_score,
+    commit_score,
+    pr_scores,
+    issue_scores,
     commit_message_quality_scores,
     commit_message_grammar_scores,
     total_collaboration_score,
     user_collaboration_score,
     code_quality
   } = evaluate;
-  const { comment_per, duplicate_code, total_quality, total_grammar } = repoAnalyze;
-  const totalLines = comment_per[0];
-  const commentLines = comment_per[1];
-  const commentRatio = comment_per[2];
 
-  const totalDuplicateLines = duplicate_code[0];
-  const duplicatedLines = duplicate_code[1];
-  const duplicationRatio = duplicate_code[2];
+  const { comment_per, duplicate_code, total_quality, total_grammar, keyword_count } = repoAnalyze;
+  const totalLines = comment_per ? comment_per[0] : 0;
+  const commentLines = comment_per ? comment_per[1] : 0;
+  const commentRatio = comment_per ? comment_per[2] : 0;
+
+  const totalDuplicateLines = duplicate_code ? duplicate_code[0] : 0;
+  const duplicatedLines = duplicate_code ? duplicate_code[1] : 0;
+  const duplicationRatio = duplicate_code ? duplicate_code[2] : 0;
 
   const handleOpen = (cardData, modalData) => {
+    console.log('handleOpen called');
     setSelectedCard(cardData);
     setModalData(modalData);
     setOpen(true);
@@ -70,7 +78,7 @@ const RepositoryDetailPage = () => {
     setModalData(null);
   };
 
-  const pieData = {
+  const doughnutData = {
     labels: languages.map(language => language.lang),
     datasets: [{
       data: languages.map(language => language.percentage),
@@ -93,7 +101,7 @@ const RepositoryDetailPage = () => {
     }]
   };
 
-  const commentPieData = {
+  const commentDoughnutData = {
     labels: ['Comment Lines', 'Code Lines'],
     datasets: [{
       data: [commentLines, totalLines - commentLines],
@@ -101,13 +109,55 @@ const RepositoryDetailPage = () => {
     }]
   };
 
-  const duplicationPieData = {
+  const duplicationDoughnutData = {
     labels: ['Duplicated Lines', 'Non-Duplicated Lines'],
     datasets: [{
       data: [duplicatedLines, totalDuplicateLines - duplicatedLines],
       backgroundColor: ['#FF6384', '#36A2EB'],
     }]
   };
+
+  const getBarChartData = (data) => {
+    if (!data || Object.keys(data).length === 0) {
+      data = { Fix: 0, Add: 0, Update: 0, 'Remove/Delete': 0 };
+    }
+
+    const labels = Object.keys(data);
+    const values = Object.values(data);
+
+    return {
+      labels: labels,
+      datasets: [{
+        label: 'Keyword Counts',
+        data: values,
+        backgroundColor: ['#4CAF50', '#FFC107', '#FF9800', '#F44336'],
+      }]
+    };
+  };
+
+  const barChartOptions = {
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          precision: 0
+        }
+      }
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const count = context.raw;
+            return `${context.label}: ${count}`;
+          }
+        }
+      }
+    },
+    maintainAspectRatio: false
+  };
+
+  const keywordCountsData = getBarChartData(keyword_count);
 
   const categorizeData = (data, thresholds) => {
     const categories = { normal: 0, bad: 0, veryBad: 0, worst: 0 };
@@ -304,7 +354,6 @@ const RepositoryDetailPage = () => {
     maintainAspectRatio: false
   };
 
-  // commit quality와 grammar data를 repo_analyze로부터 추출
   const totalQualityData = {
     labels: ['Why and What', 'Nor', 'Why', 'What'],
     datasets: [{
@@ -359,6 +408,15 @@ const RepositoryDetailPage = () => {
     maintainAspectRatio: false
   };
 
+  // Doughnut data for commit percentage
+  const commitDoughnutData = {
+    labels: ['User Commits', 'Other Commits'],
+    datasets: [{
+      data: repoAnalyze.commit_per ? [repoAnalyze.commit_per[1], repoAnalyze.commit_per[0] - repoAnalyze.commit_per[1]] : [0, 0],
+      backgroundColor: ['#36A2EB', '#FFCE56'],
+    }]
+  };
+
   return (
     <div className="container">
       <h3>저장소 평가 결과</h3>
@@ -370,26 +428,46 @@ const RepositoryDetailPage = () => {
         </div>
       </div>
 
-      <div className="grid">
+      <div className={`grid ${repo_type === "team" ? "team" : ""}`}>
         {repo_type === "team" ? (
           <>
-            <div
-              className="card"
-              onClick={() =>
-                handleOpen({
-                  title: "Communication Ability",
-                  totalScore: total_collaboration_score,
-                  userScore: user_collaboration_score,
-                })
-              }
-            >
+            <div className="card" onClick={() => handleOpen(
+              { title: "Communication Ability", totalScore: total_collaboration_score, userScore: user_collaboration_score, type: 'team' },
+              { commit_score, pr_scores, issue_scores, commit_message_quality_scores }
+            )}>
               <h5>Communication Ability</h5>
-              <h6>Repo Communication: {total_collaboration_score}</h6>
-              <h6>{username} Communication: {user_collaboration_score}</h6>
+              <div className="card-content-horizontal">
+                <div className="score">
+                  <h6>Repo Communication</h6>
+                  <p>Grade: {total_collaboration_score}</p>
+                </div>
+                <div className="score">
+                  <h6>{username} Communication</h6>
+                  <p>Grade: {user_collaboration_score}</p>
+                </div>
+              </div>
+              <div className="evaluation-data">
+                <span>Commit Score</span>
+                <span>PR Scores</span>
+                <span>Issue Scores</span>
+                <span>Commit Message Quality</span>
+              </div>
             </div>
-            <div className="card" onClick={() => handleOpen({ title: "Code Quality", score: code_quality })}>
+            <div className="card" onClick={() => handleOpen(
+              { title: "Code Quality", score: code_quality, type: 'team' },
+              { comment_score, duplication_score, complexity_repo_score, function_length_repo_score, parameter_count_repo_score }
+            )}>
               <h5>Code Quality</h5>
-              <h6>{code_quality}</h6>
+              <div className="score">
+                <h6>Grade: {code_quality}</h6>
+              </div>
+              <div className="evaluation-data">
+                <span>Comment Score</span>
+                <span>Duplication Score</span>
+                <span>Complexity Score</span>
+                <span>Function Length Score</span>
+                <span>Parameter Count Score</span>
+              </div>
             </div>
           </>
         ) : (
@@ -397,7 +475,7 @@ const RepositoryDetailPage = () => {
             <div className="card">
               <h5>Program Language</h5>
               <div className="chart">
-                <Pie data={pieData} />
+                <Doughnut data={doughnutData} />
               </div>
             </div>
             <div className="card">
@@ -407,7 +485,7 @@ const RepositoryDetailPage = () => {
                   <h6>Grade: {comment_score}</h6>
                 </div>
                 <div className="chart">
-                  <Pie data={commentPieData} />
+                  <Doughnut data={commentDoughnutData} />
                 </div>
                 <h6>{(commentRatio * 100).toFixed(1)}% comments</h6>
               </div>
@@ -419,7 +497,7 @@ const RepositoryDetailPage = () => {
                   <h6>Grade: {duplication_score}</h6>
                 </div>
                 <div className="chart">
-                  <Pie data={duplicationPieData} />
+                  <Doughnut data={duplicationDoughnutData} />
                 </div>
                 <h6>{(duplicationRatio * 100).toFixed(1)}% duplication</h6>
               </div>
@@ -466,7 +544,10 @@ const RepositoryDetailPage = () => {
                 </div>
               </div>
             </div>
-            <div className="card">
+            <div className="card" onClick={() => handleOpen(
+              { title: "Commit Quality", score: commit_message_quality_scores.total_commit_message_quality_score },
+              { keywordCounts: keyword_count }
+            )}>
               <h5>Commit Quality</h5>
               <div className="commit-scores">
                 <div className="commit-score">
@@ -487,37 +568,74 @@ const RepositoryDetailPage = () => {
         )}
       </div>
 
-      {open && (
-        <div className="modal" onClick={handleClose}>
-          <div className="modal_body" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '80vw' }}>
-            <button className="modal_close" onClick={handleClose}>&times;</button>
-            {selectedCard && (
-              <>
-                <h2>{selectedCard.title}</h2>
-                {selectedCard.score && <p>Grade: {selectedCard.score}</p>}
-                {selectedCard.qualityScore && <p>Quality Score: {selectedCard.qualityScore}</p>}
-                {selectedCard.grammarScore && <p>Grammar Score: {selectedCard.grammarScore}</p>}
-                {selectedCard.totalScore && <p>Repo Communication: {selectedCard.totalScore}</p>}
-                {selectedCard.userScore && <p>{username} Communication: {selectedCard.userScore}</p>}
-              </>
-            )}
-            {modalData && modalData.details && (
-              <>
-                <div className="modalchart" style={{ width: '100%', height: '600px' }}>
-                  <Line data={getLineChartData(modalData.details, `Num of ${selectedCard.title}`)} options={lineChartOptions} />
-                </div>
-                <div className="criteria">
-                  <h3>Evaluation Criteria</h3>
-                  <p>Normal: {modalData.thresholds.normal} 이하</p>
-                  <p>Bad: {modalData.thresholds.normal + 1} ~ {modalData.thresholds.bad}</p>
-                  <p>Very Bad: {modalData.thresholds.bad + 1} ~ {modalData.thresholds.veryBad}</p>
-                  <p>Worst: {modalData.thresholds.veryBad + 1} 이상</p>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+{open && (
+  <div className="modal" onClick={handleClose}>
+    <div className={`modal_body ${repo_type === "team" ? "team-modal-body" : ""}`} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '80vw', height: 'auto' }}>
+      <button className="modal_close" onClick={handleClose}>&times;</button>
+      {selectedCard && selectedCard.type !== 'team' && (
+        <>
+          <h2>{selectedCard.title}</h2>
+          {selectedCard.qualityScore && <p>Quality Score: {selectedCard.qualityScore}</p>}
+          {selectedCard.grammarScore && <p>Grammar Score: {selectedCard.grammarScore}</p>}
+          {selectedCard.totalScore && <p>Repo Communication: {selectedCard.totalScore}</p>}
+          {selectedCard.userScore && <p>{username} Communication: {selectedCard.userScore}</p>}
+        </>
       )}
+      {modalData && modalData.details && (
+        <>
+          <div className="modalchart" style={{ width: '100%', flexGrow: 1 }}>
+            <Line data={getLineChartData(modalData.details, `Num of ${selectedCard.title}`)} options={lineChartOptions} />
+          </div>
+          <div className="criteria" style={{ flexGrow: 1 }}>
+            <h3>Evaluation Criteria</h3>
+            <p>Normal: {modalData.thresholds.normal} 이하</p>
+            <p>Bad: {modalData.thresholds.normal + 1} ~ {modalData.thresholds.bad}</p>
+            <p>Very Bad: {modalData.thresholds.bad + 1} ~ {modalData.thresholds.veryBad}</p>
+            <p>Worst: {modalData.thresholds.veryBad} 이상</p>
+          </div>
+        </>
+      )}
+      {modalData && modalData.keywordCounts && (
+        <>
+          <div className="modalchart" style={{ width: '100%', flexGrow: 1 }}>
+            <Bar data={getBarChartData(modalData.keywordCounts)} options={barChartOptions} />
+          </div>
+          <div className="criteria">
+            <h3>Keyword Counts</h3>
+            <div className="criteria-container">
+              <div className="criteria-item">
+                <h4>Commit Message Quality</h4>
+                <p>Best: Why and What</p>
+                <p>Good: What</p>
+                <p>Average: Why</p>
+                <p>Bad: Nor</p>
+              </div>
+              <div className="criteria-item">
+                <h4>Grammar Quality</h4>
+                <p>Best: (90% 이상)</p>
+                <p>Good: (80% - 89%)</p>
+                <p>Average: (70% - 79%)</p>
+                <p>Bad: (60% - 69%)</p>
+                <p>Worst: (60% 이하)</p>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+      {selectedCard && selectedCard.type === 'team' && (
+        <>
+          <h2 className="team-modal-header">{selectedCard.title}</h2>
+          <h3 className="team-modal-subheader">Commit Amount</h3>
+          <p className="team-modal-score">Commit Score: {evaluate.commit_score}</p>
+          <div className="team-chart">
+            <Doughnut data={commitDoughnutData} />
+          </div>
+          <p className="team-modal-ratio">Commit Ratio: {repoAnalyze.commit_per[2]}%</p>
+        </>
+      )}
+    </div>
+  </div>
+)}
     </div>
   );
 }
