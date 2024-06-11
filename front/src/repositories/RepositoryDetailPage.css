@@ -373,7 +373,6 @@ body {
   overflow: auto;
 }
 
-
 .modalchart {
   width: 60%;
   height: 700px;
@@ -397,7 +396,7 @@ body {
   text-align: left;
 }
 .criteria .criteria-item {
-  width: 45%; 
+  width: 45%;
 }
 
 .criteria p {
@@ -407,9 +406,9 @@ body {
 .team-modal-body {
   display: flex;
   flex-direction: column;
-  align-items: center;
   max-height: 80vh;
   overflow-y: auto;
+  align-items: center;
 }
 
 .team-modal-header {
@@ -439,10 +438,7 @@ body {
   width: 60%;
   max-width: 300px;
   margin-bottom: 1rem;
-  margin-left: auto;  /* Added */
-  margin-right: auto; /* Added */
 }
-
 
 .modal_close {
   position: absolute;
@@ -485,4 +481,11 @@ body {
   .chart {
     max-width: 100px;
   }
+}
+
+.lingchart {
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  aspect-ratio: 1;
 }
