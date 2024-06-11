@@ -621,6 +621,28 @@ const RepositoryDetailPage = () => {
       <div className={`grid ${repo_type === "team" ? "team" : ""}`}>
         {repo_type === "team" ? (
           <>
+            <div className="card">
+              <h5>Program Language</h5>
+              <div className="chart">
+                <Doughnut data={doughnutData} />
+              </div>
+            </div>
+            <div className="card" onClick={() => handleOpen(
+              { title: "Code Quality", score: code_quality, type: 'team' },
+              { comment_score, duplication_score, complexity_repo_score, function_length_repo_score, parameter_count_repo_score }
+            )}>
+              <h5>Code Quality</h5>
+              <div className="score">
+                <h6>Grade: {code_quality}</h6>
+              </div>
+              <div className="evaluation-data">
+                <span>Comment Score</span>
+                <span>Duplication Score</span>
+                <span>Complexity Score</span>
+                <span>Function Length Score</span>
+                <span>Parameter Count Score</span>
+              </div>
+            </div>
             <div className="card" onClick={() => handleOpen(
               { title: "Communication Ability", totalScore: total_collaboration_score, userScore: user_collaboration_score, type: 'team' },
               { commit_score, pr_scores, issue_scores, commit_message_quality_scores }
@@ -641,22 +663,6 @@ const RepositoryDetailPage = () => {
                 <span>PR Scores</span>
                 <span>Issue Scores</span>
                 <span>Commit Message Quality</span>
-              </div>
-            </div>
-            <div className="card" onClick={() => handleOpen(
-              { title: "Code Quality", score: code_quality, type: 'team' },
-              { comment_score, duplication_score, complexity_repo_score, function_length_repo_score, parameter_count_repo_score }
-            )}>
-              <h5>Code Quality</h5>
-              <div className="score">
-                <h6>Grade: {code_quality}</h6>
-              </div>
-              <div className="evaluation-data">
-                <span>Comment Score</span>
-                <span>Duplication Score</span>
-                <span>Complexity Score</span>
-                <span>Function Length Score</span>
-                <span>Parameter Count Score</span>
               </div>
             </div>
           </>
@@ -879,31 +885,54 @@ const RepositoryDetailPage = () => {
             )}
             {selectedCard && selectedCard.type === 'team' && selectedCard.title === 'Code Quality' && (
               <>
-              <h2 className="team-modal-header">{selectedCard.title}</h2>
-              <h3 className="team-modal-subheader">Code Quality Details</h3>
-              
-              <div className="team-chart-horizontal">
-                <div className="team-chart">
-                  <h3 className="team-modal-subheader">Comment Score</h3>
-                  <p className="team-modal-score">Comment Score: {comment_score}</p>
-                  <Doughnut data={commentDoughnutData} />
-                  <p className="team-modal-ratio">{commentRatio}% comments</p>
-                </div>
-                <div className="team-chart">
-                  <h3 className="team-modal-subheader">Duplication Score</h3>
-                  <p className="team-modal-score">Duplication Score: {duplication_score}</p>
-                  <Doughnut data={duplicationDoughnutData} />
-                  <p className="team-modal-ratio">{duplicationRatio}% duplication</p>
-                </div>
-              </div>
-                <h3 className="team-modal-subheader">Complexity Score</h3>
-                <p className="team-modal-score">Complexity Score: {complexity_repo_score}</p>
+                <h2 className="team-modal-header">{selectedCard.title}</h2>
+                <h3 className="team-modal-subheader">Code Quality Details</h3>
+                
                 <div className="team-chart-horizontal">
                   <div className="team-chart">
-                    <Bar data={complexityBarData} options={complexityOptions} />
+                    <h3 className="team-modal-subheader">Comment Score</h3>
+                    <p className="team-modal-score">Comment Score: {comment_score}</p>
+                    <Doughnut data={commentDoughnutData} />
+                    <p className="team-modal-ratio">{commentRatio}% comments</p>
                   </div>
                   <div className="team-chart">
+                    <h3 className="team-modal-subheader">Duplication Score</h3>
+                    <p className="team-modal-score">Duplication Score: {duplication_score}</p>
+                    <Doughnut data={duplicationDoughnutData} />
+                    <p className="team-modal-ratio">{duplicationRatio}% duplication</p>
+                  </div>
+                </div>
+
+                <h3 className="team-modal-subheader">Complexity Score</h3>
+                <p className="team-modal-score">Complexity Score: {complexity_repo_score}</p>
+                <div className="team-chart-large-horizontal">
+                  <div className="team-chart-large">
+                    <Bar data={complexityBarData} options={complexityOptions} />
+                  </div>
+                  <div className="team-chart-large">
                     <Line data={getLineChartData(complexityDetails, 'Complexity Distribution')} options={lineChartOptions} />
+                  </div>
+                </div>
+
+                <h3 className="team-modal-subheader">Function Length Score</h3>
+                <p className="team-modal-score">Function Length Score: {function_length_repo_score}</p>
+                <div className="team-chart-large-horizontal">
+                  <div className="team-chart-large">
+                    <Bar data={functionLengthBarData} options={functionLengthOptions} />
+                  </div>
+                  <div className="team-chart-large">
+                    <Line data={getLineChartData(functionLengthDetails, 'Function Length Distribution')} options={lineChartOptions} />
+                  </div>
+                </div>
+
+                <h3 className="team-modal-subheader">Parameter Count Score</h3>
+                <p className="team-modal-score">Parameter Count Score: {parameter_count_repo_score}</p>
+                <div className="team-chart-large-horizontal">
+                  <div className="team-chart-large">
+                    <Bar data={parameterCountBarData} options={parameterCountOptions} />
+                  </div>
+                  <div className="team-chart-large">
+                    <Line data={getLineChartData(parameterCountDetails, 'Parameter Count Distribution')} options={lineChartOptions} />
                   </div>
                 </div>
               </>

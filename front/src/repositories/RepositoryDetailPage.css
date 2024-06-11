@@ -330,6 +330,32 @@ body {
   aspect-ratio: 1;
   margin: 0 auto;
 }
+.team-chart-horizontal {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 50%;
+  margin-bottom: 20px;
+}
+
+.team-chart-horizontal .team-chart {
+  width: 40%;
+  text-align: center;
+}
+
+.team-chart-large-horizontal {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px; /* 각 그래프 블록 간의 간격 조정 */
+}
+
+.team-chart-large-horizontal .team-chart-large {
+  width: 45%; /* 차트 크기를 더 크게 설정 */
+  height: 380px;
+  text-align: center;
+}
 
 .repo-details {
   margin-bottom: 20px;
