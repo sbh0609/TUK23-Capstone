@@ -5,7 +5,7 @@
 **/*.pyc
 # testing
 /coverage
-/back/back1.py
+
 # production
 /build
 
@@ -23,6 +23,6 @@ yarn-error.log*
 
 .env
 /.pyc
-test.py
+
 
 back/file_data/
