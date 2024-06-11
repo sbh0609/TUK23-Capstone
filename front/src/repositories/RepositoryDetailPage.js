@@ -633,7 +633,7 @@ const RepositoryDetailPage = () => {
             )}>
               <h5>Code Quality</h5>
               <div className="score">
-                <h6>Grade: {code_quality}</h6>
+                <p>Grade: {code_quality}</p>
               </div>
               <div className="evaluation-data">
                 <span>Comment Score</span>
@@ -678,24 +678,24 @@ const RepositoryDetailPage = () => {
               <h5>Comment Score</h5>
               <div className="card-content">
                 <div className="score">
-                  <h6>Grade: {comment_score}</h6>
+                  <p>Grade: {comment_score}</p>
                 </div>
                 <div className="chart">
                   <Doughnut data={commentDoughnutData} />
                 </div>
-                <h6>{(commentRatio * 100).toFixed(1)}% comments</h6>
+                <p>{(commentRatio * 100).toFixed(1)}% comments</p>
               </div>
             </div>
             <div className="card">
               <h5>Duplication Score</h5>
               <div className="card-content">
                 <div className="score">
-                  <h6>Grade: {duplication_score}</h6>
+                  <p>Grade: {duplication_score}</p>
                 </div>
                 <div className="chart">
                   <Doughnut data={duplicationDoughnutData} />
                 </div>
-                <h6>{(duplicationRatio * 100).toFixed(1)}% duplication</h6>
+                <p>{(duplicationRatio * 100).toFixed(1)}% duplication</p>
               </div>
             </div>
             <div className="card" onClick={() => handleOpen(
@@ -705,7 +705,7 @@ const RepositoryDetailPage = () => {
               <h5>Complexity Score</h5>
               <div className="card-content">
                 <div className="score">
-                  <h6>Grade: {complexity_repo_score}</h6>
+                  <p>Grade: {complexity_repo_score}</p>
                 </div>
                 <div className="chart" style={{ height: '250px' }}>
                   <Bar data={complexityBarData} options={complexityOptions} />
@@ -719,7 +719,7 @@ const RepositoryDetailPage = () => {
               <h5>Function Length Score</h5>
               <div className="card-content">
                 <div className="score">
-                  <h6>Grade: {function_length_repo_score}</h6>
+                  <p>Grade: {function_length_repo_score}</p>
                 </div>
                 <div className="chart" style={{ height: '250px' }}>
                   <Bar data={functionLengthBarData} options={functionLengthOptions} />
@@ -733,7 +733,7 @@ const RepositoryDetailPage = () => {
               <h5>Parameter Count Score</h5>
               <div className="card-content">
                 <div className="score">
-                  <h6>Grade: {parameter_count_repo_score}</h6>
+                  <p>Grade: {parameter_count_repo_score}</p>
                 </div>
                 <div className="chart" style={{ height: '250px' }}>
                   <Bar data={parameterCountBarData} options={parameterCountOptions} />
@@ -747,13 +747,13 @@ const RepositoryDetailPage = () => {
               <h5>Commit Quality</h5>
               <div className="commit-scores">
                 <div className="commit-score">
-                  <h6>Quality Score: {commit_message_quality_scores.total_commit_message_quality_score}</h6>
+                  <p>Quality Score: {commit_message_quality_scores.total_commit_message_quality_score}</p>
                   <div className="chart" style={{ height: '250px' }}>
                     <Bar data={totalQualityData} options={totalQualityOptions} />
                   </div>
                 </div>
                 <div className="commit-score">
-                  <h6>Grammar Score: {commit_message_grammar_scores.total_commit_message_grammar_score}</h6>
+                  <p>Grammar Score: {commit_message_grammar_scores.total_commit_message_grammar_score}</p>
                   <div className="chart" style={{ height: '250px' }}>
                     <Doughnut data={grammarPieData} options={grammarOptions} />
                   </div>
@@ -881,6 +881,11 @@ const RepositoryDetailPage = () => {
                 <p className="team-modal-ratio">
                     Total Grammar Correct: {repoAnalyze.total_grammar}% / User Grammar Correct: {repoAnalyze.user_grammar}%
                 </p>
+                <h3 className="team-modal-subheader">Keyword Counts</h3>
+                <h3 className="team-modal-subheader">Keyword Counts</h3>
+                <div className="team-chart-keyword">
+                  <Bar data={getBarChartData(keyword_count)} options={barChartOptions} />
+                </div>
               </>
             )}
             {selectedCard && selectedCard.type === 'team' && selectedCard.title === 'Code Quality' && (

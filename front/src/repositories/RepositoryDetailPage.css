@@ -357,6 +357,14 @@ body {
   text-align: center;
 }
 
+
+.team-chart-keyword {
+  width: 50%; /* 너비를 더 크게 설정 */
+  height: 50%; /* 높이를 더 크게 설정 */
+  text-align: center;
+  margin: 0 auto; /* 중앙 정렬 */
+}
+
 .repo-details {
   margin-bottom: 20px;
   width: 100%;
