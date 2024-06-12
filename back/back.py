@@ -360,7 +360,7 @@ def analyze_repo():
                         total_grammar, 
                         user_grammar,
                         keyword_count
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 cursor.execute(sql_insert, (
                     user_id,
@@ -522,7 +522,7 @@ def analyze_repo():
                         total_grammar, 
                         user_grammar,
                         keyword_count
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 cursor.execute(sql_insert, (
                     click_time,
