@@ -216,7 +216,8 @@ def analyze_repo():
                         "total_quality": json.loads(existing_analyzed_data['total_quality']),
                         "user_quality": json.loads(existing_analyzed_data['user_quality']),
                         "total_grammar": existing_analyzed_data['total_grammar'],
-                        "user_grammar": existing_analyzed_data['user_grammar']
+                        "user_grammar": existing_analyzed_data['user_grammar'],
+                        "keyword_count": json.loads(existing_analyzed_data['keyword_count'])
                     }
 
                     grade_evaluate = {
@@ -248,7 +249,8 @@ def analyze_repo():
                         "total_quality": json.loads(existing_analyzed_data['total_quality']),
                         "user_quality": json.loads(existing_analyzed_data['user_quality']),
                         "total_grammar": existing_analyzed_data['total_grammar'],
-                        "user_grammar": existing_analyzed_data['user_grammar']
+                        "user_grammar": existing_analyzed_data['user_grammar'],
+                        "keyword_count": json.loads(existing_analyzed_data['keyword_count'])
                     }
                     grade_evaluate = {
                         "comment_score": existing_evaluate_data['comment_score'],
@@ -310,7 +312,7 @@ def analyze_repo():
             "user_quality": user_quality,
             "total_grammar": total_grammar,
             "user_grammar": user_grammar,
-            "keyword_counts": keyword_counts
+            "keyword_count": keyword_counts
         }
         
         # 평가 점수 계산
@@ -356,7 +358,8 @@ def analyze_repo():
                         total_quality, 
                         user_quality, 
                         total_grammar, 
-                        user_grammar
+                        user_grammar,
+                        keyword_count
                     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 cursor.execute(sql_insert, (
@@ -374,7 +377,8 @@ def analyze_repo():
                     json.dumps(repo_analyze['total_quality']),
                     json.dumps(repo_analyze['user_quality']),
                     repo_analyze['total_grammar'],
-                    repo_analyze['user_grammar']
+                    repo_analyze['user_grammar'],
+                    json.dumps(repo_analyze["keyword_count"])
                 ))
                 sql_insert_evaluate = """
                     INSERT INTO evaluate_repo_data (
@@ -455,7 +459,7 @@ def analyze_repo():
             "user_quality": user_quality,
             "total_grammar": total_grammar,
             "user_grammar": user_grammar,
-            "keyword_counts": keyword_counts
+            "keyword_count": keyword_counts
         }
                 # 평가 점수 계산
         comment_score = evaluate_comment_percentage(comment_per[2])
@@ -516,7 +520,8 @@ def analyze_repo():
                         total_quality, 
                         user_quality, 
                         total_grammar, 
-                        user_grammar
+                        user_grammar,
+                        keyword_count
                     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 cursor.execute(sql_insert, (
@@ -537,7 +542,8 @@ def analyze_repo():
                     json.dumps(repo_analyze['total_quality']),
                     json.dumps(repo_analyze['user_quality']),
                     repo_analyze['total_grammar'],
-                    repo_analyze['user_grammar']
+                    repo_analyze['user_grammar'],
+                    json.dumps(repo_analyze["keyword_count"])
                 ))
                 sql_insert_evaluate = """
                      INSERT INTO evaluate_repo_data (
