@@ -297,7 +297,7 @@ def analyze_repo():
         total_commits, user_commits = func.get_repository_commits(repo_name, user_name, token)
         total_quality, user_quality = func.classify_commit_quality(total_commits, user_commits)
         total_grammar, user_grammar = func.check_grammar(total_commits, user_commits)
-        keyword_counts = func.count_keywords(user_commits)
+        keyword_counts = {'total_keyword' : func.count_keywords(total_commits), 'user_keyword' : func.count_keywords(user_commits)}
 
         repo_analyze = {
             "repo_selected_time":click_time,
@@ -441,7 +441,7 @@ def analyze_repo():
         total_commits, user_commits = func.get_repository_commits(repo_name, user_name, token)
         total_quality, user_quality = func.classify_commit_quality(total_commits, user_commits)
         total_grammar, user_grammar = func.check_grammar(total_commits, user_commits)
-        keyword_counts = func.count_keywords(user_commits)
+        keyword_counts = {'total_keyword': func.count_keywords(total_commits), 'user_keyword': func.count_keywords(user_commits)}
 
         repo_analyze = {
             "repo_selected_time":click_time,
