@@ -28,14 +28,6 @@ function Search() {
     const searchData = { username, organizations: filteredOrganizations };
     navigate("/list", { state: searchData });
   };
-  // const handleSubmit = () => {
-  //   // 데이터 처리 페이지로 바로 이동
-   
-  //   const filteredOrganizations = organizations.filter(org => org);
-  //   const searchData = { username, organizations: filteredOrganizations };
-  //   // sessionStorage.setItem('searchData', JSON.stringify(searchData));
-  //   navigate("/list", { state: searchData });
-  // };
   useEffect(()=>{
     clearData();
   },[]);
@@ -52,33 +44,41 @@ function Search() {
       </div>
 
       <div className="LoginPage-LoginBox">
-        <div className="LoginPage-LoginBox-Username">
-          <p className="username">Username</p>
-          <label>
-            <input
-              type="text"
-              value={username}
-              onChange={handleUsernameChange}
-              placeholder="Username"
-            />
-          </label>
-          <p className="organizations">Organizations</p>
-        </div>
-        
-        {organizations.map((organization, index)=> (
-          <div key={index} className="organization-box">
-            <label>
-              <input
-                type="text"
-                value={organization}
-                onChange={(e) => handleOrganizationChange(index, e)}
-                placeholder={`Organization ${index + 1}`}
-               />
-            </label> <br />
-          </div>
-          ))}
-          <button onClick={handleAddOrganiztionButton} className="LoginPage-AddOrganizationButton">+ Add Organization</button><br />
-          <button onClick={handleSubmit} className="LoginPage-EnterButton">Enter</button>
+        <form onSubmit={handleSubmit}>
+            <div className="LoginPage-LoginBox-Username">
+              <p className="username">Username</p>
+              <label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={handleUsernameChange}
+                  placeholder="Username"
+                />
+              </label>
+              <p className="organizations">Organizations</p>
+            </div>
+            
+            {organizations.map((organization, index)=> (
+              <div key={index} className="organization-box">
+                <label>
+                  <input
+                    type="text"
+                    value={organization}
+                    onChange={(e) => handleOrganizationChange(index, e)}
+                    placeholder={`Organization ${index + 1}`}
+                  />
+                </label> <br />
+              </div>
+              ))}
+            <button onClick={handleAddOrganiztionButton} className="LoginPage-AddOrganizationButton">+ Add Organization</button><br />
+            <button 
+            type="submit" 
+            className="LoginPage-EnterButton"
+            >
+                Enter
+            </button>
+
+          </form>
       </div>
 
       <div className="loading-explain">
