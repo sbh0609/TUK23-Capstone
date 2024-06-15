@@ -31,7 +31,7 @@ def get_paged_response(url,headers):
 def not_org_repo(url,headers,user_repo_list):
     response= get_paged_response(url,headers)
     for repo in response:
-        rn = repo['full_name'] , repo['html_url']
+        rn = [repo['full_name'], repo['html_url']]
         user_repo_list.append(rn)
     # return user_repo_list
         
@@ -46,20 +46,16 @@ def org_repo(org_list,username,headers,user_repo_list):
             contributors = get_paged_response(contributors_url,headers)
             is_contributor = any(contributor['login'] == username for contributor in contributors)
             if is_contributor:
-                rn = org_repo_name , org_repo_url
+                rn = [org_repo_name, org_repo_url]
                 user_repo_list.append(rn)
     # return user_repo_list
    
-def choose_repo_commit(user_repo_list,headers):
-    repos_to_remove = []
-    for repo in user_repo_list:
-        commits_url = f'https://api.github.com/repos/{repo[0]}/commits'
-        response = get_paged_response(commits_url,headers)
-        if len(response) < 10:
-            repos_to_remove.append(repo)
-
-    for repo in repos_to_remove:
-        user_repo_list.remove(repo)
+def choose_repo_commit(repo, headers):
+    commits_url = f'https://api.github.com/repos/{repo[0]}/commits'
+    response = get_paged_response(commits_url,headers)
+    if len(response) < 10:
+        return True
+    return False
     
 def get_latest_commit_data(repo_name,headers):
     commits_url = f"https://api.github.com/repos/{repo_name}/commits"
@@ -81,39 +77,26 @@ def get_git_tree(repo_name, tree_sha,headers, recursive=True):
     else:
         return None
 
-def choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files):
-    release_num=0
+def choose_repo_extension(repo, all_extensions, headers):
+    release_num = 0
     release_file_name = ["Makefile","requirements.txt","package.json","pop.xml","build.gradle"]
-    repos_to_remove = []
-    for a in user_repo_list: 
-        latest_commit = get_latest_commit_data(a[0],headers)
-        tree_data = get_git_tree(a[0],latest_commit,headers,recursive=True)
-        
-        repo_files = []
-        
-        for file_info in tree_data["tree"]:
-            if file_info["type"] == "blob":
-                _, ext = os.path.splitext(file_info["path"])
-                if ext in all_extensions:
-                    repo_files.append(file_info["path"])
-                release_file = os.path.basename(file_info["path"])
-                if release_file in release_file_name:
-                    repo_files.append(file_info["path"])
-                    release_num+=1
-        if not repo_files :
-            if a not in repos_to_remove:
-                repos_to_remove.append(a)
-        else :
-            filtered_files[a[0]] = repo_files
-        if release_num==0 :
-            if a not in repos_to_remove:
-                repos_to_remove.append(a)
-    for repo in repos_to_remove:
-        if repo in user_repo_list:
-            user_repo_list.remove(repo)
-        # user_repo_list.remove(repo)
+    latest_commit = get_latest_commit_data(repo[0],headers)
+    tree_data = get_git_tree(repo[0],latest_commit,headers,recursive=True)
     
-    return user_repo_list,filtered_files
+    repo_files = []
+    
+    for file_info in tree_data["tree"]:
+        if file_info["type"] == "blob":
+            _, ext = os.path.splitext(file_info["path"])
+            if ext in all_extensions:
+                repo_files.append(file_info["path"])
+            release_file = os.path.basename(file_info["path"])
+            if release_file in release_file_name:
+                repo_files.append(file_info["path"])
+                release_num += 1
+    if not repo_files or release_num == 0:
+        return True, repo_files
+    return False, repo_files
    
         
 def classify_personal_team(user_repo_list,headers,personal_repo,team_repo):

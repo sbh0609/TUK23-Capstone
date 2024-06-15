@@ -124,7 +124,12 @@ def find_own_repo():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    
+
+@celery.task
+def classify_repo(repo):
+    commit = choose_repo_commit(repo, headers)
+    extension, files = choose_repo_extension(repo, all_extensions, headers)
+    return {"repo": repo, "commit": commit, "extension": extension, "files": files}
 
 @app.route('/api/input', methods=['POST'])
 @cross_origin()
@@ -143,9 +148,18 @@ def handle_input():
     team_list=[]
     not_org_repo(repos_url,headers,user_repo_list)
     not_org_repo(con_repos_url,headers,user_repo_list)
-    org_repo(organization_list,username,headers,user_repo_list) 
-    choose_repo_commit(user_repo_list,headers)
-    choose_repo_extension(user_repo_list,all_extensions,headers,filtered_files)
+    org_repo(organization_list,username,headers,user_repo_list)
+
+    tasks = [classify_repo.apply_async(args=[repo]) for repo in user_repo_list]
+    
+    for task in tasks:
+        result = task.get()
+        repo = result["repo"]
+        if repo in user_repo_list and (result["commit"] or result["extension"]):
+            user_repo_list.remove(repo)
+        else:
+            filtered_files[repo[0]] = result["files"]
+    
     classify_personal_team(user_repo_list,headers,personal_repo,team_repo)
 
     personal_list = [i[0]for i in personal_repo]
