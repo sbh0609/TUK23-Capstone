@@ -1,8 +1,8 @@
 version: '3'
 
 services:
-  frontend:
-    container_name: frontend
+  front:
+    container_name: front
     build:
       context: ./front
       dockerfile: Dockerfile
@@ -11,10 +11,10 @@ services:
     volumes:
       - ./front:/front
     depends_on:
-      - backend
+      - back
 
-  backend:
-    container_name: backend
+  back:
+    container_name: back
     build:
       context: ./back
       dockerfile: Dockerfile
@@ -41,7 +41,7 @@ services:
       - ./back:/back
     depends_on:
       - redis
-      - backend
+      - back
   
   db:
     image: mysql:latest
