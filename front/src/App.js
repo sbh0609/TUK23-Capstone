@@ -3,7 +3,7 @@ import MainPage from './pages/MainPage';
 import Login from './login/Login';
 import Register from './login/RegisterPage';
 import LoginSelectPage from './pages/LoginSelectPage';
-import MyPage from './pages/MyPage';
+import MyPage from './myPage/MyPage';
 import Search from './repositories/RepositorySearchPage';
 import RepositoryListPage from './repositories/RepositoryListPage';
 import RepositoryDetailPage from './repositories/RepositoryDetailPage'
