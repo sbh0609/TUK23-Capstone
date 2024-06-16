@@ -1,41 +1,52 @@
 import React, { Fragment, useState, useEffect } from "react";
 import 'chart.js/auto';
-import "./RepositoryDetailPage.css";
+import "./MyPageDetail.css";
 import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
 import axios from 'axios';
 import { Pie,Bar,Line,Doughnut } from 'react-chartjs-2';
+import { useLocation } from "react-router-dom";
 
 
-const RepositoryDetailPage = () => {
+const MyPageDetail = () => {
+  const location = useLocation();
   const session_userID = sessionStorage.getItem("userID");
-  const { repositoryDetail } = useRepository();
-  const { repo_name, fileList, username, repo_type, click_time } = repositoryDetail;
+  const [username, setUsername] = useState();
   const [repoAnalyze, setRepoAnalyze] = useState(null);
   const [evaluate, setEvaluate] = useState(null);
   const [open, setOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [modalData, setModalData] = useState(null);
+  const { repo_analyzed_data, repo_evaluate_data, repo_name, repo_type } = location.state || {}; 
+  const [programLang, setProgramLang] = useState();
 
   useEffect(() => {
-    axios.post('http://localhost:5000/api/analyze', { repo_name, username, fileList, repo_type, click_time, session_userID })
-      .then(response => {
-        console.log(response);
-        setRepoAnalyze(response.data.repo_analyze);
-        setEvaluate(response.data.evaluate);
-      })
-      .catch(error => {
-        console.error('Error', error);
-        window.alert('Error: ' + error);
-      });
-  }, [repo_name, username, fileList, repo_type, click_time, session_userID]);
-  console.log(repoAnalyze);
-  console.log(evaluate);
+    if (repo_analyzed_data && repo_evaluate_data) {
+      const parsedRepoAnalyze = {
+        ...repo_analyzed_data,
+        program_lang: JSON.parse(repo_analyzed_data.program_lang || '{}'),
+        complexity: JSON.parse(repo_analyzed_data.complexity || '{}'),
+        function_length: JSON.parse(repo_analyzed_data.function_length || '{}'),
+        parameter_count: JSON.parse(repo_analyzed_data.parameter_count || '{}'),
+        keyword_count: JSON.parse(repo_analyzed_data.keyword_count || '{}'),
+        pr_data: JSON.parse(repo_analyzed_data.pr_data || '{}'),
+        issue_data: JSON.parse(repo_analyzed_data.issue_data || '{}')
+      };
+      setRepoAnalyze(parsedRepoAnalyze);
+      setEvaluate(repo_evaluate_data);
+      setUsername(repo_analyzed_data.repo_contributor_name);
+      programLang= repo_analyzed_data.program_lang;
+      setProgramLang(programLang);
+    }
+  }, [repo_analyzed_data, repo_evaluate_data]);
+
+  console.log("(detail) repoAnalyze: ", repoAnalyze);
+  console.log("(detail) evaluate: ", evaluate);
 
   if (!repoAnalyze || !evaluate) {
     return <div>Loading...</div>;
   }
 
-  const languages = Object.entries(repoAnalyze.program_lang).map(([lang, percentage]) => ({ lang, percentage }));
+  const languages = repoAnalyze.program_lang ? Object.entries(JSON.parse(repoAnalyze.program_lang)).map(([lang, percentage]) => ({ lang, percentage })) : [];
   const frameworks = repoAnalyze.framework;
   console.log(languages);
 
@@ -955,4 +966,4 @@ const RepositoryDetailPage = () => {
   );
 }
 
-export default RepositoryDetailPage;
+export default MyPageDetail;

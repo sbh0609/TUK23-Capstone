@@ -6,22 +6,26 @@ import cpp_img from '../resources/c++ img.png';
 import java_img from '../resources/java img.png';
 import js_img from '../resources/js img.png';
 import python_img from '../resources/python img.png';
-
 import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
-const Card = ({ repo_name, url, fileList, username, repo_type }) => {
-    const { setRepositoryDetail } = useRepository();
+
+const Card = ({ repo_name, repo_type, repo_analyzed_data, repo_evaluate_data }) => {
     const navigate = useNavigate();
     let imagePath = c_img;
     const onClickCard = () => {
-        setRepositoryDetail({ repo_name, fileList, username, repo_type });
-        navigate("/repositoryDetail");
+        console.log(repo_analyzed_data);
+        navigate("/myDetail", {
+            state: {
+                repo_analyzed_data: repo_analyzed_data,
+                repo_evaluate_data: repo_evaluate_data,
+                repo_name: repo_name,
+                repo_type: repo_type
+            }
+        });
     };
     return (
         <CardContainer onClick={onClickCard} >
             <UserInfo>
                 <Name>{repo_name}</Name>
-                <p>{fileList}</p>
-                <p>{username}</p>
                 <Repo_type>{repo_type}</Repo_type>
             </UserInfo>
         </CardContainer>

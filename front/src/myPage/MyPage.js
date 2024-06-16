@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate,useLocation } from 'react-router-dom';
 import Select from "react-select";
-import CardList from "../components/MyPageCardList";
+import CardList from "./MyPageCardList";
 import "./MyPage.css";
 import axios from 'axios';
 import { useMaintainPage } from '../Context/MaintainPage'; // Context를 가져옵니다.
@@ -26,9 +26,13 @@ function MyPage() {
   const [isLoading, setIsLoading] = useState(true);
   // const [repositoryClassification, setData] = useState({ personal_list: [], team_list: [],globusername:''});
   const [repoNames, setRepoNames] = useState([]);
+  const [repoType, setRepoType] = useState([]);
+  const [repoSelectedTime, setRepoSelectedTime] = useState([]);
   const [repoContributorNames, setRepoContributorNames] = useState([]);
   const [repoMainLang, setRepoMainLang] = useState([]);
   const [repoFrameworks, setRepoFrameworks] = useState([]);
+  const [get_data, setGetData] = useState([]);
+  const [get_data2, setGetData2] = useState([]);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -67,31 +71,44 @@ function MyPage() {
   const optionStyles = {
     control: (baseStyles, state) => ({
       ...baseStyles,
-      backgroundColor: "#000000",
-      color: state.isFocused ? "#FFFFFF" : "#FFFFFF",
+      backgroundColor: "#ffffff",
+      color: "#000000",
+      border: "none", // 테두리 제거
+      boxShadow: state.isFocused ? "0 0 0 1px #000000" : "none", // 포커스 시 테두리 제거
+      '&:hover': {
+        borderColor: "#000000",
+      },
+      width: '150px', // 드롭다운의 너비 설정
+      minHeight: '40px', // 드롭다운의 최소 높이 설정
     }),
     option: (baseStyles, state) => ({
       ...baseStyles,
-      backgroundColor: state.isFocused ? "#e2e2e2" : "",
-      color: state.isFocused ? "#333333" : "#FFFFFF",
+      backgroundColor: state.isFocused ? "#e2e2e2" : "#ffffff",
+      color: "#000000",
+      '&:hover': {
+        backgroundColor: "#e2e2e2",
+      },
     }),
-    menu: (baseStyles, state) => ({
+    menu: (baseStyles) => ({
       ...baseStyles,
-      backgroundColor: "#333333",
+      backgroundColor: "#ffffff",
     }),
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
-        if (session_userID === null) {
+        // 세션값이 비어있으면 로그인 상태가 아님이라고 판단하고 로그인 페이지로 이동
+        if (!session_userID) {
             alert('로그인이 필요한 서비스입니다.');
-            navigate('/login'); // 세션값이 비어있으면 로그인 상태가 아님이라고 판단하고 로그인 페이지로 이동
+            navigate('/login'); 
         } else {
             console.log("(myPage) userID :", session_userID);
             try {
                 const response = await axios.post('http://localhost:5000/api/myPage', { session_userID });
-                const get_data = response.data;
-
+                const get_data = response.data.user_repos;
+                setGetData(get_data);
+                const get_data2 = response.data.user_eval_repos;
+                setGetData2(get_data2);
                 if (get_data.error) {
                     console.error("Error from server:", get_data.error);
                     alert("서버 오류: " + get_data.error);
@@ -100,13 +117,14 @@ function MyPage() {
 
                     const repo_names = get_data.map(item => item.repo_name);
                     setRepoNames(repo_names);
-                    console.log(repoNames);
-                    const repo_contributor_names = get_data.map(item => item.repo_contributor_name);
-                    setRepoContributorNames(repo_contributor_names);
-                    const repo_main_lang = get_data.map(item => item.program_lang);
-                    setRepoMainLang(repo_main_lang);
-                    const repo_frameworks = get_data.map(item => item.framework);
-                    setRepoFrameworks(repo_frameworks);
+                    const repo_type = get_data.map(item => item.repo_type);
+                    setRepoType(repo_type)
+                    const repo_selected_time = get_data.map(item => item.repo_selected_time);
+                    setRepoSelectedTime(repo_selected_time)
+
+                    console.log("레포 네임 :  ", repoNames);
+                    console.log("레포 타입 :  ", repoType);
+                    console.log("레포 타임 :  ", repoSelectedTime);
 
                     setIsLoading(false);
                 }
@@ -135,6 +153,8 @@ function MyPage() {
   const handleListButton = () => {
     setIsListButtonActive(!isListButtonActive);
   }
+  console.log("get_data: ", get_data);
+  console.log("get_data2: ", get_data2);
   return (
     <div>
       <div className="top-bar">
@@ -210,10 +230,10 @@ function MyPage() {
           </div>
         ) : (
           <CardList 
-            repositories={repoNames} 
-            repositoryContributorName={repoContributorNames} 
-            repositoryMainLang={repoMainLang} 
-            personal_list = {repoFrameworks}
+            repositories={repoNames}
+            repo_type={repoType}
+            repo_analyzed_data={get_data}
+            repo_evaluate_data={get_data2}
           />
         )}
       </div>
