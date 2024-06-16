@@ -32,8 +32,8 @@ function RepositoryListPage() {
    // 드롭다운의 옵션들 선언
    const type_options = [
     { value: "", label: "All" },
-    { value: "Sincere@april.biz", label: "Private" },
-    { value: "Nathan@yesenia.net", label: "Public" },
+    { value: "Public", label: "Private" },
+    { value: "Private", label: "Public" },
   ]
   const language_options = [
     { value: "", label: "All" },
@@ -123,7 +123,8 @@ function RepositoryListPage() {
   }, []);
 
   console.log("repositoryListData.repositories:  ", repositoryListData.repositories);
-
+  console.log("repositoryListData:  ", repositoryListData);
+  console.log("session : ", session_userID);
   // 검색창에 값 입력시 입력한 값을 검색창에 출력
   const handleUserInputChange = (e) => {
     setUserInput(e.target.value);
@@ -158,6 +159,18 @@ function RepositoryListPage() {
     // 여기에서 repository 데이터를 사용하여 원하는 작업 수행
   };
 
+  /*
+  const filterRepositories = (repositories, userType, userLanguage, userEct) => {
+    return repositories.filter(repo => {
+      const matchesType = userType === "" || repo.type === userType;
+      const matchesLanguage = userLanguage === "" || repo.language === userLanguage;
+      const matchesEct = userEct === "" || repo.ect === userEct;
+      return matchesType && matchesLanguage && matchesEct;
+    });
+  }
+
+  const filteredRepositories = filterRepositories(repositories, userType, userLanguage, userEct);
+ */
   return (
     <div>
       <div className="top-bar">
