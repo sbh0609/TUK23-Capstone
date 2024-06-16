@@ -118,20 +118,26 @@ const RepositoryDetailPage = () => {
   };
 
   const getBarChartData = (data) => {
-    if (!data || Object.keys(data).length === 0) {
-      data = { Fix: 0, Add: 0, Update: 0, 'Remove/Delete': 0 };
-    }
+    const { total_keyword, user_keyword } = data;
 
-    const labels = Object.keys(data);
-    const values = Object.values(data);
+    const labels = Object.keys(total_keyword);
+    const totalValues = Object.values(total_keyword);
+    const userValues = labels.map(label => user_keyword[label] || 0);
 
     return {
       labels: labels,
-      datasets: [{
-        label: 'Keyword Counts',
-        data: values,
-        backgroundColor: ['#4CAF50', '#FFC107', '#FF9800', '#F44336'],
-      }]
+      datasets: [
+        {
+          label: 'Total Keywords',
+          data: totalValues,
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        },
+        {
+          label: 'User Keywords',
+          data: userValues,
+          backgroundColor: 'rgba(153, 102, 255, 0.6)',
+        }
+      ]
     };
   };
 
@@ -156,8 +162,6 @@ const RepositoryDetailPage = () => {
     },
     maintainAspectRatio: false
   };
-
-  const keywordCountsData = getBarChartData(keyword_count);
 
   const categorizeData = (data, thresholds) => {
     const categories = { normal: 0, bad: 0, veryBad: 0, worst: 0 };
@@ -882,7 +886,7 @@ const RepositoryDetailPage = () => {
                     Total Grammar Correct: {repoAnalyze.total_grammar}% / User Grammar Correct: {repoAnalyze.user_grammar}%
                 </p>
                 <h3 className="team-modal-subheader">Keyword Counts</h3>
-                <h3 className="team-modal-subheader">Keyword Counts</h3>
+                {/* <h3 className="team-modal-subheader">Keyword Counts</h3> */}
                 <div className="team-chart-keyword">
                   <Bar data={getBarChartData(keyword_count)} options={barChartOptions} />
                 </div>
