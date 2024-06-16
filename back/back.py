@@ -107,24 +107,28 @@ def register():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/own_repo', methods=['POST'])
+@app.route('/api/myPage', methods=['POST'])
 def find_own_repo():
     data = request.get_json()
-    #userID = data.get('session_userID')
-    userID = "test1"
+    userID = data.get('session_userID')
+    print(f"Received userID: {userID}")
     try:
         connection = connect_to_database()
         with connection.cursor() as cursor:
             sql = "SELECT * FROM analyzed_repo_data WHERE web_user_id = %s"
-            cursor.execute(sql, (userID))
+            cursor.execute(sql, (userID,))
             user = cursor.fetchone()
-            username = user['repo_contributor_name']
 
-            return jsonify({"username": username}), 200
+            if user:
+                username = user['repo_contributor_name']
+                # 필요한 추가 데이터도 여기에 추가
+                return jsonify(user), 200
+            else:
+                return jsonify({"error": "User not found"}), 404
 
     except Exception as e:
+        print(f"Exception occurred: {e}")
         return jsonify({'error': str(e)}), 500
-
 @celery.task
 def classify_repo(repo):
     commit = choose_repo_commit(repo, headers)
