@@ -242,7 +242,7 @@ def analyze_repo():
                         "total_grammar": existing_analyzed_data['total_grammar'],
                         "user_grammar": existing_analyzed_data['user_grammar'],
                         "keyword_count": json.loads(existing_analyzed_data['keyword_count']),
-                        "repo_type:": existing_evaluate_data['repo_type']
+                        "repo_type": repo_type
                     }
 
                     grade_evaluate = {
@@ -276,7 +276,7 @@ def analyze_repo():
                         "total_grammar": existing_analyzed_data['total_grammar'],
                         "user_grammar": existing_analyzed_data['user_grammar'],
                         "keyword_count": json.loads(existing_analyzed_data['keyword_count']),
-                        "repo_type:": existing_evaluate_data['repo_type']
+                        "repo_type": repo_type
                     }
                     grade_evaluate = {
                         "comment_score": existing_evaluate_data['comment_score'],

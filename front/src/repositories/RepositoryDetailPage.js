@@ -28,8 +28,7 @@ const RepositoryDetailPage = () => {
         window.alert('Error: ' + error);
       });
   }, [repo_name, username, fileList, repo_type, click_time, session_userID]);
-  console.log(repoAnalyze);
-  console.log(evaluate);
+
 
   if (!repoAnalyze || !evaluate) {
     return <div>Loading...</div>;
@@ -37,7 +36,6 @@ const RepositoryDetailPage = () => {
 
   const languages = Object.entries(repoAnalyze.program_lang).map(([lang, percentage]) => ({ lang, percentage }));
   const frameworks = repoAnalyze.framework;
-  console.log(languages);
 
   const {
     comment_score,
