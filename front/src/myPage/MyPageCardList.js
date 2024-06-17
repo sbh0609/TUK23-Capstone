@@ -1,22 +1,20 @@
 import React from 'react';
-import Card from "./MyPageCard";
-function CardList ({ repositories, repo_type, repo_analyzed_data, repo_evaluate_data }) {
+import MyPageCard from "./MyPageCard";
 
+function MyPageCardList({ repositories, repo_type, repo_analyzed_data, repo_evaluate_data }) {
   return (
     <div className="cardList" style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-start' }}>
-      {repositories.map((repository, index) => {
-        return (
-           <Card
-            key={index}
-            repo_name={repositories}
-            repo_type={repo_type}
-            repo_analyzed_data={repo_analyzed_data}
-            repo_evaluate_data={repo_evaluate_data}
-          />
-        );
-      })}
+      {repositories.map((repositoryName, index) => (
+        <MyPageCard
+          key={index}
+          repo_name={repositoryName}
+          repo_type={repo_type[index]}
+          repo_analyzed_data={repo_analyzed_data[index]}
+          repo_evaluate_data={repo_evaluate_data[index]}
+        />
+      ))}
     </div>
   );
 }
 
-export default CardList;
+export default MyPageCardList;

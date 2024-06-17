@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate,useLocation } from 'react-router-dom';
 import Select from "react-select";
-import CardList from "./MyPageCardList";
+import MyPageCardList from "./MyPageCardList";
 import "./MyPage.css";
 import axios from 'axios';
 import { useMaintainPage } from '../Context/MaintainPage'; // Context를 가져옵니다.
@@ -229,7 +229,7 @@ function MyPage() {
             </div>
           </div>
         ) : (
-          <CardList 
+          <MyPageCardList 
             repositories={repoNames}
             repo_type={repoType}
             repo_analyzed_data={get_data}

@@ -8,29 +8,29 @@ import js_img from '../resources/js img.png';
 import python_img from '../resources/python img.png';
 import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
 
-const Card = ({ repo_name, repo_type, repo_analyzed_data, repo_evaluate_data }) => {
+const MyPageCard = ({ repo_name, repo_type, repo_analyzed_data, repo_evaluate_data }) => {
     const navigate = useNavigate();
-    let imagePath = c_img;
+  
     const onClickCard = () => {
-        console.log(repo_analyzed_data);
-        navigate("/myDetail", {
-            state: {
-                repo_analyzed_data: repo_analyzed_data,
-                repo_evaluate_data: repo_evaluate_data,
-                repo_name: repo_name,
-                repo_type: repo_type
-            }
-        });
+      console.log(repo_analyzed_data);
+      navigate("/myDetail", {
+        state: {
+          repo_analyzed_data: repo_analyzed_data,
+          repo_evaluate_data: repo_evaluate_data,
+          repo_name: repo_name,
+          repo_type: repo_type
+        }
+      });
     };
+  
     return (
-        <CardContainer onClick={onClickCard} >
-            <UserInfo>
-                <Name>{repo_name}</Name>
-                <Repo_type>{repo_type}</Repo_type>
-            </UserInfo>
-        </CardContainer>
+      <CardContainer onClick={onClickCard}>
+        <UserInfo>
+          <Name>{repo_name}</Name>
+          <Repo_type>{repo_type}</Repo_type>
+        </UserInfo>
+      </CardContainer>
     );
-    
     
     //  switch (phone) {
     //      case "1-770-736-8031 x56442":
@@ -110,7 +110,7 @@ const Card = ({ repo_name, repo_type, repo_analyzed_data, repo_evaluate_data }) 
     // );
 };
 //<img src={image} alt="https://robohash.org/${}?set=set2&size=180x180" />
-export default Card;
+export default MyPageCard;
 
 const CardContainer = styled.div`
     position: static;
