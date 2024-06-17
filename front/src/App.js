@@ -4,6 +4,7 @@ import Login from './login/Login';
 import Register from './login/RegisterPage';
 import LoginSelectPage from './pages/LoginSelectPage';
 import MyPage from './myPage/MyPage';
+import MyPageDetail from './myPage/MyPageDetail';
 import Search from './repositories/RepositorySearchPage';
 import RepositoryListPage from './repositories/RepositoryListPage';
 import RepositoryDetailPage from './repositories/RepositoryDetailPage'
@@ -24,6 +25,7 @@ function App(){
             <Route path='/register' element={<Register/>} />
             <Route path='/loginSelect' element={<LoginSelectPage/>} />
             <Route path='/myPage' element={<MyPage/>} />
+            <Route path='/myDetail' element={<MyPageDetail/>} />
             <Route path='/search' element={<Search />} />
             <Route path='/list' element={<RepositoryListPage />} />
             <Route path='/detail' element={<RepositoryDetailPage/>} />

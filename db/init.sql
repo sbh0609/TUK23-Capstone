@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS analyzed_repo_data (
     total_grammar FLOAT,
     user_grammar FLOAT,
     keyword_count JSON,
+    repo_type VARCHAR(10),
     PRIMARY KEY (web_user_id, repo_selected_time, repo_name, repo_contributor_name),
     FOREIGN KEY (web_user_id) REFERENCES user(web_user_id)
 );

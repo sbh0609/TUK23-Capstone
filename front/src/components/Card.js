@@ -8,7 +8,6 @@ import js_img from '../resources/js img.png';
 import python_img from '../resources/python img.png';
 import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
 
-
 const formatDate = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');

@@ -53,6 +53,7 @@ function RepositoryListPage() {
     navigate("/login");
   }
   const handleProfileButton = () => {
+    console.log("Profile button clicked"); // 로그 추가
     navigate("/myPage");
   }
   const handleSearchButton = () => {
@@ -91,7 +92,6 @@ function RepositoryListPage() {
 
     if (repositories.length > 0) {
       setRepositoryListData({ ...repositoryListData, isLoading: false });
-
       return;
     }
     if (location.state) {
@@ -107,14 +107,8 @@ function RepositoryListPage() {
             team_list : response.data.team_list,
             globusername : username
           });
-          // setData({
-          //   personal_list: response.data.personal_list,
-          //   team_list : response.data.team_list,
-          //   globusername : username
-
-          // })
         })
-        
+
         .catch(error => {
           console.error('Error fetching repositories', error);
           setRepositoryListData({ ...repositoryListData, isLoading: false });
@@ -122,9 +116,6 @@ function RepositoryListPage() {
     }
   }, []);
 
-  console.log("repositoryListData.repositories:  ", repositoryListData.repositories);
-  console.log("repositoryListData:  ", repositoryListData);
-  console.log("session : ", session_userID);
   // 검색창에 값 입력시 입력한 값을 검색창에 출력
   const handleUserInputChange = (e) => {
     setUserInput(e.target.value);
@@ -199,7 +190,7 @@ function RepositoryListPage() {
 
           <div className="side-bar-first-section2">
             {isListButtonActive && (
-                  <div>
+                <div>
                   {repositories.map((repository, index) => {
                     const repositoryName = repository[0];
                     return (
