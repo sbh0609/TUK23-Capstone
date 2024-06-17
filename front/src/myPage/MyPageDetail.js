@@ -1,54 +1,43 @@
 import React, { Fragment, useState, useEffect } from "react";
 import 'chart.js/auto';
 import "./MyPageDetail.css";
-import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
-import axios from 'axios';
-import { Pie,Bar,Line,Doughnut } from 'react-chartjs-2';
 import { useLocation } from "react-router-dom";
-
+import { Pie, Bar, Line, Doughnut } from 'react-chartjs-2';
 
 const MyPageDetail = () => {
   const location = useLocation();
-  const session_userID = sessionStorage.getItem("userID");
-  const [username, setUsername] = useState();
+  const { repo_analyzed_data, repo_evaluate_data, repo_name, repo_type } = location.state || {}; 
+  console.log("Location State:", location.state); // useEffect 밖에서 로그 출력
+
   const [repoAnalyze, setRepoAnalyze] = useState(null);
   const [evaluate, setEvaluate] = useState(null);
+  const session_userID = sessionStorage.getItem("userID");
+  const [username, setUsername] = useState('');
+  const [programLang, setProgramLang] = useState(repo_analyzed_data ? repo_analyzed_data.language : '');
   const [open, setOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [modalData, setModalData] = useState(null);
-  const { repo_analyzed_data, repo_evaluate_data, repo_name, repo_type } = location.state || {}; 
-  const [programLang, setProgramLang] = useState();
 
   useEffect(() => {
     if (repo_analyzed_data && repo_evaluate_data) {
-      const parsedRepoAnalyze = {
-        ...repo_analyzed_data,
-        program_lang: JSON.parse(repo_analyzed_data.program_lang || '{}'),
-        complexity: JSON.parse(repo_analyzed_data.complexity || '{}'),
-        function_length: JSON.parse(repo_analyzed_data.function_length || '{}'),
-        parameter_count: JSON.parse(repo_analyzed_data.parameter_count || '{}'),
-        keyword_count: JSON.parse(repo_analyzed_data.keyword_count || '{}'),
-        pr_data: JSON.parse(repo_analyzed_data.pr_data || '{}'),
-        issue_data: JSON.parse(repo_analyzed_data.issue_data || '{}')
-      };
-      setRepoAnalyze(parsedRepoAnalyze);
+      console.log("(detail) repoAnalyze: ", repo_analyzed_data);
+      console.log("(detail) evaluate: ", repo_evaluate_data);
+      setRepoAnalyze(repo_analyzed_data);
       setEvaluate(repo_evaluate_data);
       setUsername(repo_analyzed_data.repo_contributor_name);
-      programLang= repo_analyzed_data.program_lang;
-      setProgramLang(programLang);
     }
   }, [repo_analyzed_data, repo_evaluate_data]);
-
-  console.log("(detail) repoAnalyze: ", repoAnalyze);
-  console.log("(detail) evaluate: ", evaluate);
 
   if (!repoAnalyze || !evaluate) {
     return <div>Loading...</div>;
   }
-
-  const languages = repoAnalyze.program_lang ? Object.entries(JSON.parse(repoAnalyze.program_lang)).map(([lang, percentage]) => ({ lang, percentage })) : [];
+  console.log("repoa",repoAnalyze);
+  console.log("eva",evaluate);
+  const languages = Object.entries(repoAnalyze.program_lang).map(([lang, percentage]) => ({ lang, percentage }));
+  console.log("이름",username);
+  console.log("이름",username);
   const frameworks = repoAnalyze.framework;
-  console.log(languages);
+
 
   const {
     comment_score,

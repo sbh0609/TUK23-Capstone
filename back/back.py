@@ -122,7 +122,53 @@ def find_own_repo():
             if user_repos:
                 sql = "SELECT * FROM evaluate_repo_data WHERE web_user_id = %s"
                 cursor.execute(sql, (userID,))
-                user_eval_repos = cursor.fetchone()
+                user_eval_repos = cursor.fetchall()
+                
+                def parse_repo_data(repo_data):
+                    return {
+                        "repo_name": repo_data['repo_name'],
+                        "repo_selected_time": repo_data['repo_selected_time'],
+                        "program_lang": json.loads(repo_data['program_lang']) if repo_data['program_lang'] else None,
+                        "comment_per": json.loads(repo_data['comment_per']) if repo_data['comment_per'] else None,
+                        "framework": json.loads(repo_data['framework']) if repo_data['framework'] else None,
+                        "duplicate_code": json.loads(repo_data['duplicate_code']) if repo_data['duplicate_code'] else None,
+                        "complexity": json.loads(repo_data['complexity']) if repo_data['complexity'] else None,
+                        "pr_data": json.loads(repo_data['pr_data']) if repo_data['pr_data'] else None,
+                        "commit_per": json.loads(repo_data['commit_per']) if repo_data['commit_per'] else None,
+                        "issue_data": json.loads(repo_data['issue_data']) if repo_data['issue_data'] else None,
+                        "function_length": json.loads(repo_data['function_length']) if repo_data['function_length'] else None,
+                        "parameter_count": json.loads(repo_data['parameter_count']) if repo_data['parameter_count'] else None,
+                        "total_quality": json.loads(repo_data['total_quality']) if repo_data['total_quality'] else None,
+                        "user_quality": json.loads(repo_data['user_quality']) if repo_data['user_quality'] else None,
+                        "total_grammar": repo_data['total_grammar'],
+                        "user_grammar": repo_data['user_grammar'],
+                        "keyword_count": json.loads(repo_data['keyword_count']) if repo_data['keyword_count'] else None,
+                        "repo_type": repo_data['repo_type']
+                    }
+
+                def parse_evaluate_data(evaluate_data):
+                    return {
+                        "comment_score": evaluate_data['comment_score'],
+                        "duplication_score": evaluate_data['duplication_score'],
+                        "complexity_file_scores": json.loads(evaluate_data['complexity_file_scores']) if evaluate_data['complexity_file_scores'] else None,
+                        "complexity_repo_score": evaluate_data['complexity_repo_score'],
+                        "function_length_file_scores": json.loads(evaluate_data['function_length_file_scores']) if evaluate_data['function_length_file_scores'] else None,
+                        "function_length_repo_score": evaluate_data['function_length_repo_score'],
+                        "parameter_count_file_scores": json.loads(evaluate_data['parameter_count_file_scores']) if evaluate_data['parameter_count_file_scores'] else None,
+                        "parameter_count_repo_score": evaluate_data['parameter_count_repo_score'],
+                        "commit_score": evaluate_data['commit_score'],
+                        "pr_scores": json.loads(evaluate_data['pr_scores']) if evaluate_data['pr_scores'] else None,
+                        "issue_scores": json.loads(evaluate_data['issue_scores']) if evaluate_data['issue_scores'] else None,
+                        "commit_message_quality_scores": json.loads(evaluate_data['commit_message_quality_scores']) if evaluate_data['commit_message_quality_scores'] else None,
+                        "commit_message_grammar_scores": json.loads(evaluate_data['commit_message_grammar_scores']) if evaluate_data['commit_message_grammar_scores'] else None,
+                        "total_collaboration_score": evaluate_data['total_collaboration_score'],
+                        "user_collaboration_score": evaluate_data['user_collaboration_score'],
+                        "code_quality": evaluate_data.get('code_quality')
+                    }
+
+                user_repos = [parse_repo_data(repo) for repo in user_repos]
+                user_eval_repos = [parse_evaluate_data(repo) for repo in user_eval_repos]
+                
                 response_data = {
                     'user_repos': user_repos,
                     'user_eval_repos': user_eval_repos
@@ -229,6 +275,7 @@ def analyze_repo():
                     
                     # 데이터가 존재하면
                     repo_analyze = {
+                        "repo_name": repo_name,
                         "repo_selected_time":existing_analyzed_data['repo_selected_time'],
                         "program_lang": json.loads(existing_analyzed_data['program_lang']),
                         "comment_per": json.loads(existing_analyzed_data['comment_per']),
@@ -260,6 +307,7 @@ def analyze_repo():
                     }
                 elif(repo_type=='team'):
                     repo_analyze = {
+                        "repo_name": repo_name,
                         "repo_selected_time":existing_analyzed_data['repo_selected_time'],
                         "program_lang": json.loads(existing_analyzed_data['program_lang']),
                         "comment_per": json.loads(existing_analyzed_data['comment_per']),
@@ -326,6 +374,7 @@ def analyze_repo():
         keyword_counts = {'total_keyword' : func.count_keywords(total_commits), 'user_keyword' : func.count_keywords(user_commits)}
 
         repo_analyze = {
+            "repo_name": repo_name,
             "repo_selected_time":click_time,
             "program_lang": program_lang,
             "comment_per": comment_per,
@@ -473,6 +522,7 @@ def analyze_repo():
         keyword_counts = {'total_keyword': func.count_keywords(total_commits), 'user_keyword': func.count_keywords(user_commits)}
 
         repo_analyze = {
+            "repo_name": repo_name,
             "repo_selected_time":click_time,
             "program_lang": program_lang,
             "comment_per": comment_per,

@@ -97,44 +97,46 @@ function MyPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-        // 세션값이 비어있으면 로그인 상태가 아님이라고 판단하고 로그인 페이지로 이동
-        if (!session_userID) {
-            alert('로그인이 필요한 서비스입니다.');
-            navigate('/login'); 
-        } else {
-            console.log("(myPage) userID :", session_userID);
-            try {
-                const response = await axios.post('http://localhost:5000/api/myPage', { session_userID });
-                const get_data = response.data.user_repos;
-                setGetData(get_data);
-                const get_data2 = response.data.user_eval_repos;
-                setGetData2(get_data2);
-                if (get_data.error) {
-                    console.error("Error from server:", get_data.error);
-                    alert("서버 오류: " + get_data.error);
-                } else {
-                    console.log("get_data : ", get_data);
+      if (!session_userID) {
+        alert('로그인이 필요한 서비스입니다.');
+        navigate('/login');
+      } else {
+        console.log("(myPage) userID :", session_userID);
+        try {
+          const response = await axios.post('http://localhost:5000/api/myPage', { session_userID });
+          const get_data = response.data.user_repos;
+          const get_data2 = response.data.user_eval_repos;
+          setGetData(get_data);
+          setGetData2(get_data2);
+          console.log("fdsf ", get_data);
+          console.log("sdf ", get_data2);
+          if (get_data.error) {
+            console.error("Error from server:", get_data.error);
+            alert("서버 오류: " + get_data.error);
+          } else {
+            console.log("get_data : ", get_data);
 
-                    const repo_names = get_data.map(item => item.repo_name);
-                    setRepoNames(repo_names);
-                    const repo_type = get_data.map(item => item.repo_type);
-                    setRepoType(repo_type)
-                    const repo_selected_time = get_data.map(item => item.repo_selected_time);
-                    setRepoSelectedTime(repo_selected_time)
+            const repo_names = get_data.map(item => item.repo_name);
+            setRepoNames(repo_names);
+            const repo_type = get_data.map(item => item.repo_type);
+            setRepoType(repo_type);
+            const repo_selected_time = get_data.map(item => item.repo_selected_time);
+            setRepoSelectedTime(repo_selected_time);
 
-                    console.log("레포 네임 :  ", repoNames);
-                    console.log("레포 타입 :  ", repoType);
-                    console.log("레포 타임 :  ", repoSelectedTime);
-
-                    setIsLoading(false);
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
+            console.log("레포 네임 :  ", repoNames);
+            console.log("레포 타입 :  ", repoType);
+            console.log("레포 타임 :  ", repoSelectedTime);
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setIsLoading(false); // 데이터 요청 완료 후 로딩 상태 해제
+          console.log("isLoading set to false");
         }
+      }
     };
     fetchData();
-}, [session_userID, navigate]);
+  }, [session_userID, navigate]);
 
   // 검색창에 값 입력시 입력한 값을 검색창에 출력
   const handleUserInputChange = (e) => {
@@ -153,8 +155,6 @@ function MyPage() {
   const handleListButton = () => {
     setIsListButtonActive(!isListButtonActive);
   }
-  console.log("get_data: ", get_data);
-  console.log("get_data2: ", get_data2);
   return (
     <div>
       <div className="top-bar">

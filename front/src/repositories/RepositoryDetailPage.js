@@ -33,7 +33,8 @@ const RepositoryDetailPage = () => {
   if (!repoAnalyze || !evaluate) {
     return <div>Loading...</div>;
   }
-
+  console.log("repoa11",repoAnalyze);
+  console.log("eva11",evaluate);
   const languages = Object.entries(repoAnalyze.program_lang).map(([lang, percentage]) => ({ lang, percentage }));
   const frameworks = repoAnalyze.framework;
 

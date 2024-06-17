@@ -12,7 +12,7 @@ const MyPageCard = ({ repo_name, repo_type, repo_analyzed_data, repo_evaluate_da
     const navigate = useNavigate();
   
     const onClickCard = () => {
-      console.log(repo_analyzed_data);
+      console.log(repo_evaluate_data);
       navigate("/myDetail", {
         state: {
           repo_analyzed_data: repo_analyzed_data,
