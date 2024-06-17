@@ -8,17 +8,33 @@ import js_img from '../resources/js img.png';
 import python_img from '../resources/python img.png';
 import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
 
+
+const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+
+
 const MyPageCard = ({ repo_name, repo_type, repo_analyzed_data, repo_evaluate_data }) => {
     const navigate = useNavigate();
   
     const onClickCard = () => {
+      const click_time = formatDate(new Date());  // 현재 시간을 ISO 포맷으로 가져옵니다.
       console.log(repo_evaluate_data);
       navigate("/myDetail", {
         state: {
           repo_analyzed_data: repo_analyzed_data,
           repo_evaluate_data: repo_evaluate_data,
           repo_name: repo_name,
-          repo_type: repo_type
+          repo_type: repo_type,
+          click_time: click_time
         }
       });
     };

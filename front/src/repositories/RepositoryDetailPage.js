@@ -16,6 +16,7 @@ const RepositoryDetailPage = () => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [modalData, setModalData] = useState(null);
 
+
   useEffect(() => {
     axios.post('http://localhost:5000/api/analyze', { repo_name, username, fileList, repo_type, click_time, session_userID })
       .then(response => {
@@ -28,13 +29,32 @@ const RepositoryDetailPage = () => {
         window.alert('Error: ' + error);
       });
   }, [repo_name, username, fileList, repo_type, click_time, session_userID]);
-
+  const handleReanalyze = () => {
+    // 재분석 요청 시 기존 데이터를 초기화합니다.
+    setRepoAnalyze(null);
+    setEvaluate(null);
+  
+    axios.post('http://localhost:5000/api/reanalyze', {
+      repo_name,
+      username,
+      session_userID,
+      repo_type,
+      click_time
+    })
+      .then(response => {
+        console.log('Reanalyze response:', response);
+        setRepoAnalyze(response.data.repo_analyze);
+        setEvaluate(response.data.evaluate);
+      })
+      .catch(error => {
+        console.error('Error during reanalyze:', error);
+        window.alert('Error: ' + error);
+      });
+  };
 
   if (!repoAnalyze || !evaluate) {
     return <div>Loading...</div>;
   }
-  console.log("repoa11",repoAnalyze);
-  console.log("eva11",evaluate);
   const languages = Object.entries(repoAnalyze.program_lang).map(([lang, percentage]) => ({ lang, percentage }));
   const frameworks = repoAnalyze.framework;
 
@@ -615,6 +635,7 @@ const RepositoryDetailPage = () => {
   return (
     <div className="container">
       <h3>저장소 평가 결과</h3>
+      <button onClick={handleReanalyze} style={{ marginLeft: '20px' }}>재분석하기</button>     
       <div className="repo-details">
         <div className="repo-info">
           <h5>Repository: {repo_name}</h5>

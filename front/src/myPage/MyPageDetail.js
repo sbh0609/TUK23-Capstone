@@ -2,11 +2,12 @@ import React, { Fragment, useState, useEffect } from "react";
 import 'chart.js/auto';
 import "./MyPageDetail.css";
 import { useLocation } from "react-router-dom";
+import axios from 'axios';
 import { Pie, Bar, Line, Doughnut } from 'react-chartjs-2';
 
 const MyPageDetail = () => {
   const location = useLocation();
-  const { repo_analyzed_data, repo_evaluate_data, repo_name, repo_type } = location.state || {}; 
+  const { repo_analyzed_data, repo_evaluate_data, repo_name, repo_type, click_time } = location.state || {}; 
   console.log("Location State:", location.state); // useEffect 밖에서 로그 출력
 
   const [repoAnalyze, setRepoAnalyze] = useState(null);
@@ -25,9 +26,33 @@ const MyPageDetail = () => {
       setRepoAnalyze(repo_analyzed_data);
       setEvaluate(repo_evaluate_data);
       setUsername(repo_analyzed_data.repo_contributor_name);
+      sessionStorage.setItem("username", repo_analyzed_data.repo_contributor_name); // 세션에 저장
     }
   }, [repo_analyzed_data, repo_evaluate_data]);
+  const handleReanalyze = () => {
+    // 재분석 요청 시 기존 데이터를 초기화합니다.
+    setRepoAnalyze(null);
+    setEvaluate(null);
 
+    const username = sessionStorage.getItem("username"); // 세션에서 username 가져오기
+  
+    axios.post('http://localhost:5000/api/reanalyze', {
+      repo_name,
+      username,
+      session_userID,
+      repo_type,
+      click_time
+    })
+      .then(response => {
+        console.log('Reanalyze response:', response);
+        setRepoAnalyze(response.data.repo_analyze);
+        setEvaluate(response.data.evaluate);
+      })
+      .catch(error => {
+        console.error('Error during reanalyze:', error);
+        window.alert('Error: ' + error);
+      });
+  };
   if (!repoAnalyze || !evaluate) {
     return <div>Loading...</div>;
   }
@@ -616,6 +641,7 @@ const MyPageDetail = () => {
   return (
     <div className="container">
       <h3>저장소 평가 결과</h3>
+      <button onClick={handleReanalyze} style={{ marginLeft: '20px' }}>재분석하기</button>
       <div className="repo-details">
         <div className="repo-info">
           <h5>Repository: {repo_name}</h5>

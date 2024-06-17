@@ -682,6 +682,393 @@ def analyze_repo():
         "evaluate": grade_evaluate
     })
     
+@app.route('/api/reanalyze',methods=['POST'])
+@cross_origin()
+def reanalyze_repo():
+    data = request.json
+    repo_name = data.get('repo_name')
+    user_name = data.get('username')
+    user_id = data.get('session_userID')
+    repo_type = data.get('repo_type')
+    click_time = data.get('click_time')
+    
+    all_files_complexity = {}
+    all_files_function_length = {}
+    all_files_parameter_count = {}
+    
+    repo_url = f'https://api.github.com/repos/{user_name}/{repo_name}'
+    user_repo_list = [(repo_name, repo_url)]
+    filtered_files = {}
+    tasks = [classify_repo.apply_async(args=[repo]) for repo in user_repo_list]
+    for task in tasks:
+        result = task.get()
+        repo = result["repo"]
+        print(repo)
+        if repo in user_repo_list and (result["commit"] or result["extension"]):
+            user_repo_list.remove(repo)
+        else:
+            filtered_files[repo[0]] = result["files"]
+    print(filtered_files)
+            
+    repo_file = filtered_files[repo_name]
+    
+    
+    
+    if(repo_type=='personal'):
+        program_lang= get_used_lang(repo_name,all_lang,headers)
+        repo_file_data,complex_file_path=get_file_data(repo_file,repo_name,user_id,headers)
+        comment_per=comment_percent(repo_file_data)
+        framework=analyze_dependencies(repo_file_data)
+        dup_code=detect_code_duplication(repo_file_data)
+
+        tasks = [analyze_file_task.apply_async(args=[file_path]) for file_path in complex_file_path]
+
+        for task in tasks:
+            result = task.get()
+            file_path = result['file_path']
+            all_files_complexity[file_path] = result['complexity_info']
+            all_files_function_length[file_path] = result['function_length_info']
+            all_files_parameter_count[file_path] = result['parameter_count_info']
+
+        total_commits, user_commits = func.get_repository_commits(repo_name, user_name, token)
+        total_quality, user_quality = func.classify_commit_quality(total_commits, user_commits)
+        total_grammar, user_grammar = func.check_grammar(total_commits, user_commits)
+        keyword_counts = {'total_keyword' : func.count_keywords(total_commits), 'user_keyword' : func.count_keywords(user_commits)}
+
+        repo_analyze = {
+            "repo_name": repo_name,
+            "repo_selected_time":click_time,
+            "program_lang": program_lang,
+            "comment_per": comment_per,
+            "framework": framework,
+            "duplicate_code": dup_code,
+            "complexity": all_files_complexity,
+            "function_length": all_files_function_length,
+            "parameter_count": all_files_parameter_count,
+            "total_quality": total_quality,
+            "user_quality": user_quality,
+            "total_grammar": total_grammar,
+            "user_grammar": user_grammar,
+            "keyword_count": keyword_counts,
+            "repo_type": repo_type
+        }
+        
+        # 평가 점수 계산
+        comment_score = evaluate_comment_percentage(comment_per[2])
+        duplication_score = evaluate_code_duplication(dup_code[2])
+        complexity_file_scores, complexity_repo_score = evaluate_complexity(all_files_complexity)
+        function_length_file_scores, function_length_repo_score = evaluate_function_length(all_files_function_length)
+        parameter_count_file_scores, parameter_count_repo_score = evaluate_parameter_count(all_files_parameter_count)
+        commit_message_quality_scores = evaluate_commit_message_quality(total_quality, user_quality)
+        commit_message_grammar_scores = evaluate_commit_message_grammar(total_grammar, user_grammar)
+
+        evaluate = {
+            "comment_score": comment_score,
+            "duplication_score": duplication_score,
+            "complexity_file_scores": complexity_file_scores,
+            "complexity_repo_score": complexity_repo_score,
+            "function_length_file_scores":function_length_file_scores,
+            "function_length_repo_score":function_length_repo_score,
+            "parameter_count_file_scores":parameter_count_file_scores,
+            "parameter_count_repo_score": parameter_count_repo_score,
+            "commit_message_quality_scores": commit_message_quality_scores,
+            "commit_message_grammar_scores": commit_message_grammar_scores
+        }
+        grade_evaluate=convert_scores_to_grades(evaluate)
+        code_quality=team_code_quality(evaluate)
+        grade_evaluate['code_quality'] = code_quality
+        try:
+            connection = connect_to_database()
+            with connection.cursor() as cursor:
+                sql_insert = """
+                    INSERT INTO analyzed_repo_data (
+                        web_user_id, 
+                        repo_selected_time,
+                        repo_name, 
+                        repo_contributor_name, 
+                        program_lang, 
+                        comment_per, 
+                        framework, 
+                        duplicate_code, 
+                        complexity, 
+                        function_length, 
+                        parameter_count, 
+                        total_quality, 
+                        user_quality, 
+                        total_grammar, 
+                        user_grammar,
+                        keyword_count,
+                        repo_type
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                cursor.execute(sql_insert, (
+                    user_id,
+                    click_time,
+                    repo_name,
+                    user_name,
+                    json.dumps(repo_analyze['program_lang']),
+                    json.dumps(repo_analyze['comment_per']),
+                    json.dumps(repo_analyze['framework']),
+                    json.dumps(repo_analyze['duplicate_code']),
+                    json.dumps(repo_analyze['complexity']),
+                    json.dumps(repo_analyze['function_length']),
+                    json.dumps(repo_analyze['parameter_count']),
+                    json.dumps(repo_analyze['total_quality']),
+                    json.dumps(repo_analyze['user_quality']),
+                    repo_analyze['total_grammar'],
+                    repo_analyze['user_grammar'],
+                    json.dumps(repo_analyze["keyword_count"]),
+                    repo_type
+                ))
+                sql_insert_evaluate = """
+                    INSERT INTO evaluate_repo_data (
+                        repo_selected_time,
+                        repo_name,
+                        repo_contributor_name,
+                        web_user_id,
+                        comment_score,
+                        duplication_score,
+                        complexity_file_scores,
+                        complexity_repo_score,
+                        function_length_file_scores,
+                        function_length_repo_score,
+                        parameter_count_file_scores,
+                        parameter_count_repo_score,
+                        commit_message_quality_scores,
+                        commit_message_grammar_scores
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                cursor.execute(sql_insert_evaluate, (
+                    click_time,
+                    repo_name,
+                    user_name,
+                    user_id,
+                    grade_evaluate['comment_score'],
+                    grade_evaluate['duplication_score'],
+                    json.dumps(grade_evaluate['complexity_file_scores']),
+                    grade_evaluate['complexity_repo_score'],
+                    json.dumps(grade_evaluate['function_length_file_scores']),
+                    grade_evaluate['function_length_repo_score'],
+                    json.dumps(grade_evaluate['parameter_count_file_scores']),
+                    grade_evaluate['parameter_count_repo_score'],
+                    json.dumps(grade_evaluate['commit_message_quality_scores']),
+                    json.dumps(grade_evaluate['commit_message_grammar_scores'])
+                ))
+                connection.commit()
+        except Exception as e:
+            return jsonify({'DataBase Insert Error': str(e)}), 500
+    
+    elif(repo_type=='team'):
+        program_lang= get_used_lang(repo_name,all_lang,headers)
+        repo_file_data,complex_file_path=get_file_data(repo_file,repo_name,user_id,headers)
+        
+        comment_per=comment_percent(repo_file_data)
+        framework=analyze_dependencies(repo_file_data)
+        dup_code=detect_code_duplication(repo_file_data)
+        pr_data=get_pr_stats(user_name,repo_name,headers)
+        issue_data = get_issue_stats(user_name,repo_name,headers)
+        commit_per = commit_percent(user_name,repo_name,headers)
+        
+        tasks = [analyze_file_task.apply_async(args=[file_path]) for file_path in complex_file_path]
+
+        for task in tasks:
+            result = task.get()
+            file_path = result['file_path']
+            all_files_complexity[file_path] = result['complexity_info']
+            all_files_function_length[file_path] = result['function_length_info']
+            all_files_parameter_count[file_path] = result['parameter_count_info']
+        
+        total_commits, user_commits = func.get_repository_commits(repo_name, user_name, token)
+        total_quality, user_quality = func.classify_commit_quality(total_commits, user_commits)
+        total_grammar, user_grammar = func.check_grammar(total_commits, user_commits)
+        keyword_counts = {'total_keyword': func.count_keywords(total_commits), 'user_keyword': func.count_keywords(user_commits)}
+
+        repo_analyze = {
+            "repo_name": repo_name,
+            "repo_selected_time":click_time,
+            "program_lang": program_lang,
+            "comment_per": comment_per,
+            "framework": framework,
+            "duplicate_code": dup_code,
+            "pr_data": pr_data,
+            "commit_per": commit_per,
+            "issue_data": issue_data,
+            "complexity": all_files_complexity,
+            "function_length": all_files_function_length,
+            "parameter_count": all_files_parameter_count,
+            "total_quality": total_quality,
+            "user_quality": user_quality,
+            "total_grammar": total_grammar,
+            "user_grammar": user_grammar,
+            "keyword_count": keyword_counts,
+            "repo_type": repo_type
+        }
+                # 평가 점수 계산
+        comment_score = evaluate_comment_percentage(comment_per[2])
+        duplication_score = evaluate_code_duplication(dup_code[2])
+        complexity_file_scores, complexity_repo_score = evaluate_complexity(all_files_complexity)
+        function_length_file_scores, function_length_repo_score = evaluate_function_length(all_files_function_length)
+        parameter_count_file_scores, parameter_count_repo_score = evaluate_parameter_count(all_files_parameter_count)
+        commit_score = evaluate_commit_percentage(commit_per)
+        pr_scores = evaluate_pr_percentage(pr_data)
+        issue_scores = evaluate_issue_percentage(issue_data)
+        commit_message_quality_scores = evaluate_commit_message_quality(total_quality, user_quality)
+        commit_message_grammar_scores = evaluate_commit_message_grammar(total_grammar, user_grammar)
+
+        evaluate = {
+            "comment_score": comment_score,
+            "duplication_score": duplication_score,
+            "complexity_file_scores": complexity_file_scores,
+            "complexity_repo_score": complexity_repo_score,
+            "function_length_file_scores":function_length_file_scores,
+            "function_length_repo_score":function_length_repo_score,
+            "parameter_count_file_scores":parameter_count_file_scores,
+            "parameter_count_repo_score": parameter_count_repo_score,
+            "commit_score": commit_score,
+            "pr_scores": pr_scores,
+            "issue_scores": issue_scores,
+            "commit_message_quality_scores": commit_message_quality_scores,
+            "commit_message_grammar_scores": commit_message_grammar_scores
+        }
+        grade_evaluate=convert_scores_to_grades(evaluate)
+            
+        total_collaboration_score=calculate_total_collaboration_score(evaluate)
+        user_collaboration_score=calculate_user_collaboration_score(evaluate)
+        code_quality=team_code_quality(evaluate)
+        
+        # 추가 점수 변환
+        grade_evaluate['total_collaboration_score'] = total_collaboration_score
+        grade_evaluate['user_collaboration_score'] = user_collaboration_score
+        grade_evaluate['code_quality'] = code_quality
+        try:
+            connection = connect_to_database()
+            with connection.cursor() as cursor:
+                sql_insert = """
+                    INSERT INTO analyzed_repo_data (
+                        repo_selected_time, 
+                        repo_name, 
+                        repo_contributor_name, 
+                        web_user_id, 
+                        program_lang, 
+                        comment_per, 
+                        framework, 
+                        duplicate_code, 
+                        pr_data, 
+                        commit_per, 
+                        issue_data, 
+                        complexity, 
+                        function_length, 
+                        parameter_count, 
+                        total_quality, 
+                        user_quality, 
+                        total_grammar, 
+                        user_grammar,
+                        keyword_count,
+                        repo_type
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                cursor.execute(sql_insert, (
+                    click_time,
+                    repo_name,
+                    user_name,
+                    user_id,
+                    json.dumps(repo_analyze['program_lang']),
+                    json.dumps(repo_analyze['comment_per']),
+                    json.dumps(repo_analyze['framework']),
+                    json.dumps(repo_analyze['duplicate_code']),
+                    json.dumps(repo_analyze['pr_data']),
+                    json.dumps(repo_analyze['commit_per']),
+                    json.dumps(repo_analyze['issue_data']),
+                    json.dumps(repo_analyze['complexity']),
+                    json.dumps(repo_analyze['function_length']),
+                    json.dumps(repo_analyze['parameter_count']),
+                    json.dumps(repo_analyze['total_quality']),
+                    json.dumps(repo_analyze['user_quality']),
+                    repo_analyze['total_grammar'],
+                    repo_analyze['user_grammar'],
+                    json.dumps(repo_analyze["keyword_count"]),
+                    repo_type
+                ))
+                sql_insert_evaluate = """
+                     INSERT INTO evaluate_repo_data (
+                        repo_selected_time,
+                        repo_name,
+                        repo_contributor_name,
+                        web_user_id,
+                        comment_score,
+                        duplication_score,
+                        complexity_file_scores,
+                        complexity_repo_score,
+                        function_length_file_scores,
+                        function_length_repo_score,
+                        parameter_count_file_scores,
+                        parameter_count_repo_score,
+                        commit_score,
+                        pr_scores,
+                        issue_scores,
+                        commit_message_quality_scores,
+                        commit_message_grammar_scores,
+                        total_collaboration_score,
+                        user_collaboration_score,
+                        code_quality
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                cursor.execute(sql_insert_evaluate, (
+                    click_time,
+                    repo_name,
+                    user_name,
+                    user_id,
+                    grade_evaluate['comment_score'],
+                    grade_evaluate['duplication_score'],
+                    json.dumps(grade_evaluate['complexity_file_scores']),
+                    grade_evaluate['complexity_repo_score'],
+                    json.dumps(grade_evaluate['function_length_file_scores']),
+                    grade_evaluate['function_length_repo_score'],
+                    json.dumps(grade_evaluate['parameter_count_file_scores']),
+                    grade_evaluate['parameter_count_repo_score'],
+                    grade_evaluate['commit_score'],
+                    json.dumps(grade_evaluate['pr_scores']),
+                    json.dumps(grade_evaluate['issue_scores']),
+                    json.dumps(grade_evaluate['commit_message_quality_scores']),
+                    json.dumps(grade_evaluate['commit_message_grammar_scores']),
+                    grade_evaluate['total_collaboration_score'],
+                    grade_evaluate['user_collaboration_score'],
+                    grade_evaluate['code_quality']
+                ))
+                connection.commit()
+        except Exception as e:
+            return jsonify({'DataBase Insert Error': str(e)}), 500
+    try:
+        connection = connect_to_database()
+        with connection.cursor() as cursor:
+            # 최근 데이터 제외하고 삭제
+            sql_delete_analyzed = """
+                DELETE FROM analyzed_repo_data 
+                WHERE repo_name = %s AND repo_contributor_name = %s AND web_user_id = %s 
+                AND repo_selected_time < %s
+            """
+            cursor.execute(sql_delete_analyzed, (
+                repo_name, user_name, user_id, click_time
+            ))
+
+            sql_delete_evaluate = """
+                DELETE FROM evaluate_repo_data 
+                WHERE repo_name = %s AND repo_contributor_name = %s AND web_user_id = %s 
+                AND repo_selected_time < %s
+            """
+            cursor.execute(sql_delete_evaluate, (
+                repo_name, user_name, user_id, click_time
+            ))
+
+            connection.commit()
+    except Exception as e:
+        return jsonify({'DataBase Delete Error': str(e)}), 500
+    return jsonify({
+        "repo_analyze": repo_analyze,
+        "evaluate": grade_evaluate
+    })
+
+    
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
     
