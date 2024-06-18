@@ -61,9 +61,6 @@ function MyPage() {
     sessionStorage.removeItem("userID");
     navigate("/login");
   }
-  const handleProfileButton = () => {
-    navigate("/myPage");
-  }
   const handleSearchButton = () => {
     navigate("/search")
   }
@@ -159,6 +156,11 @@ function MyPage() {
   const handleListButton = () => {
     setIsListButtonActive(!isListButtonActive);
   }
+  const handleRepositoryButtonClick = () => {
+    console.log("Clicked repository:");
+  };
+
+
   return (
     <div>
       <div className="top-bar">
@@ -186,7 +188,20 @@ function MyPage() {
           </button>
 
           <div className="side-bar-first-section2">
-  
+            {isListButtonActive && (
+                <div>
+                  {repoNames.map((repoName, index) => {
+                    return (
+                        <button 
+                            key={index} 
+                            className="side-repository-button"
+                        >
+                            {repoName}
+                        </button>
+                    );
+                })}
+                </div>
+                )}
           </div>
         </div>
 

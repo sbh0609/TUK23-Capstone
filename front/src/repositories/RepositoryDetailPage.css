@@ -2,6 +2,43 @@
   text-align: center;
 }
 
+.loading {
+  position: relative;
+  display: flex;
+  justify-content: center; /* 가로 중앙 정렬 */
+  align-items: center; /* 세로 중앙 정렬 */
+  height: 100vh; /* 부모 컨테이너의 높이 */
+}
+
+.gifLoading {
+  position: relative;
+  top: -100px; 
+}
+
+.loading-title {
+  margin-top: 5px;
+}
+
+.loading-explain {
+  margin-top: 5px;
+}
+
+.reanalyze-button {
+  position: relative;
+  width: 100px;
+  left: +500px;
+  top: -100px;
+
+  font-weight: bolder;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-style: normal;
+  font-size: 16px;
+  color: white!important;
+
+  background-color: #AEDFF7;
+  border: none;
+}
+
 .top-bar {
   position: fixed;
   top: 0;

@@ -413,6 +413,8 @@
   position: relative;
   align-items: center!important;
   justify-content: center!important;
+  top: -100px;
+
 
   height: 150px;
 }
@@ -421,7 +423,7 @@
   position: relative;
     
   font-size: 40px;
-  padding: 30px;
+  padding: 5px;
 }
 
 .loading-explain{

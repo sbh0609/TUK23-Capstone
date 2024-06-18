@@ -4,6 +4,7 @@ import "./RepositoryDetailPage.css";
 import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
 import axios from 'axios';
 import { Pie,Bar,Line,Doughnut } from 'react-chartjs-2';
+import scannerIcon from '../resources/DetailSpinner.gif';
 
 
 const RepositoryDetailPage = () => {
@@ -15,7 +16,8 @@ const RepositoryDetailPage = () => {
   const [open, setOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [modalData, setModalData] = useState(null);
-
+  const [isLoading, setIsLoading] = useState(true);
+ 
 
   useEffect(() => {
     axios.post('http://localhost:5000/api/analyze', { repo_name, username, fileList, repo_type, click_time, session_userID })
@@ -45,6 +47,7 @@ const RepositoryDetailPage = () => {
         console.log('Reanalyze response:', response);
         setRepoAnalyze(response.data.repo_analyze);
         setEvaluate(response.data.evaluate);
+        setIsLoading(false);
       })
       .catch(error => {
         console.error('Error during reanalyze:', error);
@@ -53,7 +56,15 @@ const RepositoryDetailPage = () => {
   };
 
   if (!repoAnalyze || !evaluate) {
-    return <div>Loading...</div>;
+    return (
+      <div className="loading">
+        <img src={scannerIcon} alt="GIF" className="gifLoading" />
+        <div className="loading-title" >Loading...</div>
+        <div className="loading-explain">
+          선택한 저장소의 내용을 분석하고 평가중입니다...
+        </div>
+      </div>
+    )
   }
   const languages = Object.entries(repoAnalyze.program_lang).map(([lang, percentage]) => ({ lang, percentage }));
   const frameworks = repoAnalyze.framework;
@@ -633,9 +644,9 @@ const RepositoryDetailPage = () => {
   };
 
   return (
-    <div className="container">
+    <div className="container"> 
       <h3>저장소 평가 결과</h3>
-      <button onClick={handleReanalyze} style={{ marginLeft: '20px' }}>재분석하기</button>     
+      <button onClick={handleReanalyze} className="reanalyze-button">재분석</button>     
       <div className="repo-details">
         <div className="repo-info">
           <h5>Repository: {repo_name}</h5>
@@ -789,7 +800,7 @@ const RepositoryDetailPage = () => {
           </>
         )}
       </div>
-
+  
       {open && (
         <div className="modal" onClick={handleClose}>
           <div className={`modal_body ${repo_type === "team" ? "team-modal-body" : ""}`} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '80vw', height: 'auto' }}>

@@ -4,6 +4,7 @@ import "./MyPageDetail.css";
 import { useLocation } from "react-router-dom";
 import axios from 'axios';
 import { Pie, Bar, Line, Doughnut } from 'react-chartjs-2';
+import scannerIcon from '../resources/DetailSpinner.gif';
 
 const MyPageDetail = () => {
   const location = useLocation();
@@ -54,7 +55,15 @@ const MyPageDetail = () => {
       });
   };
   if (!repoAnalyze || !evaluate) {
-    return <div>Loading...</div>;
+    return (
+      <div className="loading">
+        <img src={scannerIcon} alt="GIF" className="gifLoading" />
+        <div className="loading-title" >Loading...</div>
+        <div className="loading-explain">
+          선택한 저장소의 내용을 분석하고 평가중입니다...
+        </div>
+      </div>
+    )
   }
   console.log("repoa",repoAnalyze);
   console.log("eva",evaluate);

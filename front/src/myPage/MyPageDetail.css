@@ -2,6 +2,19 @@
   text-align: center;
 }
 
+.loading {
+  position: relative;
+  display: flex;
+  justify-content: center; /* 가로 중앙 정렬 */
+  align-items: center; /* 세로 중앙 정렬 */
+  height: 100vh; /* 부모 컨테이너의 높이 */
+}
+
+.gifLoading {
+  position: relative;
+  top: -100px; 
+}
+
 .top-bar {
   position: fixed;
   top: 0;

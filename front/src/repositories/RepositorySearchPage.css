@@ -46,6 +46,7 @@
   background-color: #eaecf0;
   border: 1px solid #ddd;
   border-radius: 8px;
+  z-index: 10;
 }
 
 .LoginPage-LoginBox input {
@@ -135,7 +136,8 @@
 }
 
 .loading-explain {
-  margin-top: 200px;
-
-  font-size: 100px;
+  margin-top: 20px;
+  font-size: 16px;
+  text-align: center;
+  z-index: 1;
 }
