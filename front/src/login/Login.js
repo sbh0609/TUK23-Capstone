@@ -61,6 +61,10 @@ function Login() {
     };
 
     useEffect(() => {
+        if (sessionStorage.getItem("userID") !== null) {
+            navigate('/search');
+        }
+
         if (userID.trim() === "" || password.trim() === "") {
             setButtonCheck(false);
         }

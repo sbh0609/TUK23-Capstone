@@ -177,7 +177,7 @@ function MyPage() {
       <div className="side-bar">
         <div className="side-bar-first-section">
           <button onClick={handleListButton} className="side-list-button">
-            <img src={bookmarkIcon} alt="프로필 아이콘" className="side-bar-icon list-button-icon"/> 저장소 목록
+            <img src={bookmarkIcon} alt="프로필 아이콘" className="side-bar-icon list-button-icon"/> 저장된 저장소 목록
             <img src={isListButtonActive ? arrowScrollUpIcon : arrowScrollDownIcon} alt="프로필 아이콘" className="list-button-icon2" />
           </button>
 
