@@ -57,10 +57,10 @@ const RepositoryDetailPage = () => {
 
   if (!repoAnalyze || !evaluate) {
     return (
-      <div className="loading">
-        <img src={scannerIcon} alt="GIF" className="gifLoading" />
-        <div className="loading-title" >Loading...</div>
-        <div className="loading-explain">
+      <div className="detail-loading">
+        <img src={scannerIcon} alt="GIF" className="detail-gifLoading" /><br></br>
+        <div className="detail-loading-title" >Loading...<br></br></div>
+        <div className="detail-loading-explain">
           선택한 저장소의 내용을 분석하고 평가중입니다...
         </div>
       </div>

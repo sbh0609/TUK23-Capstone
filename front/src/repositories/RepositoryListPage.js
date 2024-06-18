@@ -242,10 +242,10 @@ function RepositoryListPage() {
 
       <div className="repository-list-field" >
         {isLoading ? (
-          <div className="loading">
-            <img src={gifLoading} alt="GIF" className="gifLoading" />
-            <div className="loading-title" >Load Repositories...</div>
-            <div className="loading-explain">
+          <div className="list-loading">
+            <img src={gifLoading} alt="GIF" className="list-gifLoading" />
+            <div className="list-loading-title" >Load Repositories...</div>
+            <div className="list-loading-explain">
               commit 수와 의존성 파일 유무를 통해<br />
               분석할 repository들을 선별하고 있습니다.<br /><br />
             </div>

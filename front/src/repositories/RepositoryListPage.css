@@ -1,4 +1,4 @@
-.container {
+.List {
   display: flex;
   flex-direction: column;
 
@@ -397,7 +397,7 @@
   width: calc(100vw - 235px);
 }
 
-.loading {
+.list-loading {
   position: relative;
   display: flex;
     
@@ -409,25 +409,25 @@
   height: 100px;
 }
 
-.gifLoading {
+.list-gifLoading {
   position: relative;
   align-items: center!important;
   justify-content: center!important;
-  top: -100px;
+  top: 0px!important;
 
 
   height: 150px;
 }
 
-.loading-title {
+.list-loading-title {
   position: relative;
-    
+  
+  top: 50px;
   font-size: 40px;
-  padding: 5px;
 }
 
-.loading-explain{
+.list-loading-explain{
   position: relative;
-    
+  top: 100px;
   font-size: 16px;
 }
