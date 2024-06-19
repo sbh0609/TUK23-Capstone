@@ -2,18 +2,28 @@
   text-align: center;
 }
 
-.loading {
+.mydetail-loading {
   position: relative;
   display: flex;
   justify-content: center; /* 가로 중앙 정렬 */
   align-items: center; /* 세로 중앙 정렬 */
   height: 100vh; /* 부모 컨테이너의 높이 */
+  flex-direction: column;
 }
 
-.gifLoading {
+.mydetail-gifLoading {
   position: relative;
-  top: -100px; 
+  top: 0px!important; 
 }
+
+.mydetail-loading-title {
+  top: 150px!important; 
+}
+
+.mydetail-loading-explain {
+  top: 300px!important; 
+}
+
 
 .top-bar {
   position: fixed;

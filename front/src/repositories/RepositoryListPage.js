@@ -150,7 +150,7 @@ function RepositoryListPage() {
     // 여기에서 repository 데이터를 사용하여 원하는 작업 수행
   };
 
-  /*
+  
   const filterRepositories = (repositories, userType, userLanguage, userEct) => {
     return repositories.filter(repo => {
       const matchesType = userType === "" || repo.type === userType;
@@ -161,7 +161,7 @@ function RepositoryListPage() {
   }
 
   const filteredRepositories = filterRepositories(repositories, userType, userLanguage, userEct);
- */
+ 
   return (
     <div>
       <div className="top-bar">
@@ -252,7 +252,7 @@ function RepositoryListPage() {
           </div>
         ) : (
           <CardList 
-            repositories={repositories} 
+            repositories={filterRepositories(repositories, userInput, userType, userLanguage, userEct)} 
             file_data={file_data} 
             username = {globusername}
             personal_list = {personal_list}
