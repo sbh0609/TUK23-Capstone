@@ -720,7 +720,7 @@ const RepositoryDetailPage = () => {
                 <div className="chart">
                   <Doughnut data={commentDoughnutData} />
                 </div>
-                <p>{(commentRatio * 100).toFixed(1)}% comments</p>
+                <p>{commentRatio}% comments</p>
               </div>
             </div>
             <div className="card">
@@ -732,7 +732,7 @@ const RepositoryDetailPage = () => {
                 <div className="chart">
                   <Doughnut data={duplicationDoughnutData} />
                 </div>
-                <p>{(duplicationRatio * 100).toFixed(1)}% duplication</p>
+                <p>{duplicationRatio}% duplication</p>
               </div>
             </div>
             <div className="card" onClick={() => handleOpen(
