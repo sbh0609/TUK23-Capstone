@@ -868,7 +868,8 @@ const RepositoryDetailPage = () => {
                   )}
                 </div>
                 <p className="team-modal-ratio">Commit Ratio: {repoAnalyze.commit_per[2]}%</p>
-
+                
+                <br></br><br></br>
                 <h3 className="team-modal-subheader">PR Scores</h3>
                 <p className="team-modal-score">
                   User PR Score: {evaluate.pr_scores.user_pr_score} / Merged PR Score: {evaluate.pr_scores.merged_pr_score} / Total PR Merge Score: {evaluate.pr_scores.total_pr_merge_score}
@@ -952,7 +953,7 @@ const RepositoryDetailPage = () => {
                     <Bar data={complexityBarData} options={complexityOptions} />
                   </div>
                   <div className="team-chart-large">
-                    <Line data={getLineChartData(complexityDetails, 'Complexity Distribution')} options={lineChartOptions} />
+                    <Line data={getLineChartData(complexityDetails, 'Complexity cDistribution')} options={lineChartOptions} />
                   </div>
                 </div>
 
