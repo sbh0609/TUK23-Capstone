@@ -151,16 +151,17 @@ function RepositoryListPage() {
   };
 
   
-  const filterRepositories = (repositories, userType, userLanguage, userEct) => {
+  const filterRepositories = (repositories, userInput, userType, userLanguage, userEct) => {
     return repositories.filter(repo => {
+      const matchesInput = userInput === "" || (repo[0] && repo[0].toLowerCase().includes(userInput.toLowerCase()));
       const matchesType = userType === "" || repo.type === userType;
       const matchesLanguage = userLanguage === "" || repo.language === userLanguage;
       const matchesEct = userEct === "" || repo.ect === userEct;
-      return matchesType && matchesLanguage && matchesEct;
+      return matchesInput && matchesType && matchesLanguage && matchesEct;
     });
-  }
+  };
 
-  const filteredRepositories = filterRepositories(repositories, userType, userLanguage, userEct);
+  const filteredRepositories = filterRepositories(repositories, userInput, userType, userLanguage, userEct);
  
   return (
     <div>
@@ -233,9 +234,6 @@ function RepositoryListPage() {
               />
             </label>
           <div className="search-bar-dropdown">
-            <Select options={type_options} styles={optionStyles} placeholder="Type" onChange={handleUserTypeChange}/>
-            <Select options={language_options} styles={optionStyles} placeholder="Language" onChange={handleUserLanguageChange}/>
-            <Select options={ect_options} styles={optionStyles} placeholder="Ect" onChange={handleUserEctChange}/>
           </div>
         </div>
       </div>

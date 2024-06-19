@@ -328,7 +328,7 @@
 
   top: 70px!important;
   left: 235px;
-  width: calc(100vw - 235px);
+  width: calc(100vw - 450px);
   height: 100px;
 
   background-color: white!important;
@@ -373,7 +373,7 @@
 
 .search-bar {
   height: 40px!important;
-  width: 400px;
+  width: 700px;
 
   margin-left:0px!important;
   

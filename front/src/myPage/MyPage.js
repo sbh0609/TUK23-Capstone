@@ -160,6 +160,19 @@ function MyPage() {
     console.log("Clicked repository:");
   };
 
+  const filterRepositories = (repoNames, userInput, userType, userLanguage, userEct, get_data) => {
+    return repoNames.filter(repoName => {
+      const repo = get_data.find(item => item.repo_name === repoName);
+      const matchesInput = userInput === "" || repoName.toLowerCase().includes(userInput.toLowerCase());
+      const matchesType = userType === "" || (repo && repo.repo_type === userType);
+      const matchesLanguage = userLanguage === "" || (repo && repo.main_language === userLanguage);
+      const matchesEct = userEct === "" || (repo && repo.ect === userEct);
+      return matchesInput && matchesType && matchesLanguage && matchesEct;
+    });
+  };
+  
+  const filteredRepositories = filterRepositories(repoNames, userInput, userType, userLanguage, userEct, get_data);
+
 
   return (
     <div>
@@ -230,9 +243,6 @@ function MyPage() {
               />
             </label>
           <div className="search-bar-dropdown">
-            <Select options={type_options} styles={optionStyles} placeholder="Type" onChange={handleUserTypeChange}/>
-            <Select options={language_options} styles={optionStyles} placeholder="Language" onChange={handleUserLanguageChange}/>
-            <Select options={ect_options} styles={optionStyles} placeholder="Ect" onChange={handleUserEctChange}/>
           </div>
         </div>
       </div>
@@ -249,7 +259,7 @@ function MyPage() {
           </div>
         ) : (
           <MyPageCardList 
-            repositories={repoNames}
+            repositories={filteredRepositories}
             repo_type={repoType}
             repo_analyzed_data={get_data}
             repo_evaluate_data={get_data2}
