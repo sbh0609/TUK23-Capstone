@@ -116,12 +116,12 @@ def find_own_repo():
         connection = connect_to_database()
         with connection.cursor() as cursor:
             sql = "SELECT * FROM analyzed_repo_data WHERE web_user_id = %s"
-            cursor.execute(sql, (userID,))
+            cursor.execute(sql, (userID))
             user_repos = cursor.fetchall()
             
             if user_repos:
                 sql = "SELECT * FROM evaluate_repo_data WHERE web_user_id = %s"
-                cursor.execute(sql, (userID,))
+                cursor.execute(sql, (userID))
                 user_eval_repos = cursor.fetchall()
                 
                 def parse_repo_data(repo_data):
@@ -173,6 +173,7 @@ def find_own_repo():
                     'user_repos': user_repos,
                     'user_eval_repos': user_eval_repos
                 }
+                print(response_data)
                 return jsonify(response_data), 200
             else:
                 return jsonify({"error": "No repositories found for the user"}), 404

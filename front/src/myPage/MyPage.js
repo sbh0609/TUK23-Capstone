@@ -122,10 +122,6 @@ function MyPage() {
             setRepoType(repo_type);
             const repo_selected_time = get_data.map(item => item.repo_selected_time);
             setRepoSelectedTime(repo_selected_time);
-
-            console.log("레포 네임 :  ", repoNames);
-            console.log("레포 타입 :  ", repoType);
-            console.log("레포 타임 :  ", repoSelectedTime);
           }
         } catch (error) {
           console.error("Error fetching data:", error);

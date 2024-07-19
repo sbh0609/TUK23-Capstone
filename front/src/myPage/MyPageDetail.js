@@ -29,6 +29,7 @@ const MyPageDetail = () => {
       sessionStorage.setItem("username", repo_analyzed_data.repo_contributor_name); // 세션에 저장
     }
   }, [repo_analyzed_data, repo_evaluate_data]);
+  
   const handleReanalyze = () => {
     // 재분석 요청 시 기존 데이터를 초기화합니다.
     setRepoAnalyze(null);
