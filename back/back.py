@@ -127,6 +127,7 @@ def find_own_repo():
                 def parse_repo_data(repo_data):
                     return {
                         "repo_name": repo_data['repo_name'],
+                        "repo_contributor_name" : repo_data['repo_contributor_name'],
                         "repo_selected_time": repo_data['repo_selected_time'],
                         "program_lang": json.loads(repo_data['program_lang']) if repo_data['program_lang'] else None,
                         "comment_per": json.loads(repo_data['comment_per']) if repo_data['comment_per'] else None,
@@ -692,7 +693,7 @@ def reanalyze_repo():
     user_id = data.get('session_userID')
     repo_type = data.get('repo_type')
     click_time = data.get('click_time')
-    
+
     all_files_complexity = {}
     all_files_function_length = {}
     all_files_parameter_count = {}

@@ -18,6 +18,7 @@ const RepositoryDetailPage = () => {
 
 
   useEffect(() => {
+
     axios.post('http://localhost:5000/api/analyze', { repo_name, username, fileList, repo_type, click_time, session_userID })
       .then(response => {
         console.log(response);

@@ -18,11 +18,12 @@ const MyPageDetail = () => {
   const [open, setOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [modalData, setModalData] = useState(null);
-
+  
   useEffect(() => {
     if (repo_analyzed_data && repo_evaluate_data) {
       console.log("(detail) repoAnalyze: ", repo_analyzed_data);
       console.log("(detail) evaluate: ", repo_evaluate_data);
+      
       setRepoAnalyze(repo_analyzed_data);
       setEvaluate(repo_evaluate_data);
       setUsername(repo_analyzed_data.repo_contributor_name);
@@ -36,7 +37,6 @@ const MyPageDetail = () => {
     setEvaluate(null);
 
     const username = sessionStorage.getItem("username"); // 세션에서 username 가져오기
-  
     axios.post('http://localhost:5000/api/reanalyze', {
       repo_name,
       username,
