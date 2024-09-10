@@ -8,6 +8,7 @@ import MyPageDetail from './myPage/MyPageDetail';
 import Search from './repositories/RepositorySearchPage';
 import RepositoryListPage from './repositories/RepositoryListPage';
 import RepositoryDetailPage from './repositories/RepositoryDetailPage'
+import RepositoryEvaluatePage from './repositories/RepositoryEvaluatePage';
 import AboutUsPage from './pages/AboutUsPage'
 import { RepositoryProvider } from './Context/RepositoryContext'; // 방금 만든 컨텍스트를 가져옵니다
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -31,7 +32,8 @@ function App(){
             <Route path='/detail' element={<RepositoryDetailPage/>} />
             <Route path='/aboutUs' element={<AboutUsPage />} />
             <Route path='/dbtest' element={<DBtest/>} />
-
+            <Route path='/evaluate' element={<RepositoryEvaluatePage/>} />
+    
             <Route index element={<MainPage />} />
           </Routes>
         </BrowserRouter>

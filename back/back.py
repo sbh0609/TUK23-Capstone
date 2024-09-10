@@ -678,7 +678,10 @@ def analyze_repo():
                 connection.commit()
         except Exception as e:
             return jsonify({'DataBase Insert Error': str(e)}), 500
-        
+    print(jsonify({
+        "repo_analyze": repo_analyze,
+        "evaluate": grade_evaluate
+    }))
     return jsonify({
         "repo_analyze": repo_analyze,
         "evaluate": grade_evaluate

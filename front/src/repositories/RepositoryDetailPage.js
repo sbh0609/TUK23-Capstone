@@ -3,39 +3,82 @@ import 'chart.js/auto';
 import "./RepositoryDetailPage.css";
 import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
 import axios from 'axios';
+import { useLocation } from 'react-router-dom'; // useLocation 가져오기
 import { Pie,Bar,Line,Doughnut } from 'react-chartjs-2';
 
 
+// const RepositoryDetailPage = () => {
+//   const session_userID = sessionStorage.getItem("userID");
+//   const { repositoryDetail } = useRepository();
+//   const { repo_name, fileList, username, repo_type, click_time } = repositoryDetail;
+//   const [repoAnalyze, setRepoAnalyze] = useState(null);
+//   const [evaluate, setEvaluate] = useState(null);
+//   const [open, setOpen] = useState(false);
+//   const [selectedCard, setSelectedCard] = useState(null);
+//   const [modalData, setModalData] = useState(null);
+
+
+//   useEffect(() => {
+
+//     axios.post('http://localhost:5000/api/analyze', { repo_name, username, fileList, repo_type, click_time, session_userID })
+//       .then(response => {
+//         console.log(response);
+//         setRepoAnalyze(response.data.repo_analyze);
+//         setEvaluate(response.data.evaluate);
+//       })
+//       .catch(error => {
+//         console.error('Error', error);
+//         window.alert('Error: ' + error);
+//       });
+//   }, [repo_name, username, fileList, repo_type, click_time, session_userID]);
+  
+//   const handleReanalyze = () => {
+//     // 재분석 요청 시 기존 데이터를 초기화합니다.
+//     setRepoAnalyze(null);
+//     setEvaluate(null);
+  
+//     axios.post('http://localhost:5000/api/reanalyze', {
+//       repo_name,
+//       username,
+//       session_userID,
+//       repo_type,
+//       click_time
+//     })
+//       .then(response => {
+//         console.log('Reanalyze response:', response);
+//         setRepoAnalyze(response.data.repo_analyze);
+//         setEvaluate(response.data.evaluate);
+//       })
+//       .catch(error => {
+//         console.error('Error during reanalyze:', error);
+//         window.alert('Error: ' + error);
+//       });
+//   };
 const RepositoryDetailPage = () => {
-  const session_userID = sessionStorage.getItem("userID");
-  const { repositoryDetail } = useRepository();
-  const { repo_name, fileList, username, repo_type, click_time } = repositoryDetail;
-  const [repoAnalyze, setRepoAnalyze] = useState(null);
-  const [evaluate, setEvaluate] = useState(null);
-  const [open, setOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [modalData, setModalData] = useState(null);
+  const [open, setOpen] = useState(false);
 
+  const location = useLocation();
+  const { 
+    repoAnalyze, 
+    evaluate, 
+    repo_name, 
+    username, 
+    repo_type, 
+    click_time, 
+    session_userID 
+  } = location.state || {};  // 전달받은 데이터 구조 분해 할당
 
-  useEffect(() => {
+  const [newRepoAnalyze, setNewRepoAnalyze] = useState(repoAnalyze);
+  const [newEvaluate, setNewEvaluate] = useState(evaluate);
 
-    axios.post('http://localhost:5000/api/analyze', { repo_name, username, fileList, repo_type, click_time, session_userID })
-      .then(response => {
-        console.log(response);
-        setRepoAnalyze(response.data.repo_analyze);
-        setEvaluate(response.data.evaluate);
-      })
-      .catch(error => {
-        console.error('Error', error);
-        window.alert('Error: ' + error);
-      });
-  }, [repo_name, username, fileList, repo_type, click_time, session_userID]);
-  
+  if (!newRepoAnalyze || !newEvaluate) {
+    return <div>Loading...</div>;
+  }
+
+  // 재분석 요청 처리
   const handleReanalyze = () => {
-    // 재분석 요청 시 기존 데이터를 초기화합니다.
-    setRepoAnalyze(null);
-    setEvaluate(null);
-  
     axios.post('http://localhost:5000/api/reanalyze', {
       repo_name,
       username,
@@ -43,17 +86,16 @@ const RepositoryDetailPage = () => {
       repo_type,
       click_time
     })
-      .then(response => {
-        console.log('Reanalyze response:', response);
-        setRepoAnalyze(response.data.repo_analyze);
-        setEvaluate(response.data.evaluate);
-      })
-      .catch(error => {
-        console.error('Error during reanalyze:', error);
-        window.alert('Error: ' + error);
-      });
+    .then(response => {
+      setNewRepoAnalyze(response.data.repo_analyze);
+      setNewEvaluate(response.data.evaluate);
+    })
+    .catch(error => {
+      console.error('Error during reanalyze:', error);
+      window.alert('Error: ' + error);
+    });
   };
-
+  
   if (!repoAnalyze || !evaluate) {
     return <div>Loading...</div>;
   }

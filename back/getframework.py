@@ -317,13 +317,11 @@ def analyze_file(file_path):
     if file_path.endswith(".py"):
         command = f"pylint {file_path} --rcfile=analyzeTool/.pylintrc"
     elif file_path.endswith(".java"):
-        command = f"java -jar analyzeTool/checkstyle-10.15.0-all.jar 
-        -c analyzeTool/google_checks.xml {file_path}"
+        command = f"java -jar analyzeTool/checkstyle-10.15.0-all.jar -c analyzeTool/google_checks.xml {file_path}"
     elif file_path.endswith(".js") or file_path.endswith(".ts"):
         command = f"npx eslint {file_path} --config .eslintrc.json --format=json"
     elif file_path.endswith(".kt") or file_path.endswith(".kts"):
-        command = f"java -Dfile.encoding=UTF-8 -jar analyzeTool/
-        detekt-cli-1.23.6-all.jar--input {file_path} --config analyzeTool/detekt.yml"
+        command = f"java -Dfile.encoding=UTF-8 -jar analyzeTool/detekt-cli-1.23.6-all.jar--input {file_path} --config analyzeTool/detekt.yml"
     result = subprocess.run(command, shell=True, capture_output=True,
                             text=True, encoding='utf-8', errors='replace')
 
