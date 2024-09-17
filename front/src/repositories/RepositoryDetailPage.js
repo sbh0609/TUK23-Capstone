@@ -3,7 +3,7 @@ import 'chart.js/auto';
 import "./RepositoryDetailPage.css";
 import { useRepository } from '../Context/RepositoryContext'; // Context를 가져옵니다.
 import axios from 'axios';
-import { useLocation } from 'react-router-dom'; // useLocation 가져오기
+import {  useNavigate,useLocation } from 'react-router-dom'; // useLocation 가져오기
 import { Pie,Bar,Line,Doughnut } from 'react-chartjs-2';
 
 
@@ -54,6 +54,17 @@ import { Pie,Bar,Line,Doughnut } from 'react-chartjs-2';
 //         window.alert('Error: ' + error);
 //       });
 //   };
+const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
 const RepositoryDetailPage = () => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [modalData, setModalData] = useState(null);
@@ -65,20 +76,19 @@ const RepositoryDetailPage = () => {
     evaluate, 
     repo_name, 
     username, 
-    repo_type, 
-    click_time, 
+    repo_type,
     session_userID 
   } = location.state || {};  // 전달받은 데이터 구조 분해 할당
 
   const [newRepoAnalyze, setNewRepoAnalyze] = useState(repoAnalyze);
   const [newEvaluate, setNewEvaluate] = useState(evaluate);
-
-  if (!newRepoAnalyze || !newEvaluate) {
-    return <div>Loading...</div>;
-  }
+  const navigate = useNavigate();  // 평가 페이지로 이동할 navigate 함수 선언
 
   // 재분석 요청 처리
   const handleReanalyze = () => {
+    setNewRepoAnalyze(null); // 재분석 중 로딩 표시를 위한 초기화
+    setNewEvaluate(null);
+    const click_time = formatDate(new Date()); // 새로운 click_time 생성
     axios.post('http://localhost:5000/api/reanalyze', {
       repo_name,
       username,
@@ -89,14 +99,27 @@ const RepositoryDetailPage = () => {
     .then(response => {
       setNewRepoAnalyze(response.data.repo_analyze);
       setNewEvaluate(response.data.evaluate);
+
+      // 재분석 후 평가 페이지로 이동
+      navigate("/evaluate", {
+        state: {
+          repoAnalyze: response.data.repo_analyze,
+          evaluate: response.data.evaluate,
+          repo_name,
+          username,
+          repo_type,
+          click_time,
+          session_userID
+        }
+      });
     })
     .catch(error => {
       console.error('Error during reanalyze:', error);
       window.alert('Error: ' + error);
     });
   };
-  
-  if (!repoAnalyze || !evaluate) {
+
+  if (!newRepoAnalyze || !newEvaluate) {
     return <div>Loading...</div>;
   }
   const languages = Object.entries(repoAnalyze.program_lang).map(([lang, percentage]) => ({ lang, percentage }));

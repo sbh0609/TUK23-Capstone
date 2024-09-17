@@ -12,9 +12,9 @@ def give_grade(point):
     elif 2.0 <= point < 2.5:
         return "C"
     elif 1.5 <= point < 2.0:
-        return "D"
+        return "D+"
     elif 1.0 <= point < 1.5:
-        return "D-"
+        return "D"
     else:
         print(point)
         return "F"
