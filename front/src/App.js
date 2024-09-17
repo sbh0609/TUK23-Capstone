@@ -5,6 +5,7 @@ import Register from './login/RegisterPage';
 import LoginSelectPage from './pages/LoginSelectPage';
 import MyPage from './myPage/MyPage';
 import MyPageDetail from './myPage/MyPageDetail';
+import MyPageEvaluate from './myPage/MyPageEvaluate';
 import Search from './repositories/RepositorySearchPage';
 import RepositoryListPage from './repositories/RepositoryListPage';
 import RepositoryDetailPage from './repositories/RepositoryDetailPage'

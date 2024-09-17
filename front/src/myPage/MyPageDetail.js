@@ -1,42 +1,68 @@
 import React, { Fragment, useState, useEffect } from "react";
 import 'chart.js/auto';
 import "./MyPageDetail.css";
-import { useLocation } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import axios from 'axios';
 import { Pie, Bar, Line, Doughnut } from 'react-chartjs-2';
+const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
 
 const MyPageDetail = () => {
   const location = useLocation();
-  const { repo_analyzed_data, repo_evaluate_data, repo_name, repo_type, click_time } = location.state || {}; 
+
+  const { 
+    repoAnalyze, 
+    evaluate, 
+    repo_name, 
+    username, 
+    repo_type,
+    session_userID 
+  } = location.state || {};  // 전달받은 데이터 구조 분해 할당
+  // const { repo_analyzed_data, repo_evaluate_data, repo_name, repo_type, click_time } = location.state || {}; 
   console.log("Location State:", location.state); // useEffect 밖에서 로그 출력
 
-  const [repoAnalyze, setRepoAnalyze] = useState(null);
-  const [evaluate, setEvaluate] = useState(null);
-  const session_userID = sessionStorage.getItem("userID");
-  const [username, setUsername] = useState('');
-  const [programLang, setProgramLang] = useState(repo_analyzed_data ? repo_analyzed_data.language : '');
+  // const [repoAnalyze, setRepoAnalyze] = useState(null);
+  // const [evaluate, setEvaluate] = useState(null);
+  // const session_userID = sessionStorage.getItem("userID");
+  // const [username, setUsername] = useState('');
+  // const [programLang, setProgramLang] = useState(repo_analyzed_data ? repo_analyzed_data.language : '');
   const [open, setOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [modalData, setModalData] = useState(null);
   
-  useEffect(() => {
-    if (repo_analyzed_data && repo_evaluate_data) {
-      console.log("(detail) repoAnalyze: ", repo_analyzed_data);
-      console.log("(detail) evaluate: ", repo_evaluate_data);
+  const [newRepoAnalyze, setNewRepoAnalyze] = useState(repoAnalyze);
+  const [newEvaluate, setNewEvaluate] = useState(evaluate);
+  const navigate = useNavigate();  // 평가 페이지로 이동할 navigate 함수 선언
+  // useEffect(() => {
+  //   if (repo_analyzed_data && repo_evaluate_data) {
+  //     console.log("(detail) repoAnalyze: ", repo_analyzed_data);
+  //     console.log("(detail) evaluate: ", repo_evaluate_data);
       
-      setRepoAnalyze(repo_analyzed_data);
-      setEvaluate(repo_evaluate_data);
-      setUsername(repo_analyzed_data.repo_contributor_name);
-      sessionStorage.setItem("username", repo_analyzed_data.repo_contributor_name); // 세션에 저장
-    }
-  }, [repo_analyzed_data, repo_evaluate_data]);
+  //     setRepoAnalyze(repo_analyzed_data);
+  //     setEvaluate(repo_evaluate_data);
+  //     setUsername(repo_analyzed_data.repo_contributor_name);
+  //     sessionStorage.setItem("username", repo_analyzed_data.repo_contributor_name); // 세션에 저장
+  //   }
+  // }, [repo_analyzed_data, repo_evaluate_data]);
   
   const handleReanalyze = () => {
     // 재분석 요청 시 기존 데이터를 초기화합니다.
-    setRepoAnalyze(null);
-    setEvaluate(null);
+    setNewRepoAnalyze(null);
+    setNewEvaluate(null);
+    const click_time = formatDate(new Date()); // 새로운 click_time 생성
 
-    const username = sessionStorage.getItem("username"); // 세션에서 username 가져오기
+    // setRepoAnalyze(null);
+    // setEvaluate(null);
+
+    // const username = sessionStorage.getItem("username"); // 세션에서 username 가져오기
     axios.post('http://localhost:5000/api/reanalyze', {
       repo_name,
       username,
@@ -46,23 +72,38 @@ const MyPageDetail = () => {
     })
       .then(response => {
         console.log('Reanalyze response:', response);
-        setRepoAnalyze(response.data.repo_analyze);
-        setEvaluate(response.data.evaluate);
+        setNewRepoAnalyze(response.data.repo_analyze);
+        setNewEvaluate(response.data.evaluate);
+
+        // 재분석 후 평가 페이지로 이동
+        navigate("/myEvaluate", {
+          state: {
+            repoAnalyze: response.data.repo_analyze,
+            evaluate: response.data.evaluate,
+            repo_name,
+            username,
+            repo_type,
+            click_time,
+            session_userID
+          }
+        });
       })
       .catch(error => {
         console.error('Error during reanalyze:', error);
         window.alert('Error: ' + error);
       });
   };
-  if (!repoAnalyze || !evaluate) {
+  if (!newRepoAnalyze || !newEvaluate) {
     return <div>Loading...</div>;
   }
-  console.log("repoa",repoAnalyze);
-  console.log("eva",evaluate);
   const languages = Object.entries(repoAnalyze.program_lang).map(([lang, percentage]) => ({ lang, percentage }));
-  console.log("이름",username);
-  console.log("이름",username);
   const frameworks = repoAnalyze.framework;
+  // console.log("repoa",repoAnalyze);
+  // console.log("eva",evaluate);
+  // const languages = Object.entries(repoAnalyze.program_lang).map(([lang, percentage]) => ({ lang, percentage }));
+  // console.log("이름",username);
+  // console.log("이름",username);
+  // const frameworks = repoAnalyze.framework;
 
 
   const {
