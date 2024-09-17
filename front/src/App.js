@@ -13,6 +13,8 @@ import { RepositoryProvider } from './Context/RepositoryContext'; // 방금 만�
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RepositoryListProvider } from './Context/MaintainPage';
 import DBtest from './tests/dbtest';
+import Test from './tests/test';
+import Test2 from './tests/test2';
 
 function App(){
   return (
@@ -31,6 +33,8 @@ function App(){
             <Route path='/detail' element={<RepositoryDetailPage/>} />
             <Route path='/aboutUs' element={<AboutUsPage />} />
             <Route path='/dbtest' element={<DBtest/>} />
+            <Route path='/test' element={<Test/>} />
+            <Route path='/test2' element={<Test2/>} />
 
             <Route index element={<MainPage />} />
           </Routes>
