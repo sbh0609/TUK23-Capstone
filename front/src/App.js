@@ -33,7 +33,7 @@ function App(){
             <Route path='/aboutUs' element={<AboutUsPage />} />
             <Route path='/dbtest' element={<DBtest/>} />
             <Route path='/evaluate' element={<RepositoryEvaluatePage/>} />
-    
+            <Route path='/myEvaluate' element={<MyPageEvaluate/>} />
             <Route index element={<MainPage />} />
           </Routes>
         </BrowserRouter>

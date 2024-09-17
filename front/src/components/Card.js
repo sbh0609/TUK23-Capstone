@@ -26,7 +26,7 @@ const Card = ({ repo_name, url, fileList, username, repo_type }) => {
     const onClickCard = () => {
         const clickTime = formatDate(new Date());  // 현재 시간을 ISO 포맷으로 가져옵니다.
         setRepositoryDetail({ repo_name, fileList, username, repo_type,click_time: clickTime });
-        navigate("/evaluate");
+        navigate("/myEvaluate");
     };
     return (
         <CardContainer onClick={onClickCard} >
