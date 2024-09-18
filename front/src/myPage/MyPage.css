@@ -53,6 +53,14 @@
   border: none;
 }
 
+.card-button {
+  margin-top: 4px;
+  margin-left: 10px;
+  background-color: white!important;
+  cursor: pointer;
+  border: none;
+}
+
 .search-button-icon {
   margin-top: 4px;
 }

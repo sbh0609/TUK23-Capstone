@@ -29,6 +29,31 @@
   border: none;
 }
 
+.card-button {
+  margin-top: 4px;
+  margin-left: 10px;
+  background-color: white!important;
+  cursor: pointer;
+  border: none;
+}
+
+.card-button-icon {
+  height: 40px;
+  width: 40px;
+}
+
+.profile-button2 {
+  margin-left: 12px;
+  background-color: white!important;
+  cursor: pointer;
+  border: none;
+}
+
+.profile-button-icon2 {
+  height: 40px;
+  width: 40px;
+}
+
 .log-out-button {
   position: relative;
   left: 84%;
@@ -61,6 +86,14 @@
   background-color: black;
   cursor: pointer;
   border: none;
+}
+
+.container {
+  top: 60px;
+}
+
+.result-ment {
+  margin-top: 60px;
 }
 
 .search-bar-background {

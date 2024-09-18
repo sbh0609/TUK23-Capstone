@@ -13,6 +13,7 @@ import informationIcon from '../resources/information-icon.png';
 import bookmarkIcon from '../resources/bookmark-icon.png';
 import arrowScrollUpIcon from '../resources/arrow-scroll-up-icon.png';
 import arrowScrollDownIcon from '../resources/arrow-scroll-down-icon.png';
+import cardIcon from '../resources/card-icon.png';
 
 function MyPage() {
   const session_userID = sessionStorage.getItem("userID");
@@ -65,6 +66,9 @@ function MyPage() {
   }
   const handleSearchButton = () => {
     navigate("/search")
+  }
+  const handleCardButton = () => {
+    navigate("/list")
   }
 
   // 드롭다운의 스타일
@@ -159,6 +163,9 @@ function MyPage() {
         </button>
         <button onClick={handleSearchButton} className="top-bar-button search-button">
           <img src={magnifierIcon} alt="검색 아이콘" className="top-bar-icon search-button-icon"/>
+        </button>
+        <button onClick={handleCardButton} className="top-bar-button card-button">
+          <img src={cardIcon} alt="카드 아이콘" className="top-bar-icon card-button-icon"></img>
         </button>
 
         <div className="top-bar-right">

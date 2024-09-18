@@ -5,6 +5,12 @@ import { useRepository } from '../Context/RepositoryContext'; // Context를 가�
 import axios from 'axios';
 import {  useNavigate,useLocation } from 'react-router-dom'; // useLocation 가져오기
 import { Pie,Bar,Line,Doughnut } from 'react-chartjs-2';
+import homeIcon from '../resources/home-icon.png';
+import magnifierIcon from '../resources/magnifier-icon.png';
+import profileIcon from '../resources/profile-icon.png';
+import informationIcon from '../resources/information-icon.png';
+import cardIcon from '../resources/card-icon.png';
+
 
 
 const formatDate = (date) => {
@@ -38,6 +44,24 @@ const RepositoryDetailPage = () => {
   const [newEvaluate, setNewEvaluate] = useState(evaluate);
   const navigate = useNavigate();  // 평가 페이지로 이동할 navigate 함수 선언
 
+  //버튼
+  const handleHomeButton = () => {
+    navigate("/main");
+  }
+  const handleLogOutButton = () => {
+    sessionStorage.removeItem("userID");
+    navigate("/login");
+  }
+  const handleProfileButton = () => {
+    console.log("Profile button clicked"); // 로그 추가
+    navigate("/myPage");
+  }
+  const handleSearchButton = () => {
+    navigate("/search")
+  }
+  const handleCardButton = () => {
+    navigate("/list")
+  }
   // 재분석 요청 처리
   const handleReanalyze = () => {
     setNewRepoAnalyze(null); // 재분석 중 로딩 표시를 위한 초기화
@@ -654,344 +678,367 @@ const RepositoryDetailPage = () => {
   };
 
   return (
-    <div className="container">
-      <h3>저장소 평가 결과</h3>
-      <button onClick={handleReanalyze} style={{ marginLeft: '20px' }}>재분석하기</button>     
-      <div className="repo-details">
-        <div className="repo-info">
-          <h5>Repository: {repo_name}</h5>
-          <p>Username: {username}</p>
-          <p>Last Evaluate: {repoAnalyze.repo_selected_time}</p>
+    <div>
+      <div className="top-bar">
+        <button onClick={handleHomeButton} className="top-bar-button home-button">
+          <img src={homeIcon} alt="홈 아이콘" className="top-bar-icon home-button-icon"/>
+        </button>
+        <button onClick={handleSearchButton} className="top-bar-button search-button">
+          <img src={magnifierIcon} alt="검색 아이콘" className="top-bar-icon search-button-icon"/>
+        </button>
+        <button onClick={handleCardButton} className="top-bar-button card-button">
+          <img src={cardIcon} alt="카드 아이콘" className="top-bar-icon card-button-icon"/>
+        </button>
+        <button onClick={handleProfileButton} className="top-bar-button profile-button2">
+          <img src={profileIcon} alt="프로필 아이콘" className="top-bar-icon profile-button-icon2"/>
+        </button>
+        <div className="top-bar-right">
+          <button onClick={handleLogOutButton} className="top-bar-button top-logout-button">로그아웃</button>
+
+          <button className="top-bar-button top-information-button">
+            <img src={informationIcon} alt="홈 아이콘" className= "top-bar-icon top-information-button-icon"/>
+          </button>
         </div>
       </div>
-
-      <div className={`grid ${repo_type === "team" ? "team" : ""}`}>
-        {repo_type === "team" ? (
-          <>
-            <div className="card">
-              <h5>Program Language</h5>
-              <div className="chart">
-                <Doughnut data={doughnutData} />
-              </div>
-            </div>
-            <div className="card" onClick={() => handleOpen(
-              { title: "Code Quality", score: code_quality, type: 'team' },
-              { comment_score, duplication_score, complexity_repo_score, function_length_repo_score, parameter_count_repo_score }
-            )}>
-              <h5>Code Quality</h5>
-              <div className="score">
-                <p>Grade: {code_quality}</p>
-              </div>
-              <div className="evaluation-data">
-                <span>Comment Score</span>
-                <span>Duplication Score</span>
-                <span>Complexity Score</span>
-                <span>Function Length Score</span>
-                <span>Parameter Count Score</span>
-              </div>
-            </div>
-            <div className="card" onClick={() => handleOpen(
-              { title: "Communication Ability", totalScore: total_collaboration_score, userScore: user_collaboration_score, type: 'team' },
-              { commit_score, pr_scores, issue_scores, commit_message_quality_scores }
-            )}>
-              <h5>Communication Ability</h5>
-              <div className="card-content-horizontal">
-                <div className="score">
-                  <h6>Repo Communication</h6>
-                  <p>Grade: {total_collaboration_score}</p>
-                </div>
-                <div className="score">
-                  <h6>{username} Communication</h6>
-                  <p>Grade: {user_collaboration_score}</p>
-                </div>
-              </div>
-              <div className="evaluation-data">
-                <span>Commit Score</span>
-                <span>PR Scores</span>
-                <span>Issue Scores</span>
-                <span>Commit Message Quality</span>
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="card">
-              <h5>Program Language</h5>
-              <div className="chart">
-                <Doughnut data={doughnutData} />
-              </div>
-            </div>
-            <div className="card">
-              <h5>Comment Score</h5>
-              <div className="card-content">
-                <div className="score">
-                  <p>Grade: {comment_score}</p>
-                </div>
-                <div className="chart">
-                  <Doughnut data={commentDoughnutData} />
-                </div>
-                <p>{(commentRatio * 100).toFixed(1)}% comments</p>
-              </div>
-            </div>
-            <div className="card">
-              <h5>Duplication Score</h5>
-              <div className="card-content">
-                <div className="score">
-                  <p>Grade: {duplication_score}</p>
-                </div>
-                <div className="chart">
-                  <Doughnut data={duplicationDoughnutData} />
-                </div>
-                <p>{(duplicationRatio * 100).toFixed(1)}% duplication</p>
-              </div>
-            </div>
-            <div className="card" onClick={() => handleOpen(
-              { title: "Complexity Score", score: complexity_repo_score },
-              { details: complexityDetails, thresholds: { normal: 4, bad: 7, veryBad: 30, worst: 31 }, categories: complexityCategories }
-            )}>
-              <h5>Complexity Score</h5>
-              <div className="card-content">
-                <div className="score">
-                  <p>Grade: {complexity_repo_score}</p>
-                </div>
-                <div className="chart" style={{ height: '250px' }}>
-                  <Bar data={complexityBarData} options={complexityOptions} />
-                </div>
-              </div>
-            </div>
-            <div className="card" onClick={() => handleOpen(
-              { title: "Function Length Score", score: function_length_repo_score },
-              { details: functionLengthDetails, thresholds: { normal: 20, bad: 40, veryBad: 100, worst: 101 }, categories: functionLengthCategories }
-            )}>
-              <h5>Function Length Score</h5>
-              <div className="card-content">
-                <div className="score">
-                  <p>Grade: {function_length_repo_score}</p>
-                </div>
-                <div className="chart" style={{ height: '250px' }}>
-                  <Bar data={functionLengthBarData} options={functionLengthOptions} />
-                </div>
-              </div>
-            </div>
-            <div className="card" onClick={() => handleOpen(
-              { title: "Parameter Count Score", score: parameter_count_repo_score },
-              { details: parameterCountDetails, thresholds: { normal: 2, bad: 5, veryBad: 10, worst: 11 }, categories: parameterCountCategories }
-            )}>
-              <h5>Parameter Count Score</h5>
-              <div className="card-content">
-                <div className="score">
-                  <p>Grade: {parameter_count_repo_score}</p>
-                </div>
-                <div className="chart" style={{ height: '250px' }}>
-                  <Bar data={parameterCountBarData} options={parameterCountOptions} />
-                </div>
-              </div>
-            </div>
-            <div className="card" onClick={() => handleOpen(
-              { title: "Commit Quality", score: commit_message_quality_scores.total_commit_message_quality_score },
-              { keywordCounts: keyword_count }
-            )}>
-              <h5>Commit Quality</h5>
-              <div className="commit-scores">
-                <div className="commit-score">
-                  <p>Quality Score: {commit_message_quality_scores.total_commit_message_quality_score}</p>
-                  <div className="chart" style={{ height: '250px' }}>
-                    <Bar data={totalQualityData} options={totalQualityOptions} />
-                  </div>
-                </div>
-                <div className="commit-score">
-                  <p>Grammar Score: {commit_message_grammar_scores.total_commit_message_grammar_score}</p>
-                  <div className="chart" style={{ height: '250px' }}>
-                    <Doughnut data={grammarPieData} options={grammarOptions} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-
-      {open && (
-        <div className="modal" onClick={handleClose}>
-          <div className={`modal_body ${repo_type === "team" ? "team-modal-body" : ""}`} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '80vw', height: 'auto' }}>
-            <button className="modal_close" onClick={handleClose}>&times;</button>
-            {selectedCard && selectedCard.type !== 'team' && (
-              <>
-                <h2>{selectedCard.title}</h2>
-                {selectedCard.qualityScore && <p>Quality Score: {selectedCard.qualityScore}</p>}
-                {selectedCard.grammarScore && <p>Grammar Score: {selectedCard.grammarScore}</p>}
-                {selectedCard.totalScore && <p>Repo Communication: {selectedCard.totalScore}</p>}
-                {selectedCard.userScore && <p>{username} Communication: {selectedCard.userScore}</p>}
-              </>
-            )}
-            {modalData && modalData.details && (
-              <>
-                <div className="modalchart" style={{ width: '100%', flexGrow: 1 }}>
-                  <Line data={getLineChartData(modalData.details, `Num of ${selectedCard.title}`)} options={lineChartOptions} />
-                </div>
-                <div className="criteria" style={{ flexGrow: 1 }}>
-                  <h3>Evaluation Criteria</h3>
-                  <p>Normal: {modalData.thresholds.normal} 이하</p>
-                  <p>Bad: {modalData.thresholds.normal + 1} ~ {modalData.thresholds.bad}</p>
-                  <p>Very Bad: {modalData.thresholds.bad + 1} ~ {modalData.thresholds.veryBad}</p>
-                  <p>Worst: {modalData.thresholds.veryBad} 이상</p>
-                </div>
-              </>
-            )}
-            {modalData && modalData.keywordCounts && (
-              <>
-                <div className="modalchart" style={{ width: '100%', flexGrow: 1 }}>
-                  <Bar data={getBarChartData(modalData.keywordCounts)} options={barChartOptions} />
-                </div>
-                <div className="criteria">
-                  <h3>Keyword Counts</h3>
-                  <div className="criteria-container">
-                    <div className="criteria-item">
-                      <h4>Commit Message Quality</h4>
-                      <p>Best: Why and What</p>
-                      <p>Good: What</p>
-                      <p>Average: Why</p>
-                      <p>Bad: Nor</p>
-                    </div>
-                    <div className="criteria-item">
-                      <h4>Grammar Quality</h4>
-                      <p>Best: (90% 이상)</p>
-                      <p>Good: (80% - 89%)</p>
-                      <p>Average: (70% - 79%)</p>
-                      <p>Bad: (60% - 69%)</p>
-                      <p>Worst: (60% 이하)</p>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-            {selectedCard && selectedCard.type === 'team' && selectedCard.title === 'Communication Ability' && (
-              <>
-                <h2 className="team-modal-header">{selectedCard.title}</h2>
-                <h3 className="team-modal-subheader">Commit Amount</h3>
-                <p className="team-modal-score">Commit Score: {evaluate.commit_score}</p>
-                <div className="team-chart">
-                  {repoAnalyze.commit_per && repoAnalyze.commit_per[0] > 0 ? (
-                    <Doughnut data={commitDoughnutData} />
-                  ) : (
-                    <p>Commit이 존재하지 않습니다</p>
-                  )}
-                </div>
-                <p className="team-modal-ratio">Commit Ratio: {repoAnalyze.commit_per[2]}%</p>
-
-                <h3 className="team-modal-subheader">PR Scores</h3>
-                <p className="team-modal-score">
-                  User PR Score: {evaluate.pr_scores.user_pr_score} / Merged PR Score: {evaluate.pr_scores.merged_pr_score} / Total PR Merge Score: {evaluate.pr_scores.total_pr_merge_score}
-                </p>
-                <div className="team-chart" style={{ width: '800px', height: '800px', margin: '0 auto' }}>
-                  {repoAnalyze.pr_data && repoAnalyze.pr_data.total_prs > 0 ? (
-                    <Doughnut data={prDoughnutData} options={prDoughnutOptions}/>
-                  ) : (
-                    <p>PR이 존재하지 않습니다</p>
-                  )}
-                </div>
-                <p className="team-modal-ratio">
-                  Merged PR Percentage: {repoAnalyze.pr_data ? repoAnalyze.pr_data.merged_pr_percentage : 0}% / Merged User PR Percentage: {repoAnalyze.pr_data ? repoAnalyze.pr_data.merged_user_pr_percentage : 0}% / User PR Percentage: {repoAnalyze.pr_data ? repoAnalyze.pr_data.user_pr_percentage : 0}%
-                </p>
-                <h3 className="team-modal-subheader">Issue Scores</h3>
-                <p className="team-modal-score">
-                    User Issue Score: {evaluate.issue_scores.user_issue_score} / Closed Issue Score: {evaluate.issue_scores.closed_issue_score} / Total Issue Close Score: {evaluate.issue_scores.total_issue_close_score}
-                </p>
-                <div className="team-chart" style={{ width: '800px', height: '800px', margin: '0 auto' }}>
-                    {repoAnalyze.issue_data && repoAnalyze.issue_data.total_issues > 0 ? (
-                        <Doughnut data={issueDoughnutData} options={issueDoughnutOptions}/>
-                    ) : (
-                        <p>Issue가 존재하지 않습니다</p>
-                    )}
-                </div>
-                <p className="team-modal-ratio">
-                    Closed Issue Percentage: {repoAnalyze.issue_data ? repoAnalyze.issue_data.closed_issue_percentage : 0}% / Closed User Issue Percentage: {repoAnalyze.issue_data ? repoAnalyze.issue_data.closed_user_issue_percentage : 0}% / User Issue Percentage: {repoAnalyze.issue_data ? repoAnalyze.issue_data.user_issue_percentage : 0}%
-                </p>
-                <h3 className="team-modal-subheader">Commit Quality Scores</h3>
-                <p className="team-modal-score">
-                    Total Commit Quality Score: {evaluate.commit_message_quality_scores.total_commit_message_quality_score} / User Commit Quality Score: {evaluate.commit_message_quality_scores.user_commit_message_quality_score}
-                </p>
-                <div className="team-chart" style={{ width: '800px', height: '800px', margin: '0 auto' }}>
-                    {repoAnalyze.total_quality && repoAnalyze.total_quality.length > 0 ? (
-                        <Doughnut data={commitQualityDoughnutData} options={commitQualityDoughnutOptions}/>
-                    ) : (
-                        <p>Commit Quality 데이터가 존재하지 않습니다</p>
-                    )}
-                </div>
-                <h3 className="team-modal-subheader">Commit Grammar Scores</h3>
-                <p className="team-modal-score">
-                    Total Commit Message Grammar Score: {evaluate.commit_message_grammar_scores.total_commit_message_grammar_score} / User Commit Message Grammar Score: {evaluate.commit_message_grammar_scores.user_commit_message_grammar_score}
-                </p>
-                <div className="team-chart" style={{ width: '800px', height: '800px', margin: '0 auto' }}>
-                    <Doughnut data={commitGrammarDoughnutData} options={commitGrammarDoughnutOptions} />
-                </div>
-                <p className="team-modal-ratio">
-                    Total Grammar Correct: {repoAnalyze.total_grammar}% / User Grammar Correct: {repoAnalyze.user_grammar}%
-                </p>
-                <h3 className="team-modal-subheader">Keyword Counts</h3>
-                {/* <h3 className="team-modal-subheader">Keyword Counts</h3> */}
-                <div className="team-chart-keyword">
-                  <Bar data={getBarChartData(keyword_count)} options={barChartOptions} />
-                </div>
-              </>
-            )}
-            {selectedCard && selectedCard.type === 'team' && selectedCard.title === 'Code Quality' && (
-              <>
-                <h2 className="team-modal-header">{selectedCard.title}</h2>
-                <h3 className="team-modal-subheader">Code Quality Details</h3>
-                
-                <div className="team-chart-horizontal">
-                  <div className="team-chart">
-                    <h3 className="team-modal-subheader">Comment Score</h3>
-                    <p className="team-modal-score">Comment Score: {comment_score}</p>
-                    <Doughnut data={commentDoughnutData} />
-                    <p className="team-modal-ratio">{commentRatio}% comments</p>
-                  </div>
-                  <div className="team-chart">
-                    <h3 className="team-modal-subheader">Duplication Score</h3>
-                    <p className="team-modal-score">Duplication Score: {duplication_score}</p>
-                    <Doughnut data={duplicationDoughnutData} />
-                    <p className="team-modal-ratio">{duplicationRatio}% duplication</p>
-                  </div>
-                </div>
-
-                <h3 className="team-modal-subheader">Complexity Score</h3>
-                <p className="team-modal-score">Complexity Score: {complexity_repo_score}</p>
-                <div className="team-chart-large-horizontal">
-                  <div className="team-chart-large">
-                    <Bar data={complexityBarData} options={complexityOptions} />
-                  </div>
-                  <div className="team-chart-large">
-                    <Line data={getLineChartData(complexityDetails, 'Complexity Distribution')} options={lineChartOptions} />
-                  </div>
-                </div>
-
-                <h3 className="team-modal-subheader">Function Length Score</h3>
-                <p className="team-modal-score">Function Length Score: {function_length_repo_score}</p>
-                <div className="team-chart-large-horizontal">
-                  <div className="team-chart-large">
-                    <Bar data={functionLengthBarData} options={functionLengthOptions} />
-                  </div>
-                  <div className="team-chart-large">
-                    <Line data={getLineChartData(functionLengthDetails, 'Function Length Distribution')} options={lineChartOptions} />
-                  </div>
-                </div>
-
-                <h3 className="team-modal-subheader">Parameter Count Score</h3>
-                <p className="team-modal-score">Parameter Count Score: {parameter_count_repo_score}</p>
-                <div className="team-chart-large-horizontal">
-                  <div className="team-chart-large">
-                    <Bar data={parameterCountBarData} options={parameterCountOptions} />
-                  </div>
-                  <div className="team-chart-large">
-                    <Line data={getLineChartData(parameterCountDetails, 'Parameter Count Distribution')} options={lineChartOptions} />
-                  </div>
-                </div>
-              </>
-            )}
+      <div className="container">
+        <h3 className="result-ment">저장소 평가 결과</h3>
+        <button onClick={handleReanalyze} style={{ marginLeft: '20px' }}>재분석하기</button>     
+        <div className="repo-details">
+          <div className="repo-info">
+            <h5>Repository: {repo_name}</h5>
+            <p>Username: {username}</p>
+            <p>Last Evaluate: {repoAnalyze.repo_selected_time}</p>
           </div>
         </div>
-      )}
+
+        <div className={`grid ${repo_type === "team" ? "team" : ""}`}>
+          {repo_type === "team" ? (
+            <>
+              <div className="card">
+                <h5>Program Language</h5>
+                <div className="chart">
+                  <Doughnut data={doughnutData} />
+                </div>
+              </div>
+              <div className="card" onClick={() => handleOpen(
+                { title: "Code Quality", score: code_quality, type: 'team' },
+                { comment_score, duplication_score, complexity_repo_score, function_length_repo_score, parameter_count_repo_score }
+              )}>
+                <h5>Code Quality</h5>
+                <div className="score">
+                  <p>Grade: {code_quality}</p>
+                </div>
+                <div className="evaluation-data">
+                  <span>Comment Score</span>
+                  <span>Duplication Score</span>
+                  <span>Complexity Score</span>
+                  <span>Function Length Score</span>
+                  <span>Parameter Count Score</span>
+                </div>
+              </div>
+              <div className="card" onClick={() => handleOpen(
+                { title: "Communication Ability", totalScore: total_collaboration_score, userScore: user_collaboration_score, type: 'team' },
+                { commit_score, pr_scores, issue_scores, commit_message_quality_scores }
+              )}>
+                <h5>Communication Ability</h5>
+                <div className="card-content-horizontal">
+                  <div className="score">
+                    <h6>Repo Communication</h6>
+                    <p>Grade: {total_collaboration_score}</p>
+                  </div>
+                  <div className="score">
+                    <h6>{username} Communication</h6>
+                    <p>Grade: {user_collaboration_score}</p>
+                  </div>
+                </div>
+                <div className="evaluation-data">
+                  <span>Commit Score</span>
+                  <span>PR Scores</span>
+                  <span>Issue Scores</span>
+                  <span>Commit Message Quality</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="card">
+                <h5>Program Language</h5>
+                <div className="chart">
+                  <Doughnut data={doughnutData} />
+                </div>
+              </div>
+              <div className="card">
+                <h5>Comment Score</h5>
+                <div className="card-content">
+                  <div className="score">
+                    <p>Grade: {comment_score}</p>
+                  </div>
+                  <div className="chart">
+                    <Doughnut data={commentDoughnutData} />
+                  </div>
+                  <p>{(commentRatio * 100).toFixed(1)}% comments</p>
+                </div>
+              </div>
+              <div className="card">
+                <h5>Duplication Score</h5>
+                <div className="card-content">
+                  <div className="score">
+                    <p>Grade: {duplication_score}</p>
+                  </div>
+                  <div className="chart">
+                    <Doughnut data={duplicationDoughnutData} />
+                  </div>
+                  <p>{(duplicationRatio * 100).toFixed(1)}% duplication</p>
+                </div>
+              </div>
+              <div className="card" onClick={() => handleOpen(
+                { title: "Complexity Score", score: complexity_repo_score },
+                { details: complexityDetails, thresholds: { normal: 4, bad: 7, veryBad: 30, worst: 31 }, categories: complexityCategories }
+              )}>
+                <h5>Complexity Score</h5>
+                <div className="card-content">
+                  <div className="score">
+                    <p>Grade: {complexity_repo_score}</p>
+                  </div>
+                  <div className="chart" style={{ height: '250px' }}>
+                    <Bar data={complexityBarData} options={complexityOptions} />
+                  </div>
+                </div>
+              </div>
+              <div className="card" onClick={() => handleOpen(
+                { title: "Function Length Score", score: function_length_repo_score },
+                { details: functionLengthDetails, thresholds: { normal: 20, bad: 40, veryBad: 100, worst: 101 }, categories: functionLengthCategories }
+              )}>
+                <h5>Function Length Score</h5>
+                <div className="card-content">
+                  <div className="score">
+                    <p>Grade: {function_length_repo_score}</p>
+                  </div>
+                  <div className="chart" style={{ height: '250px' }}>
+                    <Bar data={functionLengthBarData} options={functionLengthOptions} />
+                  </div>
+                </div>
+              </div>
+              <div className="card" onClick={() => handleOpen(
+                { title: "Parameter Count Score", score: parameter_count_repo_score },
+                { details: parameterCountDetails, thresholds: { normal: 2, bad: 5, veryBad: 10, worst: 11 }, categories: parameterCountCategories }
+              )}>
+                <h5>Parameter Count Score</h5>
+                <div className="card-content">
+                  <div className="score">
+                    <p>Grade: {parameter_count_repo_score}</p>
+                  </div>
+                  <div className="chart" style={{ height: '250px' }}>
+                    <Bar data={parameterCountBarData} options={parameterCountOptions} />
+                  </div>
+                </div>
+              </div>
+              <div className="card" onClick={() => handleOpen(
+                { title: "Commit Quality", score: commit_message_quality_scores.total_commit_message_quality_score },
+                { keywordCounts: keyword_count }
+              )}>
+                <h5>Commit Quality</h5>
+                <div className="commit-scores">
+                  <div className="commit-score">
+                    <p>Quality Score: {commit_message_quality_scores.total_commit_message_quality_score}</p>
+                    <div className="chart" style={{ height: '250px' }}>
+                      <Bar data={totalQualityData} options={totalQualityOptions} />
+                    </div>
+                  </div>
+                  <div className="commit-score">
+                    <p>Grammar Score: {commit_message_grammar_scores.total_commit_message_grammar_score}</p>
+                    <div className="chart" style={{ height: '250px' }}>
+                      <Doughnut data={grammarPieData} options={grammarOptions} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {open && (
+          <div className="modal" onClick={handleClose}>
+            <div className={`modal_body ${repo_type === "team" ? "team-modal-body" : ""}`} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '80vw', height: 'auto' }}>
+              <button className="modal_close" onClick={handleClose}>&times;</button>
+              {selectedCard && selectedCard.type !== 'team' && (
+                <>
+                  <h2>{selectedCard.title}</h2>
+                  {selectedCard.qualityScore && <p>Quality Score: {selectedCard.qualityScore}</p>}
+                  {selectedCard.grammarScore && <p>Grammar Score: {selectedCard.grammarScore}</p>}
+                  {selectedCard.totalScore && <p>Repo Communication: {selectedCard.totalScore}</p>}
+                  {selectedCard.userScore && <p>{username} Communication: {selectedCard.userScore}</p>}
+                </>
+              )}
+              {modalData && modalData.details && (
+                <>
+                  <div className="modalchart" style={{ width: '100%', flexGrow: 1 }}>
+                    <Line data={getLineChartData(modalData.details, `Num of ${selectedCard.title}`)} options={lineChartOptions} />
+                  </div>
+                  <div className="criteria" style={{ flexGrow: 1 }}>
+                    <h3>Evaluation Criteria</h3>
+                    <p>Normal: {modalData.thresholds.normal} 이하</p>
+                    <p>Bad: {modalData.thresholds.normal + 1} ~ {modalData.thresholds.bad}</p>
+                    <p>Very Bad: {modalData.thresholds.bad + 1} ~ {modalData.thresholds.veryBad}</p>
+                    <p>Worst: {modalData.thresholds.veryBad} 이상</p>
+                  </div>
+                </>
+              )}
+              {modalData && modalData.keywordCounts && (
+                <>
+                  <div className="modalchart" style={{ width: '100%', flexGrow: 1 }}>
+                    <Bar data={getBarChartData(modalData.keywordCounts)} options={barChartOptions} />
+                  </div>
+                  <div className="criteria">
+                    <h3>Keyword Counts</h3>
+                    <div className="criteria-container">
+                      <div className="criteria-item">
+                        <h4>Commit Message Quality</h4>
+                        <p>Best: Why and What</p>
+                        <p>Good: What</p>
+                        <p>Average: Why</p>
+                        <p>Bad: Nor</p>
+                      </div>
+                      <div className="criteria-item">
+                        <h4>Grammar Quality</h4>
+                        <p>Best: (90% 이상)</p>
+                        <p>Good: (80% - 89%)</p>
+                        <p>Average: (70% - 79%)</p>
+                        <p>Bad: (60% - 69%)</p>
+                        <p>Worst: (60% 이하)</p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+              {selectedCard && selectedCard.type === 'team' && selectedCard.title === 'Communication Ability' && (
+                <>
+                  <h2 className="team-modal-header">{selectedCard.title}</h2>
+                  <h3 className="team-modal-subheader">Commit Amount</h3>
+                  <p className="team-modal-score">Commit Score: {evaluate.commit_score}</p>
+                  <div className="team-chart">
+                    {repoAnalyze.commit_per && repoAnalyze.commit_per[0] > 0 ? (
+                      <Doughnut data={commitDoughnutData} />
+                    ) : (
+                      <p>Commit이 존재하지 않습니다</p>
+                    )}
+                  </div>
+                  <p className="team-modal-ratio">Commit Ratio: {repoAnalyze.commit_per[2]}%</p>
+
+                  <h3 className="team-modal-subheader">PR Scores</h3>
+                  <p className="team-modal-score">
+                    User PR Score: {evaluate.pr_scores.user_pr_score} / Merged PR Score: {evaluate.pr_scores.merged_pr_score} / Total PR Merge Score: {evaluate.pr_scores.total_pr_merge_score}
+                  </p>
+                  <div className="team-chart" style={{ width: '800px', height: '800px', margin: '0 auto' }}>
+                    {repoAnalyze.pr_data && repoAnalyze.pr_data.total_prs > 0 ? (
+                      <Doughnut data={prDoughnutData} options={prDoughnutOptions}/>
+                    ) : (
+                      <p>PR이 존재하지 않습니다</p>
+                    )}
+                  </div>
+                  <p className="team-modal-ratio">
+                    Merged PR Percentage: {repoAnalyze.pr_data ? repoAnalyze.pr_data.merged_pr_percentage : 0}% / Merged User PR Percentage: {repoAnalyze.pr_data ? repoAnalyze.pr_data.merged_user_pr_percentage : 0}% / User PR Percentage: {repoAnalyze.pr_data ? repoAnalyze.pr_data.user_pr_percentage : 0}%
+                  </p>
+                  <h3 className="team-modal-subheader">Issue Scores</h3>
+                  <p className="team-modal-score">
+                      User Issue Score: {evaluate.issue_scores.user_issue_score} / Closed Issue Score: {evaluate.issue_scores.closed_issue_score} / Total Issue Close Score: {evaluate.issue_scores.total_issue_close_score}
+                  </p>
+                  <div className="team-chart" style={{ width: '800px', height: '800px', margin: '0 auto' }}>
+                      {repoAnalyze.issue_data && repoAnalyze.issue_data.total_issues > 0 ? (
+                          <Doughnut data={issueDoughnutData} options={issueDoughnutOptions}/>
+                      ) : (
+                          <p>Issue가 존재하지 않습니다</p>
+                      )}
+                  </div>
+                  <p className="team-modal-ratio">
+                      Closed Issue Percentage: {repoAnalyze.issue_data ? repoAnalyze.issue_data.closed_issue_percentage : 0}% / Closed User Issue Percentage: {repoAnalyze.issue_data ? repoAnalyze.issue_data.closed_user_issue_percentage : 0}% / User Issue Percentage: {repoAnalyze.issue_data ? repoAnalyze.issue_data.user_issue_percentage : 0}%
+                  </p>
+                  <h3 className="team-modal-subheader">Commit Quality Scores</h3>
+                  <p className="team-modal-score">
+                      Total Commit Quality Score: {evaluate.commit_message_quality_scores.total_commit_message_quality_score} / User Commit Quality Score: {evaluate.commit_message_quality_scores.user_commit_message_quality_score}
+                  </p>
+                  <div className="team-chart" style={{ width: '800px', height: '800px', margin: '0 auto' }}>
+                      {repoAnalyze.total_quality && repoAnalyze.total_quality.length > 0 ? (
+                          <Doughnut data={commitQualityDoughnutData} options={commitQualityDoughnutOptions}/>
+                      ) : (
+                          <p>Commit Quality 데이터가 존재하지 않습니다</p>
+                      )}
+                  </div>
+                  <h3 className="team-modal-subheader">Commit Grammar Scores</h3>
+                  <p className="team-modal-score">
+                      Total Commit Message Grammar Score: {evaluate.commit_message_grammar_scores.total_commit_message_grammar_score} / User Commit Message Grammar Score: {evaluate.commit_message_grammar_scores.user_commit_message_grammar_score}
+                  </p>
+                  <div className="team-chart" style={{ width: '800px', height: '800px', margin: '0 auto' }}>
+                      <Doughnut data={commitGrammarDoughnutData} options={commitGrammarDoughnutOptions} />
+                  </div>
+                  <p className="team-modal-ratio">
+                      Total Grammar Correct: {repoAnalyze.total_grammar}% / User Grammar Correct: {repoAnalyze.user_grammar}%
+                  </p>
+                  <h3 className="team-modal-subheader">Keyword Counts</h3>
+                  {/* <h3 className="team-modal-subheader">Keyword Counts</h3> */}
+                  <div className="team-chart-keyword">
+                    <Bar data={getBarChartData(keyword_count)} options={barChartOptions} />
+                  </div>
+                </>
+              )}
+              {selectedCard && selectedCard.type === 'team' && selectedCard.title === 'Code Quality' && (
+                <>
+                  <h2 className="team-modal-header">{selectedCard.title}</h2>
+                  <h3 className="team-modal-subheader">Code Quality Details</h3>
+                  
+                  <div className="team-chart-horizontal">
+                    <div className="team-chart">
+                      <h3 className="team-modal-subheader">Comment Score</h3>
+                      <p className="team-modal-score">Comment Score: {comment_score}</p>
+                      <Doughnut data={commentDoughnutData} />
+                      <p className="team-modal-ratio">{commentRatio}% comments</p>
+                    </div>
+                    <div className="team-chart">
+                      <h3 className="team-modal-subheader">Duplication Score</h3>
+                      <p className="team-modal-score">Duplication Score: {duplication_score}</p>
+                      <Doughnut data={duplicationDoughnutData} />
+                      <p className="team-modal-ratio">{duplicationRatio}% duplication</p>
+                    </div>
+                  </div>
+
+                  <h3 className="team-modal-subheader">Complexity Score</h3>
+                  <p className="team-modal-score">Complexity Score: {complexity_repo_score}</p>
+                  <div className="team-chart-large-horizontal">
+                    <div className="team-chart-large">
+                      <Bar data={complexityBarData} options={complexityOptions} />
+                    </div>
+                    <div className="team-chart-large">
+                      <Line data={getLineChartData(complexityDetails, 'Complexity Distribution')} options={lineChartOptions} />
+                    </div>
+                  </div>
+
+                  <h3 className="team-modal-subheader">Function Length Score</h3>
+                  <p className="team-modal-score">Function Length Score: {function_length_repo_score}</p>
+                  <div className="team-chart-large-horizontal">
+                    <div className="team-chart-large">
+                      <Bar data={functionLengthBarData} options={functionLengthOptions} />
+                    </div>
+                    <div className="team-chart-large">
+                      <Line data={getLineChartData(functionLengthDetails, 'Function Length Distribution')} options={lineChartOptions} />
+                    </div>
+                  </div>
+
+                  <h3 className="team-modal-subheader">Parameter Count Score</h3>
+                  <p className="team-modal-score">Parameter Count Score: {parameter_count_repo_score}</p>
+                  <div className="team-chart-large-horizontal">
+                    <div className="team-chart-large">
+                      <Bar data={parameterCountBarData} options={parameterCountOptions} />
+                    </div>
+                    <div className="team-chart-large">
+                      <Line data={getLineChartData(parameterCountDetails, 'Parameter Count Distribution')} options={lineChartOptions} />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

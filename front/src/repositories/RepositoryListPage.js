@@ -22,6 +22,7 @@ function RepositoryListPage() {
   const [userLanguage, setUserLanguage ] = useState("");
   const [userEct, setUserEct ] = useState("");
   const [isListButtonActive, setIsListButtonActive] = useState(false); 
+  const [showLoadingComponent, setShowLoadingComponent] = useState(false);
   // const [repositoryClassification, setData] = useState({ personal_list: [], team_list: [],globusername:''});
 
   const { repositoryListData, setRepositoryListData } = useMaintainPage(); // Context 사용
@@ -59,7 +60,28 @@ function RepositoryListPage() {
   const handleSearchButton = () => {
     navigate("/search")
   }
-
+  const handleLoadingComponentClick = () => {
+    // LoadingComponent2를 보이도록 상태를 업데이트합니다
+    setShowLoadingComponent(prevState => !prevState);
+  };
+  const LoadingComponent1 = () => (
+    <div className="loading-component1">
+      <img src={gifLoading} alt="Loading GIF" className="loading-gif" />
+      <div className="loading-component1-comment1">Loading...</div>
+      <div className="loading-component1-comment2">저장소를 로딩 중입니다...</div>
+      <div className="loading-component1-comment3">특정 저장소는 나타나지 않을 수 있습니다.  →</div>
+    </div>
+  );
+  const LoadingComponent2 = () => (
+    <div className="loading-component2">
+      <img src={gifLoading} alt="Loading GIF" className="loading-gif2" />
+      <div className="loading-component1-comment0">Loading...</div>
+      <div className="loading-component2-comment1">선별되지 않는 저장소의 이유로는</div>
+      <div className="loading-component2-comment2">1. 커밋의 수가 매우 적거나</div>
+      <div className="loading-component2-comment3">2. 프로젝트 의존성 파일이 없는 경우</div>
+      <div className="loading-component2-comment4">다음 화면의 저장소 리스트에 나타나지 않을 수 있습니다.</div>
+    </div>
+  );
   // 드롭다운의 스타일
   const optionStyles = {
     control: (baseStyles, state) => ({
@@ -150,7 +172,7 @@ function RepositoryListPage() {
     // 여기에서 repository 데이터를 사용하여 원하는 작업 수행
   };
 
-  /*
+  
   const filterRepositories = (repositories, userType, userLanguage, userEct) => {
     return repositories.filter(repo => {
       const matchesType = userType === "" || repo.type === userType;
@@ -161,7 +183,7 @@ function RepositoryListPage() {
   }
 
   const filteredRepositories = filterRepositories(repositories, userType, userLanguage, userEct);
- */
+ 
   return (
     <div>
       <div className="top-bar">
@@ -170,6 +192,9 @@ function RepositoryListPage() {
         </button>
         <button onClick={handleSearchButton} className="top-bar-button search-button">
           <img src={magnifierIcon} alt="검색 아이콘" className="top-bar-icon search-button-icon"/>
+        </button>
+        <button onClick={handleProfileButton} className="top-bar-button profile-button2">
+          <img src={profileIcon} alt="프로필 아이콘" className="top-bar-icon profile-button-icon2"/>
         </button>
 
         <div className="top-bar-right">
@@ -240,19 +265,14 @@ function RepositoryListPage() {
         </div>
       </div>
 
-      <div className="repository-list-field" >
+      <div className="repository-list-field" onClick={handleLoadingComponentClick}>
         {isLoading ? (
-          <div className="loading">
-            <img src={gifLoading} alt="GIF" className="gifLoading" />
-            <div className="loading-title" >Load Repositories...</div>
-            <div className="loading-explain">
-              commit 수와 의존성 파일 유무를 통해<br />
-              분석할 repository들을 선별하고 있습니다.<br /><br />
-            </div>
+          <div className="loading-container">
+            {showLoadingComponent ? <LoadingComponent2 /> : <LoadingComponent1 />}
           </div>
         ) : (
           <CardList 
-            repositories={repositories} 
+            repositories={filteredRepositories} 
             file_data={file_data} 
             username = {globusername}
             personal_list = {personal_list}

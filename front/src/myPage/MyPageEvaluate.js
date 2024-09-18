@@ -2,6 +2,23 @@ import React, { Fragment, useState, useEffect } from "react";
 import 'chart.js/auto';
 import "./MyPageDetail.css";
 import { useNavigate,useLocation } from "react-router-dom";
+import homeIcon from '../resources/home-icon.png';
+import magnifierIcon from '../resources/magnifier-icon.png';
+import profileIcon from '../resources/profile-icon.png';
+import informationIcon from '../resources/information-icon.png';
+import gifLoading from '../resources/Loading_icon.gif';
+import checkstyleIcon from '../resources/checkstyle-icon.png';
+import detektIcon from '../resources/detekt-icon.png';
+import eslintIcon from '../resources/eslint-icon.png';
+import regexIcon from '../resources/regex-icon.png';
+import pylintIcon from '../resources/pylint-icon.jpg';
+import githubIcon from '../resources/github-icon.png';
+import commitIcon from '../resources/commit-icon.png';
+import issueIcon from '../resources/issue-icon.png';
+import prIcon from '../resources/pr-icon.png';
+import arrowIcon from '../resources/right-arrow-icon.png';
+import organizationIcon from '../resources/organization-icon.png';
+import cardIcon from '../resources/card-icon.png';
 
 const MyPageEvaluate = () =>{
     const location = useLocation();
@@ -11,13 +28,90 @@ const MyPageEvaluate = () =>{
     const session_userID = sessionStorage.getItem("userID");
     const [username, setUsername] = useState('');
     const navigate = useNavigate();
-    
-    
 
     const { repoAnalyze: reanalyzedRepoAnalyze, evaluate: reanalyzedEvaluate } = location.state || {};
     const [repoAnalyze, setRepoAnalyze] = useState(reanalyzedRepoAnalyze||null);
     const [evaluate, setEvaluate] = useState(reanalyzedEvaluate||null);
+    const [currentPage, setCurrentPage] = useState(1);
     
+    //버튼
+    const handleHomeButton = () => {
+        navigate("/main");
+      }
+      const handleLogOutButton = () => {
+        sessionStorage.removeItem("userID");
+        navigate("/login");
+      }
+      const handleProfileButton = () => {
+        console.log("Profile button clicked"); // 로그 추가
+        navigate("/myPage");
+      }
+      const handleSearchButton = () => {
+        navigate("/search")
+      }
+      const handleCardButton = () => {
+        navigate("/list")
+      }
+      const LoadingComponent1 = () => (
+        <div className="loading-component1">
+          <div className="loading-component1-comment2">분석 평가 과정의 기준 →</div>
+        </div>
+      );
+      const LoadingComponent2 = () => (
+        <div className="loading-component2">
+          <div className="loading-component2-icons">
+            <img src={checkstyleIcon} alt="checkstyle" className="checkstyleIcon"/>
+            <img src={detektIcon} alt="detekt" className="detektIcon"/>
+            <img src={eslintIcon} alt="eslint" className="eslintIcon"/>
+            <img src={pylintIcon} alt="pylint" className="pylintIcon"/>
+            <img src={regexIcon} alt="regex" className="regexIcon"/>
+          </div>
+          <div className="loading-component2-comment2">신뢰성 있는 정적 코드 분석 도구로<br />
+          소스파일 분석을 통해 코드 작성 능력을 평가합니다.</div>
+        </div>
+      );
+      const LoadingComponent3 = () => (
+        <div className="loading-component3">
+            <img src={githubIcon} alt="github" className="githubIcon" />
+            <img src={arrowIcon} alt="arrow" className="arrowIcon" />
+            <img src={commitIcon} alt="commit" className="commitIcon" />
+            <img src={issueIcon} alt="issue" className="issueIcon" />
+            <img src={prIcon} alt="pr" className="prIcon" />
+          <div className="loading-component3-comment2">
+            협업 지표의 경우 입력하신 <br />
+            깃허브 사용자를 기준으로 작성됩니다.
+          </div>
+        </div>
+      );
+      const LoadingComponent4 = () => (
+        <div className="loading-component4">
+            <img src={githubIcon} alt="github" className="githubIcon2" />
+            <img src={arrowIcon} alt="arrow" className="arrowIcon2" />
+            <img src={organizationIcon} alt="commit" className="organizationIcon2" />
+          <div className="loading-component4-comment2">입력받은 깃허브 사용자가 참여했던 <br />조직은 모두 분석이 가능합니다.</div>
+        </div>
+      );
+    
+      const handlePageChange = () => {
+        setCurrentPage((prevPage) => {
+          if (prevPage === 4) return 1; // 페이지 4에서 1로 돌아가기
+          return prevPage + 1; // 다음 페이지로 이동
+        });
+      };
+      const getPaginationDots = () => {
+        const totalPages = 4; // 총 페이지 수
+        let dots = [];
+        for (let i = 1; i <= totalPages; i++) {
+          dots.push(
+            <span
+              key={i}
+              className={`dot ${currentPage === i ? "active" : ""}`}
+              onClick={() => handlePageChange(i)}
+            ></span>
+          );
+        }
+        return dots;
+      };
 
     useEffect(() => {
         if (repo_analyzed_data && repo_evaluate_data) {
@@ -31,7 +125,21 @@ const MyPageEvaluate = () =>{
         }
       }, [repo_analyzed_data, repo_evaluate_data]);
       if (!repoAnalyze || !evaluate) {
-        return <div>Loading...</div>;
+        return (
+            <div className="loading-page" onClick={handlePageChange} >
+              <div className="loading-page-box">
+              <img src={gifLoading} alt="Loading GIF" className="loading-gif" />
+              <div className="loading-comment1">Loading...</div>
+                {currentPage === 1 && <LoadingComponent1 />}
+                {currentPage === 2 && <LoadingComponent2 />}
+                {currentPage === 3 && <LoadingComponent3 />} 
+                {currentPage === 4 && <LoadingComponent4 />}{/* 추가 페이지가 필요하면 여기에 */}
+                <div className="pagination-indicator">
+                  {getPaginationDots()}
+                </div>
+              </div>
+            </div>
+          );
     }
 
     const handleDetailClick = () => {
@@ -297,11 +405,35 @@ const MyPageEvaluate = () =>{
 
         return (
             <div>
-                <h3>PR 관리</h3>
-                <p>전체 저장소 PR 병합 비율: {total_pr_merge_score}</p>
-                <p>{storageMessage}</p>
-                <p>사용자 PR 병합 비율: {user_pr_score}</p>
-                <p>{userMessage}</p>
+                <div className="top-bar">
+                    <button onClick={handleHomeButton} className="top-bar-button home-button">
+                        <img src={homeIcon} alt="홈 아이콘" className="top-bar-icon home-button-icon"/>
+                    </button>
+                    <button onClick={handleSearchButton} className="top-bar-button search-button">
+                        <img src={magnifierIcon} alt="검색 아이콘" className="top-bar-icon search-button-icon"/>
+                    </button>
+                    <button onClick={handleCardButton} className="top-bar-button card-button">
+                        <img src={cardIcon} alt="카드 아이콘" className="top-bar-icon card-button-icon"/>
+                    </button>
+                    <button onClick={handleProfileButton} className="top-bar-button profile-button2">
+                        <img src={profileIcon} alt="프로필 아이콘" className="top-bar-icon profile-button-icon2"/>
+                    </button>
+
+                    <div className="top-bar-right">
+                    <button onClick={handleLogOutButton} className="top-bar-button top-logout-button">로그아웃</button>
+
+                    <button className="top-bar-button top-information-button">
+                        <img src={informationIcon} alt="홈 아이콘" className= "top-bar-icon top-information-button-icon"/>
+                    </button>
+                    </div>
+                </div>
+                <div>
+                    <h3>PR 관리</h3>
+                    <p>전체 저장소 PR 병합 비율: {total_pr_merge_score}</p>
+                    <p>{storageMessage}</p>
+                    <p>사용자 PR 병합 비율: {user_pr_score}</p>
+                    <p>{userMessage}</p>
+                </div>
             </div>
         );
     };
@@ -587,25 +719,49 @@ const MyPageEvaluate = () =>{
 
         return (
             <div>
-                <h2>저장소: {repo_name}</h2>
-                <h3>사용자: {username}님</h3>
+                <div className="top-bar">
+                    <button onClick={handleHomeButton} className="top-bar-button home-button">
+                        <img src={homeIcon} alt="홈 아이콘" className="top-bar-icon home-button-icon"/>
+                    </button>
+                    <button onClick={handleSearchButton} className="top-bar-button search-button">
+                        <img src={magnifierIcon} alt="검색 아이콘" className="top-bar-icon search-button-icon"/>
+                    </button>
+                    <button onClick={handleCardButton} className="top-bar-button card-button">
+                        <img src={cardIcon} alt="카드 아이콘" className="top-bar-icon card-button-icon"/>
+                    </button>
+                    <button onClick={handleProfileButton} className="top-bar-button profile-button2">
+                        <img src={profileIcon} alt="프로필 아이콘" className="top-bar-icon profile-button-icon2"/>
+                    </button>
 
-                {/* 코드 작성 능력 평가 */}
-                <h2>1. 코드 작성 능력 평가</h2>
-                <p>전체 코드 품질 등급: {evaluate.code_quality}</p>
-                <p>{generateCodeQualityMessage(evaluate.code_quality)}</p>
-                
-                {generateCommentMessage(evaluate.comment_score, repoAnalyze.comment_per[0], repoAnalyze.comment_per[1], repoAnalyze.comment_per[2])}
-                {generateComplexityMessage(evaluate.complexity_repo_score, repoAnalyze.complexity)}
-                {generateFunctionLengthMessage(evaluate.function_length_repo_score, repoAnalyze.function_length)}
-                {generateParameterCountMessage(evaluate.parameter_count_repo_score, repoAnalyze.parameter_count)}
-                {generateDuplicationMessage(evaluate.duplication_score, repoAnalyze.duplicate_code)}
+                    <div className="top-bar-right">
+                    <button onClick={handleLogOutButton} className="top-bar-button top-logout-button">로그아웃</button>
 
-                {/* 커밋 메시지 평가 */}
-                <h2>2. 커밋 메시지 평가</h2>
-                {generateCommitScoreMessage(commitScore, commitData, username)}
-                {generateCommitMessageQualityMessage(commitMessageQualityScores, username)}
-                {generateCommitMessageGrammarMessage(commitMessageGrammarScores, username)}
+                    <button className="top-bar-button top-information-button">
+                        <img src={informationIcon} alt="홈 아이콘" className= "top-bar-icon top-information-button-icon"/>
+                    </button>
+                    </div>
+                </div>
+                <div>
+                    <h2>저장소: {repo_name}</h2>
+                    <h3>사용자: {username}님</h3>
+
+                    {/* 코드 작성 능력 평가 */}
+                    <h2>1. 코드 작성 능력 평가</h2>
+                    <p>전체 코드 품질 등급: {evaluate.code_quality}</p>
+                    <p>{generateCodeQualityMessage(evaluate.code_quality)}</p>
+                    
+                    {generateCommentMessage(evaluate.comment_score, repoAnalyze.comment_per[0], repoAnalyze.comment_per[1], repoAnalyze.comment_per[2])}
+                    {generateComplexityMessage(evaluate.complexity_repo_score, repoAnalyze.complexity)}
+                    {generateFunctionLengthMessage(evaluate.function_length_repo_score, repoAnalyze.function_length)}
+                    {generateParameterCountMessage(evaluate.parameter_count_repo_score, repoAnalyze.parameter_count)}
+                    {generateDuplicationMessage(evaluate.duplication_score, repoAnalyze.duplicate_code)}
+
+                    {/* 커밋 메시지 평가 */}
+                    <h2>2. 커밋 메시지 평가</h2>
+                    {generateCommitScoreMessage(commitScore, commitData, username)}
+                    {generateCommitMessageQualityMessage(commitMessageQualityScores, username)}
+                    {generateCommitMessageGrammarMessage(commitMessageGrammarScores, username)}
+                </div>
             </div>
         );
     };

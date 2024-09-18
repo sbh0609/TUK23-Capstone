@@ -57,6 +57,18 @@
   margin-top: 4px;
 }
 
+.profile-button2 {
+  margin-left: 12px;
+  background-color: white!important;
+  cursor: pointer;
+  border: none;
+}
+
+.profile-button-icon2 {
+  height: 40px;
+  width: 40px;
+}
+
 .top-bar-right{
   position: relative;
   margin-left: auto;
@@ -397,35 +409,106 @@
   width: calc(100vw - 235px);
 }
 
-.loading {
-  position: relative;
-  display: flex;
-    
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
-  margin-top: 200px;
-  height: 100px;
+.loading-component1 {
+  text-align: center;
 }
 
-.gifLoading {
-  position: relative;
-  align-items: center!important;
-  justify-content: center!important;
+.loading-gif {
+  position: relative; 
+  margin-top: 100px;
 
-  height: 150px;
 }
 
-.loading-title {
-  position: relative;
-    
+.loading-component1-comment1 {
+  position: relative; 
+  margin-top: 5px;
+  margin-left: 20px;
+
+  font-weight: bolder;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-style: normal;
   font-size: 40px;
-  padding: 30px;
 }
 
-.loading-explain{
-  position: relative;
-    
-  font-size: 16px;
+.loading-component1-comment2 {
+  position: relative; 
+  margin-top: 50px;
+  margin-left: 20px;
+  
+  font-weight: bolder;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-style: normal;
+}
+
+.loading-component1-comment3 {
+  position: relative; 
+  margin-top: 30px;
+  margin-left: 20px;
+
+  font-weight: bolder;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-style: normal;
+}
+
+.loading-component2 {
+  text-align: center;
+}
+
+.loading-gif2 {
+  position: relative; 
+  margin-top: 100px;
+
+}
+
+.loading-component1-comment0 {
+  position: relative; 
+  margin-top: 5px;
+  margin-left: 20px;
+
+  font-weight: bolder;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-style: normal;
+  font-size: 40px;
+}
+
+
+.loading-component2-comment1 {
+  position: relative; 
+  margin-top: 50px;
+  margin-left: 20px;
+
+  font-weight: bolder;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-style: normal;
+
+}
+
+.loading-component2-comment2 {
+  position: relative; 
+  margin-top: 30px;
+  margin-left: 20px;
+  
+  font-weight: bolder;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-style: normal;
+}
+
+.loading-component2-comment3 {
+  position: relative; 
+  margin-top: 5px;
+  margin-left: 20px;
+
+  font-weight: bolder;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-style: normal;
+}
+
+.loading-component2-comment4 {
+  position: relative; 
+  margin-top: 30px;
+  margin-left: 20px;
+
+  font-weight: bolder;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-style: normal;
 }
