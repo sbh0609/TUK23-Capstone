@@ -1,0 +1,104 @@
+/* 공통 스타일 */
+.evaluation-page {
+    margin: 20px;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+/* 저장소 정보와 버튼 배치 */
+.repo-info-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.repo-info h2 {
+    font-size: 1.5em;
+    margin: 0;
+}
+
+.repo-info h3 {
+    font-size: 1.2em;
+    margin: 0;
+    color: #555;
+}
+
+/* 세부 정보 보기 버튼 스타일 */
+.detail-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.detail-button:hover {
+    background-color: #45a049;
+}
+
+/* 섹션 스타일 */
+.section {
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 1.4em;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+    text-decoration: underline;
+}
+
+.section-content {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    line-height: 1.5;
+    background-color: white; /* 기본 하얀색 배경 */
+}
+
+/* 등급에 따른 배경색 */
+.grade-a {
+    background-color: #DFF0D8; /* 밝은 초록색 */
+    color: #3C763D;
+}
+
+.grade-b {
+    background-color: #D9EDF7; /* 밝은 파랑색 */
+    color: #31708F;
+}
+
+.grade-c {
+    background-color: #FCF8E3; /* 밝은 노랑색 */
+    color: #8A6D3B;
+}
+
+.grade-d {
+    background-color: #F2DEDE; /* 밝은 빨강색 */
+    color: #A94442;
+}
+
+.grade-default {
+    background-color: white; /* 기본 배경 */
+    color: #333; /* 기본 텍스트 색상 */
+}
+
+/* 섹션 내부 패딩 */
+.section-content p {
+    margin: 0 0 10px;
+}
+
+.section-content span.grade {
+    font-weight: bold;
+    font-size: 1.2em;
+}

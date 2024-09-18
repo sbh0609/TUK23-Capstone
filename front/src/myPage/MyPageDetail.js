@@ -29,11 +29,7 @@ const MyPageDetail = () => {
   // const { repo_analyzed_data, repo_evaluate_data, repo_name, repo_type, click_time } = location.state || {}; 
   console.log("Location State:", location.state); // useEffect 밖에서 로그 출력
 
-  // const [repoAnalyze, setRepoAnalyze] = useState(null);
-  // const [evaluate, setEvaluate] = useState(null);
-  // const session_userID = sessionStorage.getItem("userID");
-  // const [username, setUsername] = useState('');
-  // const [programLang, setProgramLang] = useState(repo_analyzed_data ? repo_analyzed_data.language : '');
+
   const [open, setOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [modalData, setModalData] = useState(null);
@@ -41,17 +37,7 @@ const MyPageDetail = () => {
   const [newRepoAnalyze, setNewRepoAnalyze] = useState(repoAnalyze);
   const [newEvaluate, setNewEvaluate] = useState(evaluate);
   const navigate = useNavigate();  // 평가 페이지로 이동할 navigate 함수 선언
-  // useEffect(() => {
-  //   if (repo_analyzed_data && repo_evaluate_data) {
-  //     console.log("(detail) repoAnalyze: ", repo_analyzed_data);
-  //     console.log("(detail) evaluate: ", repo_evaluate_data);
-      
-  //     setRepoAnalyze(repo_analyzed_data);
-  //     setEvaluate(repo_evaluate_data);
-  //     setUsername(repo_analyzed_data.repo_contributor_name);
-  //     sessionStorage.setItem("username", repo_analyzed_data.repo_contributor_name); // 세션에 저장
-  //   }
-  // }, [repo_analyzed_data, repo_evaluate_data]);
+
   
   const handleReanalyze = () => {
     // 재분석 요청 시 기존 데이터를 초기화합니다.
@@ -59,10 +45,7 @@ const MyPageDetail = () => {
     setNewEvaluate(null);
     const click_time = formatDate(new Date()); // 새로운 click_time 생성
 
-    // setRepoAnalyze(null);
-    // setEvaluate(null);
 
-    // const username = sessionStorage.getItem("username"); // 세션에서 username 가져오기
     axios.post('http://localhost:5000/api/reanalyze', {
       repo_name,
       username,
@@ -98,12 +81,6 @@ const MyPageDetail = () => {
   }
   const languages = Object.entries(repoAnalyze.program_lang).map(([lang, percentage]) => ({ lang, percentage }));
   const frameworks = repoAnalyze.framework;
-  // console.log("repoa",repoAnalyze);
-  // console.log("eva",evaluate);
-  // const languages = Object.entries(repoAnalyze.program_lang).map(([lang, percentage]) => ({ lang, percentage }));
-  // console.log("이름",username);
-  // console.log("이름",username);
-  // const frameworks = repoAnalyze.framework;
 
 
   const {

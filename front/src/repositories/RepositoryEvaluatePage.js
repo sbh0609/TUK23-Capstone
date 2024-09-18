@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useRepository } from "../Context/RepositoryContext";
 import { useNavigate, useLocation } from 'react-router-dom';
+import "./RepositoryEvaluatePage.css";  // CSS 파일 추가
 
 const RepositoryEvaluatePage = () => {
     const session_userID = sessionStorage.getItem("userID");
@@ -28,6 +29,8 @@ const RepositoryEvaluatePage = () => {
             .then(response => {
                 setRepoAnalyze(response.data.repo_analyze);
                 setEvaluate(response.data.evaluate);
+                console.log("df",repoAnalyze)
+                console.log("df",evaluate)
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -51,6 +54,26 @@ const RepositoryEvaluatePage = () => {
               session_userID
             }
         });
+    };
+       // 등급에 따라 배경색을 설정하는 함수
+    // 등급에 따라 배경색을 설정하는 함수
+    const getGradeClass = (grade) => {
+        switch (grade) {
+            case "A+":
+            case "A":
+                return "grade-a"; // 초록색
+            case "B+":
+            case "B":
+                return "grade-b"; // 파랑색
+            case "C+":
+            case "C":
+                return "grade-c"; // 노랑색
+            case "D+":
+            case "D":
+                return "grade-d"; // 빨강색
+            default:
+                return "grade-default"; // 하얀색
+        }
     };
     const formatFilePath = (filePath) => {
         const pathParts = filePath.split("/"); // 경로를 '/'로 분리
@@ -251,7 +274,7 @@ const RepositoryEvaluatePage = () => {
     const generatePRManagementMessage = (prScores, prData, username) => {
         const { total_prs, merged_prs, merged_pr_percentage, total_user_prs, merged_user_prs, merged_user_pr_percentage } = prData || {};
         const { user_pr_score, total_pr_merge_score } = prScores || {};
-
+        console.log(user_pr_score, total_pr_merge_score);
         let storageMessage = "";
         let userMessage = "";
 
@@ -316,7 +339,7 @@ const RepositoryEvaluatePage = () => {
     const generateIssueManagementMessage = (issueScores, issueData, username) => {
         const { total_issues, closed_issues, closed_issue_percentage, total_user_issues, closed_user_issues, closed_user_issue_percentage } = issueData || {};
         const { total_issue_close_score, user_issue_score } = issueScores || {};
-
+        console.log("왜안됨",total_issue_close_score, user_issue_score)
         let storageMessage = "";
         let userMessage = "";
 
@@ -544,81 +567,133 @@ const RepositoryEvaluatePage = () => {
         );
     };
 
-    // 전체 페이지에서 사용 예시
     const generateTeamProjectMessage = () => {
         const commitMessageQualityScores = evaluate.commit_message_quality_scores || {};
         const commitMessageGrammarScores = evaluate.commit_message_grammar_scores || {};
         const commitScore = evaluate.commit_score || "N/A";
-        const commitData = repoAnalyze.commit_per || [0, 0, 0];  // 전체 커밋 수, 사용자 커밋 수, 사용자 커밋 비율
+        const commitData = repoAnalyze.commit_per || [0, 0, 0];
         const prScores = evaluate.pr_scores || {};
         const prData = repoAnalyze.pr_data || {};
         const issueScores = evaluate.issue_scores || {};
         const issueData = repoAnalyze.issue_data || {};
-        console.log(repoAnalyze.repo_contributor_name)
+
         return (
-            <div>
-                <h2>저장소: {repo_name}</h2>
-                <h3>사용자: {username}님</h3>
+            <div className="team-message">
+                <div className="repo-info-container">
+                    <div className="repo-info">
+                        <h2>저장소: {repo_name}</h2>
+                        <h3>사용자: {username}님</h3>
+                    </div>
+                    <button className="detail-button" onClick={handleDetailClick}>세부 정보 보기</button>
+                </div>
 
-                {/* 코드 작성 능력 평가 */}
-                <h2>1. 코드 작성 능력 평가</h2>
-                <p>전체 코드 품질 등급: {evaluate.code_quality}</p>
-                <p>{generateCodeQualityMessage(evaluate.code_quality)}</p>
-                
-                {generateCommentMessage(evaluate.comment_score, repoAnalyze.comment_per[0], repoAnalyze.comment_per[1], repoAnalyze.comment_per[2])}
-                {generateComplexityMessage(evaluate.complexity_repo_score, repoAnalyze.complexity)}
-                {generateFunctionLengthMessage(evaluate.function_length_repo_score, repoAnalyze.function_length)}
-                {generateParameterCountMessage(evaluate.parameter_count_repo_score, repoAnalyze.parameter_count)}
-                {generateDuplicationMessage(evaluate.duplication_score, repoAnalyze.duplicate_code)}
+                <section className="section code-quality-section">
+                    <h2 className="section-title">1. 코드 작성 능력 평가</h2>
+                    <div className={`section-content ${getGradeClass(evaluate.code_quality)}`}>
+                        <p>전체 코드 품질 등급: <span className="grade">{evaluate.code_quality}</span></p>
+                        <p>{generateCodeQualityMessage(evaluate.code_quality)}</p>
+                    </div>
+                    <div className={`section-content ${getGradeClass(evaluate.comment_score)}`}>
+                        {generateCommentMessage(evaluate.comment_score, repoAnalyze.comment_per[0], repoAnalyze.comment_per[1], repoAnalyze.comment_per[2])}
+                    </div>
+                    <div className={`section-content ${getGradeClass(evaluate.complexity_repo_score)}`}>
+                        {generateComplexityMessage(evaluate.complexity_repo_score, repoAnalyze.complexity)}
+                    </div>
+                    <div className={`section-content ${getGradeClass(evaluate.function_length_repo_score)}`}>
+                        {generateFunctionLengthMessage(evaluate.function_length_repo_score, repoAnalyze.function_length)}
+                    </div>
+                    <div className={`section-content ${getGradeClass(evaluate.parameter_count_repo_score)}`}>
+                        {generateParameterCountMessage(evaluate.parameter_count_repo_score, repoAnalyze.parameter_count)}
+                    </div>
+                    <div className={`section-content ${getGradeClass(evaluate.duplication_score)}`}>
+                        {generateDuplicationMessage(evaluate.duplication_score, repoAnalyze.duplicate_code)}
+                    </div>
+                </section>
 
-                {/* 협업 능력 평가 */}
-                <h2>2. 협업 능력 평가</h2>
-                {generatePRManagementMessage(prScores, prData, username)}
-                {generateIssueManagementMessage(issueScores, issueData, username)}
+                <section className="section collaboration-section">
+                    <h2 className="section-title">2. 협업 능력 평가</h2>
+                    <div className={`section-content ${getGradeClass(evaluate.pr_scores?.user_pr_score)}`}>
+                        {generatePRManagementMessage(prScores, prData, username)}
+                    </div>
+                    <div className={`section-content ${getGradeClass(evaluate.issue_scores?.user_issue_score)}`}>
+                        {generateIssueManagementMessage(issueScores, issueData, username)}
+                    </div>
+                </section>
 
-                {/* 커밋 평가 */}
-                <h2>3. 커밋 메시지 평가</h2>
-                {generateCommitScoreMessage(commitScore, commitData, username)}
-                {generateCommitMessageQualityMessage(commitMessageQualityScores, username)}
-                {generateCommitMessageGrammarMessage(commitMessageGrammarScores, username)}
+                <section className="section commit-message-section">
+                    <h2 className="section-title">3. 커밋 메시지 평가</h2>
+                    <div className={`section-content ${getGradeClass(evaluate.commit_score)}`}>
+                        {generateCommitScoreMessage(commitScore, commitData, username)}
+                    </div>
+                    <div className={`section-content ${getGradeClass(evaluate.commit_message_quality_scores?.user_commit_message_quality_score)}`}>
+                        {generateCommitMessageQualityMessage(commitMessageQualityScores, username)}
+                    </div>
+                    <div className={`section-content ${getGradeClass(evaluate.commit_message_grammar_scores?.user_commit_message_grammar_score)}`}>
+                        {generateCommitMessageGrammarMessage(commitMessageGrammarScores, username)}
+                    </div>
+                </section>
             </div>
         );
     };
-    // 개인 저장소 메시지 생성
+
+// 개인 저장소 메시지 생성
     const generatePersonalProjectMessage = () => {
         const commitMessageQualityScores = evaluate.commit_message_quality_scores || {};
         const commitMessageGrammarScores = evaluate.commit_message_grammar_scores || {};
         const commitScore = evaluate.commit_score || "N/A";
-        const commitData = repoAnalyze.commit_per || [0, 0, 0];  // 전체 커밋 수, 사용자 커밋 수, 사용자 커밋 비율
+        const commitData = repoAnalyze.commit_per || [0, 0, 0];
 
         return (
-            <div>
-                <h2>저장소: {repo_name}</h2>
-                <h3>사용자: {username}님</h3>
+            <div className="personal-message">
+                <div className="repo-info-container">
+                    <div className="repo-info">
+                        <h2>저장소: {repo_name}</h2>
+                        <h3>사용자: {username}님</h3>
+                    </div>
+                    <button className="detail-button" onClick={handleDetailClick}>세부 정보 보기</button>
+                </div>
 
-                {/* 코드 작성 능력 평가 */}
-                <h2>1. 코드 작성 능력 평가</h2>
-                <p>전체 코드 품질 등급: {evaluate.code_quality}</p>
-                <p>{generateCodeQualityMessage(evaluate.code_quality)}</p>
-                
-                {generateCommentMessage(evaluate.comment_score, repoAnalyze.comment_per[0], repoAnalyze.comment_per[1], repoAnalyze.comment_per[2])}
-                {generateComplexityMessage(evaluate.complexity_repo_score, repoAnalyze.complexity)}
-                {generateFunctionLengthMessage(evaluate.function_length_repo_score, repoAnalyze.function_length)}
-                {generateParameterCountMessage(evaluate.parameter_count_repo_score, repoAnalyze.parameter_count)}
-                {generateDuplicationMessage(evaluate.duplication_score, repoAnalyze.duplicate_code)}
+                <section className="section code-quality-section">
+                    <h2 className="section-title">1. 코드 작성 능력 평가</h2>
+                    <div className={`section-content ${getGradeClass(evaluate.code_quality)}`}>
+                        <p>전체 코드 품질 등급: <span className="grade">{evaluate.code_quality}</span></p>
+                        <p>{generateCodeQualityMessage(evaluate.code_quality)}</p>
+                    </div>
+                    <div className={`section-content ${getGradeClass(evaluate.comment_score)}`}>
+                        {generateCommentMessage(evaluate.comment_score, repoAnalyze.comment_per[0], repoAnalyze.comment_per[1], repoAnalyze.comment_per[2])}
+                    </div>
+                    <div className={`section-content ${getGradeClass(evaluate.complexity_repo_score)}`}>
+                        {generateComplexityMessage(evaluate.complexity_repo_score, repoAnalyze.complexity)}
+                    </div>
+                    <div className={`section-content ${getGradeClass(evaluate.function_length_repo_score)}`}>
+                        {generateFunctionLengthMessage(evaluate.function_length_repo_score, repoAnalyze.function_length)}
+                    </div>
+                    <div className={`section-content ${getGradeClass(evaluate.parameter_count_repo_score)}`}>
+                        {generateParameterCountMessage(evaluate.parameter_count_repo_score, repoAnalyze.parameter_count)}
+                    </div>
+                    <div className={`section-content ${getGradeClass(evaluate.duplication_score)}`}>
+                        {generateDuplicationMessage(evaluate.duplication_score, repoAnalyze.duplicate_code)}
+                    </div>
+                </section>
 
-                {/* 커밋 메시지 평가 */}
-                <h2>2. 커밋 메시지 평가</h2>
-                {generateCommitScoreMessage(commitScore, commitData, username)}
-                {generateCommitMessageQualityMessage(commitMessageQualityScores, username)}
-                {generateCommitMessageGrammarMessage(commitMessageGrammarScores, username)}
+                <section className="section commit-message-section">
+                    <h2 className="section-title">2. 커밋 메시지 평가</h2>
+                    <div className={`section-content ${getGradeClass(commitScore)}`}>
+                        {generateCommitScoreMessage(commitScore, commitData, username)}
+                    </div>
+                    <div className={`section-content ${getGradeClass(evaluate.commit_message_quality_score)}`}>
+                        {generateCommitMessageQualityMessage(commitMessageQualityScores, username)}
+                    </div>
+                    <div className={`section-content ${getGradeClass(evaluate.commit_message_grammar_score)}`}>
+                        {generateCommitMessageGrammarMessage(commitMessageGrammarScores, username)}
+                    </div>
+                </section>
             </div>
         );
     };
     return (
         <div className="evaluation-page">
             {repo_type === "team" ? generateTeamProjectMessage() : generatePersonalProjectMessage()}
-            <button onClick={handleDetailClick}>자세한 분석 보러가기</button>
         </div>
     );
 };

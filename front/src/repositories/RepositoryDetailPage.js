@@ -7,53 +7,6 @@ import {  useNavigate,useLocation } from 'react-router-dom'; // useLocation 가�
 import { Pie,Bar,Line,Doughnut } from 'react-chartjs-2';
 
 
-// const RepositoryDetailPage = () => {
-//   const session_userID = sessionStorage.getItem("userID");
-//   const { repositoryDetail } = useRepository();
-//   const { repo_name, fileList, username, repo_type, click_time } = repositoryDetail;
-//   const [repoAnalyze, setRepoAnalyze] = useState(null);
-//   const [evaluate, setEvaluate] = useState(null);
-//   const [open, setOpen] = useState(false);
-//   const [selectedCard, setSelectedCard] = useState(null);
-//   const [modalData, setModalData] = useState(null);
-
-
-//   useEffect(() => {
-
-//     axios.post('http://localhost:5000/api/analyze', { repo_name, username, fileList, repo_type, click_time, session_userID })
-//       .then(response => {
-//         console.log(response);
-//         setRepoAnalyze(response.data.repo_analyze);
-//         setEvaluate(response.data.evaluate);
-//       })
-//       .catch(error => {
-//         console.error('Error', error);
-//         window.alert('Error: ' + error);
-//       });
-//   }, [repo_name, username, fileList, repo_type, click_time, session_userID]);
-  
-//   const handleReanalyze = () => {
-//     // 재분석 요청 시 기존 데이터를 초기화합니다.
-//     setRepoAnalyze(null);
-//     setEvaluate(null);
-  
-//     axios.post('http://localhost:5000/api/reanalyze', {
-//       repo_name,
-//       username,
-//       session_userID,
-//       repo_type,
-//       click_time
-//     })
-//       .then(response => {
-//         console.log('Reanalyze response:', response);
-//         setRepoAnalyze(response.data.repo_analyze);
-//         setEvaluate(response.data.evaluate);
-//       })
-//       .catch(error => {
-//         console.error('Error during reanalyze:', error);
-//         window.alert('Error: ' + error);
-//       });
-//   };
 const formatDate = (date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
