@@ -1,12 +1,10 @@
 /* 공통 스타일 */
 .evaluation-page {
-    margin: 20px;
-    padding: 10px;
-    background-color: #f9f9f9;
+  margin-top: 100px; /* 헤더와 평가 페이지 간격 확보 */
 }
 
 .personal-message {
-  margin-top: 60px;
+  margin-top: 120px; /* 헤더와 메시지 간격 확보 */
 }
 
 /* 저장소 정보와 버튼 배치 */
@@ -21,15 +19,10 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.repo-info h2 {
-    font-size: 1.5em;
-    margin: 0;
-}
-
 .repo-info h3 {
-    font-size: 1.2em;
-    margin: 0;
-    color: #555;
+  font-size: 1.2rem;
+  color: #333;
+  margin-top: 5px; /* 헤더 아래 간격 */
 }
 
 /* 세부 정보 보기 버튼 스타일 */
@@ -325,9 +318,9 @@
   margin-bottom: 20px; /* 아래 여백 설정 */
 }
 .repo-info {
-  display: flex;
-  flex-direction: column;
-  
+  width: auto; /* 컨테이너 크기를 텍스트 길이에 맞춰 늘어남 */
+  display: inline-block; /* 컨테이너가 콘텐츠 크기에 맞게 자동 확장 */
+  padding: 10px;
 }
 
 .repo-type {

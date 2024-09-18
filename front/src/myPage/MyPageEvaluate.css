@@ -1,12 +1,10 @@
 /* 공통 스타일 */
 .evaluation-page {
-  margin: 20px;
-  padding: 10px;
-  background-color: #f9f9f9;
+  margin-top: 100px; /* 헤더와 평가 페이지 간격 확보 */
 }
 
 .personal-message {
-margin-top: 60px;
+  margin-top: 120px; /* 헤더와 메시지 간격 확보 */
 }
 
 /* 저장소 정보와 버튼 배치 */
@@ -22,16 +20,17 @@ margin-top: 60px;
 }
 
 .repo-info h2 {
-  font-size: 1.5em;
-  margin: 0;
+  font-size: 1.8rem; /* 폰트 크기 축소 */
+  font-weight: bold;
+  word-wrap: break-word; /* 텍스트 줄바꿈 강제 적용 */
+  margin-top: 0; /* 헤더와 간격 조정 */
 }
 
 .repo-info h3 {
-  font-size: 1.2em;
-  margin: 0;
-  color: #555;
+  font-size: 1.2rem;
+  color: #333;
+  margin-top: 5px; /* 헤더 아래 간격 */
 }
-
 /* 세부 정보 보기 버튼 스타일 */
 .detail-button {
   background-color: #4CAF50;
@@ -314,20 +313,16 @@ flex-direction: column;
 align-items: start; 
 }
 .repo-info, .info-boxx {
-text-align: left; /* 텍스트 왼쪽 정렬 */
-margin-left: 0px; /* 왼쪽 여백 추가 */
-width: auto; /* 너비 자동 조절 */
+  text-align: left; /* 텍스트 왼쪽 정렬 */
+  margin-left: 0px; /* 왼쪽 여백 추가 */
+  width: auto; /* 너비 자동 조절 */
 }
 
-.repo-info h2 {
-font-size: 50px; /* 폰트 크기 설정 */
-font-weight: bold; /* 폰트 굵기 설정 */
-margin-bottom: 20px; /* 아래 여백 설정 */
-}
+
 .repo-info {
-display: flex;
-flex-direction: column;
-
+  width: auto; /* 컨테이너 크기를 텍스트 길이에 맞춰 늘어남 */
+  display: inline-block; /* 컨테이너가 콘텐츠 크기에 맞게 자동 확장 */
+  padding: 10px;
 }
 
 .repo-type {
@@ -924,4 +919,8 @@ cursor: pointer;
 
 .dot.active {
 background-color:  #717171;
+}
+.section-content span.grade {
+  font-weight: bold;
+  font-size: 1.2em;
 }

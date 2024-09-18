@@ -149,6 +149,11 @@
   flex-direction: column;
   align-items: start; 
 }
+.repo-info {
+  margin-bottom: 30px; /* 버튼과 카드 사이의 간격 추가 */
+}
+
+
 .repo-info, .info-boxx {
   text-align: left; /* 텍스트 왼쪽 정렬 */
   margin-left: 0px; /* 왼쪽 여백 추가 */
@@ -223,13 +228,27 @@
   margin-left: 20px;  
   
 }
-
-.chart-container {
-  width: 100%; /* 전체 너비 사용 */
-  height: 300px; /* 높이 설정 */
-  margin-left: 20px;
+canvas {
+  background-color: #FAFAFA; /* 차트 배경을 밝고 부드럽게 */
 }
-
+/* .chart-container {
+  width: 100%; 
+  height: 300px; 
+  margin-left: 20px;
+} */
+.chart-container {
+  margin: 30px auto;
+  width: 90%;
+}
+.chart-legend-text {
+  font-size: 1.1rem;
+  font-weight: 400; /* 폰트 두께를 얇게 */
+  color: #555; /* 부드러운 색상 적용 */
+}
+.chart-description {
+  font-size: 1rem;
+  color: #888; /* 부드러운 색상으로 설명 부분 조정 */
+}
 .info-box {
   width: 300px; /* 전체 너비 사용 */
   padding: 20px;
@@ -284,21 +303,17 @@ body {
   flex-wrap: wrap;
   gap: 10px;
   justify-content: space-between;
+  margin-bottom: 30px;
 }
 
 .card {
   flex: 1 1 calc(33.333% - 15px);
-  padding: 5px;
-  text-align: center;
-  background-color: #f5f5f5;
-  border-radius: 5px;
-  box-shadow: 0 2px 3px rgba(34, 36, 38, 0.15);
-  cursor: pointer;
-  font-size: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
+  text-align: center;
 }
 
 .card:hover {
@@ -329,8 +344,11 @@ body {
 }
 
 .score {
-  margin-top: 3px;
-  margin-bottom: 5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 20px; /* 폰트 크기 증가 */
+  font-weight: bold;
+  color: #333;
 }
 
 .commit-scores {
@@ -351,12 +369,29 @@ body {
 }
 
 .evaluation-data span {
-  background-color: #e0e0e0;
-  border-radius: 3px;
-  padding: 5px 10px;
-  font-size: 1rem;
+  background-color: #ececec;
+  border-radius: 5px;
+  padding: 10px 15px; /* 패딩을 더 크게 */
+  font-size: 14px;
+  font-weight: 500;
+  margin-right: 5px;
+  display: inline-block; /* 모든 점수를 블록으로 표시 */
 }
-
+.evaluation-data span:first-child {
+  background-color: #f0ad4e; /* Comment Score */
+}
+.evaluation-data span:nth-child(2) {
+  background-color: #d9534f; /* Duplication Score */
+}
+.evaluation-data span:nth-child(3) {
+  background-color: #5bc0de; /* Complexity Score */
+}
+.evaluation-data span:nth-child(4) {
+  background-color: #5cb85c; /* Function Length Score */
+}
+.evaluation-data span:nth-child(5) {
+  background-color: #337ab7; /* Parameter Count Score */
+}
 .chart {
   width: 100%;
   max-width: 200px;
@@ -555,4 +590,20 @@ body {
   max-width: 300px;
   margin: 0 auto;
   aspect-ratio: 1;
+}
+.reanalyze-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 20px; /* 간격 추가 */
+}
+
+.reanalyze-btn:hover {
+  background-color: #45a049; /* 호버 시 색상 변경 */
 }

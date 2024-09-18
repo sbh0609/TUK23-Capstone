@@ -4,11 +4,13 @@ import "./MyPageDetail.css";
 import { useNavigate,useLocation } from "react-router-dom";
 import axios from 'axios';
 import { Pie, Bar, Line, Doughnut } from 'react-chartjs-2';
+
 import homeIcon from '../resources/home-icon.png';
 import magnifierIcon from '../resources/magnifier-icon.png';
 import profileIcon from '../resources/profile-icon.png';
 import informationIcon from '../resources/information-icon.png';
 import cardIcon from '../resources/card-icon.png';
+
 
 const formatDate = (date) => {
   const year = date.getFullYear();
@@ -152,30 +154,14 @@ const MyPageDetail = () => {
     labels: languages.map(language => language.lang),
     datasets: [{
       data: languages.map(language => language.percentage),
-      backgroundColor: languages.map(language => {
-        switch (language.lang) {
-          case 'Java':
-            return 'red';
-          case 'Python':
-            return 'blue';
-          case 'Kotlin':
-            return 'purple';
-          case 'JavaScript':
-            return 'yellow';
-          case 'TypeScript':
-            return 'green';
-          default:
-            return 'grey';
-        }
-      }),
+      backgroundColor: ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6'], // Consistent theme colors
     }]
   };
-
   const commentDoughnutData = {
     labels: ['Comment Lines', 'Code Lines'],
     datasets: [{
       data: [commentLines, totalLines - commentLines],
-      backgroundColor: ['#36A2EB', '#FFCE56'],
+      backgroundColor: ['#3498db', '#2ecc71'], // Matching theme colors
     }]
   };
 
@@ -183,7 +169,7 @@ const MyPageDetail = () => {
     labels: ['Duplicated Lines', 'Non-Duplicated Lines'],
     datasets: [{
       data: [duplicatedLines, totalDuplicateLines - duplicatedLines],
-      backgroundColor: ['#FF6384', '#36A2EB'],
+      backgroundColor: ['#e74c3c', '#3498db'], // Matching theme colors
     }]
   };
 
@@ -277,7 +263,7 @@ const MyPageDetail = () => {
         complexityCategories.veryBad,
         complexityCategories.worst
       ],
-      backgroundColor: ['#4CAF50', '#FFC107', '#FF9800', '#F44336'],
+      backgroundColor: ['#2ecc71', '#f39c12', '#e74c3c', '#9b59b6'], // Consistent theme colors
     }]
   };
 
@@ -501,7 +487,7 @@ const MyPageDetail = () => {
           repoAnalyze.pr_data ? repoAnalyze.pr_data.total_prs - repoAnalyze.pr_data.total_user_prs : 0,
           0, 0, 0, 0
         ],
-        backgroundColor: ['#FFCE56', '#36A2EB', '#FF6384', '#4CAF50', '#36A2EB', '#FF9800'],
+        backgroundColor: ['rgba(255, 206, 86, 0.8)', 'rgba(75, 192, 192, 0.8)', '#FF6384', '#4CAF50', '#36A2EB', '#FF9800'],
         borderColor: ['#AAAAAA', '#AAAAAA', '#AAAAAA', '#AAAAAA', '#AAAAAA', '#AAAAAA']
       },
       {
@@ -512,7 +498,7 @@ const MyPageDetail = () => {
           repoAnalyze.pr_data ? repoAnalyze.pr_data.total_user_prs - repoAnalyze.pr_data.merged_user_prs : 0,
           0, 0
         ],
-        backgroundColor: ['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', '#FF6384', '#4CAF50', 'rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)'],
+        backgroundColor: ['rgba(54, 162, 235, 0.5)', 'rgba(255, 206, 86, 0.5)', '#FF6384', '#4CAF50', '#36A2EB', '#FF9800'],
         borderColor: ['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', '#AAAAAA', '#AAAAAA', 'rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)'],
       },
       {
@@ -522,7 +508,7 @@ const MyPageDetail = () => {
           repoAnalyze.pr_data ? repoAnalyze.pr_data.merged_prs : 0,
           repoAnalyze.pr_data ? repoAnalyze.pr_data.total_prs - repoAnalyze.pr_data.merged_prs : 0
         ],
-        backgroundColor: ['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', '#36A2EB', '#FF9800'],
+        backgroundColor: ['rgba(54, 162, 235, 0.5)', 'rgba(255, 206, 86, 0.5)', 'rgba(255, 99, 132, 0.5)', 'rgba(75, 192, 192, 0.5)', 'rgba(255, 159, 64, 0.5)', 'rgba(153, 102, 255, 0.5)'],
         borderColor: ['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', '#AAAAAA', '#AAAAAA'],
       }
     ]
@@ -554,7 +540,7 @@ const MyPageDetail = () => {
           repoAnalyze.issue_data ? repoAnalyze.issue_data.total_issues - repoAnalyze.issue_data.total_user_issues : 0,
           0, 0, 0, 0
         ],
-        backgroundColor: ['#FFCE56', '#36A2EB', '#FF6384', '#4CAF50', '#36A2EB', '#FF9800'],
+        backgroundColor: ['rgba(255, 206, 86, 0.8)', 'rgba(75, 192, 192, 0.8)', '#FF6384', '#4CAF50', '#36A2EB', '#FF9800'],
         borderColor: ['#AAAAAA', '#AAAAAA', '#AAAAAA', '#AAAAAA', '#AAAAAA', '#AAAAAA']
       },
       {
@@ -565,7 +551,7 @@ const MyPageDetail = () => {
           repoAnalyze.issue_data ? repoAnalyze.issue_data.total_user_issues - repoAnalyze.issue_data.closed_user_issues : 0,
           0, 0
         ],
-        backgroundColor: ['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', '#FF6384', '#4CAF50', 'rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)'],
+        backgroundColor: ['rgba(54, 162, 235, 0.5)', 'rgba(255, 206, 86, 0.5)', '#FF6384', '#4CAF50', '#36A2EB', '#FF9800'],
         borderColor: ['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', '#AAAAAA', '#AAAAAA', 'rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)'],
       },
       {
@@ -575,7 +561,7 @@ const MyPageDetail = () => {
           repoAnalyze.issue_data ? repoAnalyze.issue_data.closed_issues : 0,
           repoAnalyze.issue_data ? repoAnalyze.issue_data.total_issues - repoAnalyze.issue_data.closed_issues : 0
         ],
-        backgroundColor: ['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', '#36A2EB', '#FF9800'],
+        backgroundColor: ['rgba(54, 162, 235, 0.5)', 'rgba(255, 206, 86, 0.5)', 'rgba(255, 99, 132, 0.5)', 'rgba(75, 192, 192, 0.5)', 'rgba(255, 159, 64, 0.5)', 'rgba(153, 102, 255, 0.5)'],
         borderColor: ['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', '#AAAAAA', '#AAAAAA'],
       }
     ]
@@ -608,7 +594,7 @@ const MyPageDetail = () => {
           repoAnalyze.total_quality ? repoAnalyze.total_quality[2] : 0,
           repoAnalyze.total_quality ? repoAnalyze.total_quality[3] : 0,
         ],
-        backgroundColor: ['#FFCE56', '#36A2EB', '#FF6384', '#4CAF50'],
+        backgroundColor: ['rgba(255, 206, 86, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)'],
         borderColor: ['#AAAAAA', '#AAAAAA', '#AAAAAA', '#AAAAAA'],
       },
       {
@@ -619,7 +605,7 @@ const MyPageDetail = () => {
           repoAnalyze.user_quality ? repoAnalyze.user_quality[2] : 0,
           repoAnalyze.user_quality ? repoAnalyze.user_quality[3] : 0,
         ],
-        backgroundColor: ['#FFCE56', '#36A2EB', '#FF6384', '#4CAF50'],
+        backgroundColor: ['rgba(255, 206, 86, 0.7)', 'rgba(54, 162, 235, 0.7)', 'rgba(255, 99, 132, 0.7)', 'rgba(75, 192, 192, 0.7)'],
         borderColor: ['#AAAAAA', '#AAAAAA', '#AAAAAA', '#AAAAAA'],
       },
     ]
@@ -650,7 +636,7 @@ const MyPageDetail = () => {
           repoAnalyze.total_grammar ? repoAnalyze.total_grammar : 0,
           repoAnalyze.total_grammar ? 100 - repoAnalyze.total_grammar : 0
         ],
-        backgroundColor: ['#36A2EB', '#FFCE56'],
+        backgroundColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
         borderColor: ['#AAAAAA', '#AAAAAA'],
       },
       {
@@ -659,7 +645,7 @@ const MyPageDetail = () => {
           repoAnalyze.user_grammar ? repoAnalyze.user_grammar : 0,
           repoAnalyze.user_grammar ? 100 - repoAnalyze.user_grammar : 0
         ],
-        backgroundColor: ['#FFA07A', '#87CEFA'],
+        backgroundColor: ['rgba(75, 192, 192, 0.7)', 'rgba(255, 99, 132, 0.7)'],
         borderColor: ['#AAAAAA', '#AAAAAA'],
       },
     ]
@@ -702,12 +688,12 @@ const MyPageDetail = () => {
           <button className="top-bar-button top-information-button">
             <img src={informationIcon} alt="홈 아이콘" className= "top-bar-icon top-information-button-icon"/>
           </button>
+          
         </div>
       </div>
       <div className="container">
         <h3 className="result-ment">저장소 평가 결과</h3>
-        <button onClick={handleReanalyze} style={{ marginLeft: '20px' }}>재분석하기</button>
-        <div className="repo-details">
+        <button className="reanalyze-btn" onClick={handleReanalyze}>재분석하기</button>             <div className="repo-details">
           <div className="repo-info">
             <h5>Repository: {repo_name}</h5>
             <p>Username: {username}</p>

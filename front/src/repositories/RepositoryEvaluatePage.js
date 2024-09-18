@@ -679,6 +679,7 @@ const RepositoryEvaluatePage = () => {
         );
     };
 
+ 
     const generateTeamProjectMessage = () => {
         const commitMessageQualityScores = evaluate.commit_message_quality_scores || {};
         const commitMessageGrammarScores = evaluate.commit_message_grammar_scores || {};
@@ -693,7 +694,7 @@ const RepositoryEvaluatePage = () => {
             <div className="team-message">
                 <div className="repo-info-container">
                     <div className="repo-info">
-                        <h2>저장소: {repo_name}</h2>
+                        <h3>저장소: {repo_name}</h3>
                         <h3>사용자: {username}님</h3>
                     </div>
                     <button className="detail-button" onClick={handleDetailClick}>세부 정보 보기</button>
@@ -756,29 +757,6 @@ const RepositoryEvaluatePage = () => {
         const commitData = repoAnalyze.commit_per || [0, 0, 0];
 
         return (
-            <div>
-                <div className="top-bar">
-                    <button onClick={handleHomeButton} className="top-bar-button home-button">
-                        <img src={homeIcon} alt="홈 아이콘" className="top-bar-icon home-button-icon"/>
-                    </button>
-                    <button onClick={handleSearchButton} className="top-bar-button search-button">
-                        <img src={magnifierIcon} alt="검색 아이콘" className="top-bar-icon search-button-icon"/>
-                    </button>
-                    <button onClick={handleCardButton} className="top-bar-button card-button">
-                        <img src={cardIcon} alt="카드 아이콘" className="top-bar-icon card-button-icon"/>
-                    </button>
-                    <button onClick={handleProfileButton} className="top-bar-button profile-button2">
-                        <img src={profileIcon} alt="프로필 아이콘" className="top-bar-icon profile-button-icon2"/>
-                    </button>
-
-                    <div className="top-bar-right">
-                    <button onClick={handleLogOutButton} className="top-bar-button top-logout-button">로그아웃</button>
-
-                    <button className="top-bar-button top-information-button">
-                        <img src={informationIcon} alt="홈 아이콘" className= "top-bar-icon top-information-button-icon"/>
-                    </button>
-                    </div>
-                </div>
                 <div className="personal-message">
                     <div className="repo-info-container">
                         <div className="repo-info">
@@ -824,13 +802,36 @@ const RepositoryEvaluatePage = () => {
                         </div>
                     </section>
                 </div>
-            </div>
         );
     };
     return (
+        <><div>
+            <div className="top-bar">
+                <button onClick={handleHomeButton} className="top-bar-button home-button">
+                    <img src={homeIcon} alt="홈 아이콘" className="top-bar-icon home-button-icon" />
+                </button>
+                <button onClick={handleSearchButton} className="top-bar-button search-button">
+                    <img src={magnifierIcon} alt="검색 아이콘" className="top-bar-icon search-button-icon" />
+                </button>
+                <button onClick={handleCardButton} className="top-bar-button card-button">
+                    <img src={cardIcon} alt="카드 아이콘" className="top-bar-icon card-button-icon" />
+                </button>
+                <button onClick={handleProfileButton} className="top-bar-button profile-button2">
+                    <img src={profileIcon} alt="프로필 아이콘" className="top-bar-icon profile-button-icon2" />
+                </button>
+
+                <div className="top-bar-right">
+                    <button onClick={handleLogOutButton} className="top-bar-button top-logout-button">로그아웃</button>
+
+                    <button className="top-bar-button top-information-button">
+                        <img src={informationIcon} alt="홈 아이콘" className="top-bar-icon top-information-button-icon" />
+                    </button>
+                </div>
+            </div>
+        </div>
         <div className="evaluation-page">
             {repo_type === "team" ? generateTeamProjectMessage() : generatePersonalProjectMessage()}
-        </div>
+        </div></>
     );
 };
 
