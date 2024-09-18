@@ -1,47 +1,41 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useRepository } from "../Context/RepositoryContext";
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { Fragment, useState, useEffect } from "react";
+import 'chart.js/auto';
+import "./MyPageDetail.css";
+import { useNavigate,useLocation } from "react-router-dom";
 
-const RepositoryEvaluatePage = () => {
-    const session_userID = sessionStorage.getItem("userID");
-    const { repositoryDetail } = useRepository();
-    const { repo_name, fileList, username, repo_type, click_time } = repositoryDetail;
-    const navigate = useNavigate();
+const MyPageEvaluate = () =>{
     const location = useLocation();
+    const { repo_analyzed_data, repo_evaluate_data, repo_name, repo_type } = location.state || {}; 
+    console.log("Location State:", location.state); // useEffect 밖에서 로그 출력
+
+    const session_userID = sessionStorage.getItem("userID");
+    const [username, setUsername] = useState('');
+    const navigate = useNavigate();
+    
+    
 
     const { repoAnalyze: reanalyzedRepoAnalyze, evaluate: reanalyzedEvaluate } = location.state || {};
-
-    const [repoAnalyze, setRepoAnalyze] = useState(reanalyzedRepoAnalyze || null);
-    const [evaluate, setEvaluate] = useState(reanalyzedEvaluate || null);
+    const [repoAnalyze, setRepoAnalyze] = useState(reanalyzedRepoAnalyze||null);
+    const [evaluate, setEvaluate] = useState(reanalyzedEvaluate||null);
+    
 
     useEffect(() => {
-        if (!repoAnalyze || !evaluate) {
-            axios.post('http://localhost:5000/api/analyze', { 
-                repo_name, 
-                username, 
-                fileList, 
-                repo_type, 
-                click_time, 
-                session_userID 
-            })
-            .then(response => {
-                setRepoAnalyze(response.data.repo_analyze);
-                setEvaluate(response.data.evaluate);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                window.alert('Error: ' + error);
-            });
+        if (repo_analyzed_data && repo_evaluate_data) {
+          console.log("(detail) repoAnalyze: ", repo_analyzed_data);
+          console.log("(detail) evaluate: ", repo_evaluate_data);
+          
+          setRepoAnalyze(repo_analyzed_data);
+          setEvaluate(repo_evaluate_data);
+          setUsername(repo_analyzed_data.repo_contributor_name);
+          sessionStorage.setItem("username", repo_analyzed_data.repo_contributor_name); // 세션에 저장
         }
-    }, [repoAnalyze, evaluate, repo_name, username, fileList, repo_type, click_time, session_userID]);
-
-    if (!repoAnalyze || !evaluate) {
+      }, [repo_analyzed_data, repo_evaluate_data]);
+      if (!repoAnalyze || !evaluate) {
         return <div>Loading...</div>;
     }
 
     const handleDetailClick = () => {
-        navigate("/detail", {
+        navigate("/myDetail", {
             state: { 
               repoAnalyze, 
               evaluate, 
@@ -621,6 +615,9 @@ const RepositoryEvaluatePage = () => {
             <button onClick={handleDetailClick}>자세한 분석 보러가기</button>
         </div>
     );
-};
-
-export default RepositoryEvaluatePage;
+    // const [programLang, setProgramLang] = useState(repo_analyzed_data ? repo_analyzed_data.language : '');
+    // const [open, setOpen] = useState(false);
+    // const [selectedCard, setSelectedCard] = useState(null);
+    // const [modalData, setModalData] = useState(null);
+}
+export default MyPageEvaluate;

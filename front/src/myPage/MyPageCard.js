@@ -28,7 +28,7 @@ const MyPageCard = ({ repo_name, repo_type, repo_analyzed_data, repo_evaluate_da
     const onClickCard = () => {
       const click_time = formatDate(new Date());  // 현재 시간을 ISO 포맷으로 가져옵니다.
       console.log(repo_evaluate_data);
-      navigate("/myDetail", {
+      navigate("/myEvaluate", {
         state: {
           repo_analyzed_data: repo_analyzed_data,
           repo_evaluate_data: repo_evaluate_data,
